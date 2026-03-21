@@ -1,0 +1,47 @@
+{
+  "device": "cuda",
+  "model_parameters": 170046339,
+  "dataset": {
+    "species": [
+      {
+        "species": "HoSa",
+        "total_size": 189752667,
+        "train_bytes": 8388608,
+        "val_bytes": 1048576,
+        "test_bytes": 131072
+      }
+    ],
+    "alphabet_bytes": [
+      65,
+      67,
+      71,
+      84
+    ]
+  },
+  "best_val_bits_per_byte": 1.9130838487337094,
+  "validation": {
+    "loss_nats": 1.3260486759245396,
+    "bits_per_byte": 1.9130838487337094,
+    "tokens": 1048576,
+    "elapsed_seconds": 7.6604180335998535
+  },
+  "test": {
+    "loss_nats": 1.3348399698734283,
+    "bits_per_byte": 1.9257670049167686,
+    "tokens": 131072,
+    "elapsed_seconds": 0.7539594173431396
+  },
+  "compression": {
+    "sample_bytes": 16384,
+    "sample_symbols_with_eos": 16385,
+    "theoretical_bits": 32010.060900507586,
+    "theoretical_bits_per_byte": 1.9537390686344962,
+    "arithmetic_coded_bytes": 4024,
+    "arithmetic_bits_per_byte": 1.96484375,
+    "ascii_bytes": 16384,
+    "two_bit_pack_bytes": 4096,
+    "gzip_bytes": 4962,
+    "bz2_bytes": 4501,
+    "lzma_bytes": 4712
+  }
+}

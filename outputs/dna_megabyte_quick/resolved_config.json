@@ -1,0 +1,49 @@
+{
+  "model": {
+    "implementation": "megabyte",
+    "vocab_size": 259,
+    "patch_size": 4,
+    "global_dim": 512,
+    "local_dim": 128,
+    "seq_length": 1024,
+    "global_heads": 32,
+    "global_layers": 4,
+    "local_heads": 2,
+    "local_layers": 2,
+    "initializer_range": 0.02,
+    "pad_id": 257,
+    "eos_id": 258
+  },
+  "data": {
+    "dataset_dir": "datasets/DNACorpus",
+    "species": [
+      "HoSa"
+    ],
+    "train_ratio": 0.9,
+    "val_ratio": 0.05,
+    "test_ratio": 0.05,
+    "max_train_bytes_per_species": 8388608,
+    "max_val_bytes_per_species": 1048576,
+    "max_test_bytes_per_species": 131072,
+    "train_samples_per_epoch": 1024,
+    "compression_sample_bytes": 16384
+  },
+  "train": {
+    "seed": 42,
+    "device": "auto",
+    "dtype": "float16",
+    "epochs": 10,
+    "batch_size": 16,
+    "eval_batch_size": 32,
+    "learning_rate": 0.0003,
+    "weight_decay": 0.01,
+    "grad_clip_norm": 1.0,
+    "num_workers": 0,
+    "log_interval": 25,
+    "eval_interval": 100
+  },
+  "output": {
+    "run_name": "dna_megabyte_quick",
+    "output_dir": "outputs/dna_megabyte_quick"
+  }
+}

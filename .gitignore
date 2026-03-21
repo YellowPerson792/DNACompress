@@ -1,0 +1,6 @@
+# Local editor settings
+.vscode/
+
+# Local datasets
+datasets/
+**/*.pt
