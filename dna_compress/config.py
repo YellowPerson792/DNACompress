@@ -18,6 +18,8 @@ class ModelConfig:
     global_layers: int = 4
     local_heads: int = 4
     local_layers: int = 2
+    attn_dropout: float = 0.0
+    ff_dropout: float = 0.0
     initializer_range: float = 0.02
     pad_id: int = 257
     eos_id: int = 258
@@ -55,8 +57,12 @@ class TrainConfig:
     lr_min_ratio: float = 0.0
     grad_clip_norm: float = 1.0
     num_workers: int = 0
+    prefetch_factor: int = 2
+    persistent_workers: bool = True
+    pin_memory: bool = True
     log_interval: int = 25
     eval_interval: int = 100
+    gpu_ids: list[int] | None = None
 
 
 @dataclass

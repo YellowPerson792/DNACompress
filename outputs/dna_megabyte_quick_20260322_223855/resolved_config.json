@@ -1,7 +1,7 @@
 {
   "model": {
     "implementation": "megabyte_in_action",
-    "vocab_size": 627,
+    "vocab_size": 127,
     "patch_size": 4,
     "global_dim": 128,
     "local_dim": 128,
@@ -10,31 +10,34 @@
     "global_layers": 4,
     "local_heads": 2,
     "local_layers": 2,
+    "attn_dropout": 0.0,
+    "ff_dropout": 0.0,
     "initializer_range": 0.02,
-    "pad_id": 625,
-    "eos_id": 626
+    "pad_id": 125,
+    "eos_id": 126
   },
   "data": {
     "dataset_dir": "datasets/DNACorpus",
     "species": [
-      "OrSa",
-      "HoSa",
-      "DaRe",
-      "ScPo",
-      "EsCo",
-      "YeMi",
-      "BuEb",
-      "AgPh"
+      "GaGa",
+      "DrMe",
+      "EnIn",
+      "PlFa",
+      "HePy",
+      "AeCa",
+      "HaHi",
+      "AnCa",
+      "WaMe"
     ],
-    "train_ratio": 0.9,
-    "val_ratio": 0.05,
-    "test_ratio": 0.05,
+    "train_ratio": 0.6,
+    "val_ratio": 0.2,
+    "test_ratio": 0.2,
     "max_train_bytes_per_species": null,
     "max_val_bytes_per_species": null,
     "max_test_bytes_per_species": null,
-    "train_samples_per_epoch": 200000,
-    "train_sampling_strategy": "uniform",
-    "token_merge_size": 4,
+    "train_samples_per_epoch": 1000,
+    "train_sampling_strategy": "proportional",
+    "token_merge_size": 3,
     "token_merge_alphabet": "ACGTN",
     "compression_sample_bytes": 100000
   },
@@ -51,12 +54,21 @@
     "lr_warmup_steps": 0,
     "lr_min_ratio": 0.2,
     "grad_clip_norm": 1.0,
-    "num_workers": 0,
+    "num_workers": 8,
+    "prefetch_factor": 4,
+    "persistent_workers": true,
+    "pin_memory": true,
     "log_interval": 25,
-    "eval_interval": 5000
+    "eval_interval": 500,
+    "gpu_ids": [
+      0,
+      1,
+      2,
+      3
+    ]
   },
   "output": {
     "run_name": "dna_megabyte_quick",
-    "output_dir": "outputs/dna_megabyte"
+    "output_dir": "outputs/dna_megabyte_quick_20260322_223855"
   }
 }

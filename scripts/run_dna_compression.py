@@ -33,12 +33,13 @@ Modes:
 Complete examples:
 
     python scripts/run_dna_compression.py \
-      --run-dir outputs\\dna_megabyte_quick_l1024_p3 \
+      --run-dir outputs/dna_megabyte_quick_20260322_221429 \
       --checkpoint-tag best \
       --split train val test \
       --compression-modes train_windows_nonoverlap \
       --compression-sample-bytes 100000 \
-      --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh
+      --species GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe \
+      --device cuda:1
 
     python scripts/run_dna_compression.py \
       --run-dir outputs\\dna_megabyte_quick_l1024_p3 \

@@ -81,44 +81,82 @@ class ArithmeticEncoder:
 
 
 def probabilities_to_cumulative(probabilities: np.ndarray, total: int = 1 << 15) -> np.ndarray:
+    return probabilities_to_cumulative_batch(probabilities, total=total)
+
+
+def probabilities_to_cumulative_batch(probabilities: np.ndarray, total: int = 1 << 15) -> np.ndarray:
     probs = np.asarray(probabilities, dtype=np.float64)
-    probs = probs / probs.sum()
-    n = probs.shape[0]
+    is_single = probs.ndim == 1
+    if is_single:
+        probs = probs[None, :]
+
+    if probs.ndim != 2:
+        raise ValueError("probabilities must be a 1D or 2D array")
+
+    n = probs.shape[1]
     if total <= n:
         raise ValueError("frequency total must exceed vocabulary size")
 
+    row_sums = probs.sum(axis=1, keepdims=True)
+    row_sums = np.maximum(row_sums, 1e-300)
+    probs = probs / row_sums
+
     scaled = probs * (total - n)
-    freq = np.floor(scaled).astype(np.int64) + 1
-    remainder = total - int(freq.sum())
-    fractional = scaled - np.floor(scaled)
+    floor_scaled = np.floor(scaled)
+    freq = floor_scaled.astype(np.int64) + 1
+    remainder = total - freq.sum(axis=1)
+    fractional = scaled - floor_scaled
 
-    if remainder > 0:
-        order = np.argsort(-fractional)
-        freq[order[:remainder]] += 1
-    elif remainder < 0:
-        order = np.argsort(-(freq - 1))
-        debt = -remainder
-        for index in order:
-            removable = int(freq[index] - 1)
-            if removable <= 0:
-                continue
-            take = min(removable, debt)
-            freq[index] -= take
-            debt -= take
-            if debt == 0:
-                break
-        if debt != 0:
-            raise ValueError("failed to normalize arithmetic coding frequencies")
+    for row_index, row_remainder in enumerate(remainder.tolist()):
+        if row_remainder > 0:
+            order = np.argsort(-fractional[row_index])
+            freq[row_index, order[:row_remainder]] += 1
+            continue
 
-    cumulative = np.zeros(freq.shape[0] + 1, dtype=np.int64)
-    cumulative[1:] = np.cumsum(freq, dtype=np.int64)
+        if row_remainder < 0:
+            order = np.argsort(-(freq[row_index] - 1))
+            debt = -row_remainder
+            for index in order:
+                removable = int(freq[row_index, index] - 1)
+                if removable <= 0:
+                    continue
+                take = min(removable, debt)
+                freq[row_index, index] -= take
+                debt -= take
+                if debt == 0:
+                    break
+            if debt != 0:
+                raise ValueError("failed to normalize arithmetic coding frequencies")
+
+    cumulative = np.zeros((freq.shape[0], freq.shape[1] + 1), dtype=np.int64)
+    cumulative[:, 1:] = np.cumsum(freq, axis=1, dtype=np.int64)
+    if is_single:
+        return cumulative[0]
     return cumulative
 
 
-def arithmetic_encode(symbols: Iterable[int], probability_rows: Iterable[np.ndarray]) -> bytes:
+def arithmetic_encode(symbols: Iterable[int], probability_rows: Iterable[np.ndarray], batch_size: int = 512) -> bytes:
     encoder = ArithmeticEncoder()
+
+    symbol_chunk: list[int] = []
+    probs_chunk: list[np.ndarray] = []
+
+    def flush_chunk() -> None:
+        if not probs_chunk:
+            return
+        cumulative_batch = probabilities_to_cumulative_batch(np.stack(probs_chunk, axis=0))
+        for symbol_value, cumulative in zip(symbol_chunk, cumulative_batch):
+            encoder.update(cumulative, int(symbol_value))
+        symbol_chunk.clear()
+        probs_chunk.clear()
+
     for symbol, probs in zip(symbols, probability_rows):
-        encoder.update(probabilities_to_cumulative(probs), symbol)
+        symbol_chunk.append(int(symbol))
+        probs_chunk.append(np.asarray(probs, dtype=np.float64))
+        if len(probs_chunk) >= batch_size:
+            flush_chunk()
+
+    flush_chunk()
     return encoder.finish()
 
 

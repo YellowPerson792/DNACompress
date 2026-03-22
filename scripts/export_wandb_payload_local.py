@@ -13,7 +13,7 @@ Outputs:
 
 Example:
     python scripts/export_wandb_payload_local.py \
-      --run-dir outputs\\dna_megabyte_quick_l1024_p3
+      --run-dir outputs/dna_megabyte_quick_20260322_221429
 """
 
 import argparse

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 from pathlib import Path
 import random
 import time
@@ -9,12 +10,15 @@ from typing import Callable
 
 import numpy as np
 import torch
+import torch.distributed as dist
+from torch.nn.parallel import DistributedDataParallel
 from torch.nn.utils import clip_grad_norm_
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import LambdaLR
 from torch.utils.data import DataLoader
+from torch.utils.data.distributed import DistributedSampler
 
-from .compression import arithmetic_encode, baseline_sizes
+from .compression import ArithmeticEncoder, baseline_sizes, probabilities_to_cumulative_batch
 from .config import ExperimentConfig, save_experiment_config
 from .data import (
     RandomWindowDataset,
@@ -37,6 +41,110 @@ def resolve_device(device_name: str) -> torch.device:
     if device_name == "auto":
         return torch.device("cuda" if torch.cuda.is_available() else "cpu")
     return torch.device(device_name)
+
+
+class DistributedContext:
+    def __init__(self, rank: int, local_rank: int, world_size: int, is_distributed: bool) -> None:
+        self.rank = rank
+        self.local_rank = local_rank
+        self.world_size = world_size
+        self.is_distributed = is_distributed
+
+    @property
+    def is_main_process(self) -> bool:
+        return self.rank == 0
+
+
+def resolve_device_and_gpu_ids(device_name: str, gpu_ids: list[int] | None) -> tuple[torch.device, list[int]]:
+    requested_device = resolve_device(device_name)
+    available_gpu_count = torch.cuda.device_count() if torch.cuda.is_available() else 0
+
+    if requested_device.type != "cuda":
+        if gpu_ids:
+            raise ValueError("train.gpu_ids is set but train.device is not CUDA. Use train.device=cuda/auto.")
+        return requested_device, []
+
+    if available_gpu_count == 0:
+        if gpu_ids:
+            raise ValueError("train.gpu_ids was provided but CUDA is not available.")
+        return torch.device("cpu"), []
+
+    if gpu_ids is not None:
+        resolved_gpu_ids = gpu_ids
+    elif device_name == "auto":
+        resolved_gpu_ids = list(range(available_gpu_count))
+    elif requested_device.index is not None:
+        resolved_gpu_ids = [int(requested_device.index)]
+    else:
+        resolved_gpu_ids = list(range(available_gpu_count))
+
+    if not resolved_gpu_ids:
+        return torch.device("cpu"), []
+
+    for gpu_id in resolved_gpu_ids:
+        if gpu_id < 0 or gpu_id >= available_gpu_count:
+            raise ValueError(
+                f"Requested GPU id {gpu_id} is out of range for this machine (0..{available_gpu_count - 1})."
+            )
+
+    primary_gpu = resolved_gpu_ids[0]
+    return torch.device(f"cuda:{primary_gpu}"), resolved_gpu_ids
+
+
+def setup_distributed_context(device_name: str, gpu_ids: list[int] | None) -> tuple[DistributedContext, torch.device, list[int]]:
+    rank = int(os.environ.get("RANK", "0"))
+    local_rank = int(os.environ.get("LOCAL_RANK", "0"))
+    world_size = int(os.environ.get("WORLD_SIZE", "1"))
+    is_distributed = world_size > 1
+
+    if not is_distributed:
+        device, resolved_gpu_ids = resolve_device_and_gpu_ids(device_name, gpu_ids)
+        return DistributedContext(rank=0, local_rank=0, world_size=1, is_distributed=False), device, resolved_gpu_ids
+
+    requested_device = resolve_device(device_name)
+    if requested_device.type != "cuda":
+        raise ValueError("DDP requires CUDA devices. Set train.device to auto/cuda/cuda:<id>.")
+
+    if gpu_ids is not None:
+        if len(gpu_ids) != world_size:
+            raise ValueError(
+                f"In DDP mode, number of GPU ids ({len(gpu_ids)}) must match WORLD_SIZE ({world_size})."
+            )
+        if local_rank < 0 or local_rank >= len(gpu_ids):
+            raise ValueError(f"LOCAL_RANK={local_rank} is out of range for gpu_ids={gpu_ids}.")
+        resolved_gpu_ids = gpu_ids
+        local_gpu_id = gpu_ids[local_rank]
+    else:
+        if not torch.cuda.is_available():
+            raise ValueError("DDP was requested but CUDA is not available.")
+        if local_rank < 0 or local_rank >= torch.cuda.device_count():
+            raise ValueError(
+                f"LOCAL_RANK={local_rank} is out of range for available CUDA devices ({torch.cuda.device_count()})."
+            )
+        local_gpu_id = local_rank
+        resolved_gpu_ids = list(range(world_size))
+
+    device = torch.device(f"cuda:{local_gpu_id}")
+    torch.cuda.set_device(device)
+    if not dist.is_initialized():
+        dist.init_process_group(backend="nccl")
+
+    return (
+        DistributedContext(rank=rank, local_rank=local_rank, world_size=world_size, is_distributed=True),
+        device,
+        resolved_gpu_ids,
+    )
+
+
+def cleanup_distributed() -> None:
+    if dist.is_available() and dist.is_initialized():
+        dist.destroy_process_group()
+
+
+def unwrap_model(model: torch.nn.Module) -> torch.nn.Module:
+    if isinstance(model, (torch.nn.DataParallel, DistributedDataParallel)):
+        return model.module
+    return model
 
 
 def autocast_context(device: torch.device, dtype_name: str):
@@ -72,6 +180,7 @@ def evaluate_loss(
     dtype_name: str,
     pad_id: int,
     token_merge_size: int,
+    is_distributed: bool,
 ) -> dict[str, float]:
     model.eval()
     total_nats = 0.0
@@ -86,6 +195,12 @@ def evaluate_loss(
                 output = model(ids, return_loss=True)
             total_nats += float(output.loss.item()) * valid_tokens
             total_tokens += valid_tokens
+
+    if is_distributed:
+        reduced = torch.tensor([total_nats, float(total_tokens)], dtype=torch.float64, device=device)
+        dist.all_reduce(reduced, op=dist.ReduceOp.SUM)
+        total_nats = float(reduced[0].item())
+        total_tokens = int(reduced[1].item())
 
     total_bases = total_tokens * token_merge_size
     average_nats_per_token = total_nats / max(total_tokens, 1)
@@ -118,13 +233,14 @@ def evaluate_compression(
 ) -> dict[str, float | int]:
     token_symbols = tokenize_source_bytes(payload, token_merge_size, token_merge_alphabet)
     symbols = token_symbols + [eos_id]
-    windows = torch.full((len(symbols), seq_length), pad_id, dtype=torch.long)
-    for index in range(len(symbols)):
-        start = max(0, index - seq_length + 1)
-        history = symbols[start : index + 1]
-        windows[index, -len(history) :] = torch.tensor(history, dtype=torch.long)
 
-    probability_rows: list[np.ndarray] = []
+    # Build all causal windows with a single vectorized unfold instead of Python loops.
+    symbols_tensor = torch.tensor(symbols, dtype=torch.long)
+    padded = torch.full((len(symbols) + seq_length - 1,), pad_id, dtype=torch.long)
+    padded[-len(symbols) :] = symbols_tensor
+    windows = padded.unfold(0, seq_length, 1)
+
+    encoder = ArithmeticEncoder()
     total_bits = 0.0
 
     model.eval()
@@ -135,16 +251,23 @@ def evaluate_compression(
             batch = windows[start : start + batch_size].to(device, non_blocking=True)
             with autocast_context(device, dtype_name):
                 output = model(batch, return_loss=False)
-                log_probs = torch.log_softmax(output.lm_logits[:, -1, :], dim=-1).float().cpu()
-            targets = symbols[start : start + log_probs.shape[0]]
-            for row, target in zip(log_probs, targets):
-                total_bits += float(-row[target].item() / math.log(2))
-                probability_rows.append(row.exp().numpy())
+                log_probs = torch.log_softmax(output.lm_logits[:, -1, :], dim=-1).float()
+
+            target_tensor = symbols_tensor[start : start + log_probs.shape[0]].to(device, non_blocking=True)
+            picked_log_probs = log_probs.gather(1, target_tensor.unsqueeze(1)).squeeze(1)
+            total_bits += float((-picked_log_probs / math.log(2)).sum().item())
+
+            probs_np = log_probs.exp().cpu().numpy()
+            targets_np = target_tensor.cpu().numpy()
+            cumulative_batch = probabilities_to_cumulative_batch(probs_np)
+            for cumulative, target in zip(cumulative_batch, targets_np):
+                encoder.update(cumulative, int(target))
+
             processed_batches += 1
             if progress_callback is not None:
                 progress_callback(processed_batches, total_batches)
 
-    compressed = arithmetic_encode(symbols, probability_rows)
+    compressed = encoder.finish()
     baselines = baseline_sizes(payload)
     tokenized_bases = len(token_symbols) * token_merge_size
     bytes_count = len(payload)
@@ -277,137 +400,228 @@ def build_lr_scheduler(
 
 def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, object]:
     seed_everything(config.train.seed)
-    device = resolve_device(config.train.device)
-    apply_token_merge_to_model_config(config.model, config.data)
-    output_dir = Path(config.output.output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
-    save_experiment_config(config, output_dir / "resolved_config.json")
+    ddp, device, gpu_ids = setup_distributed_context(config.train.device, config.train.gpu_ids)
+    try:
+        apply_token_merge_to_model_config(config.model, config.data)
+        output_dir = Path(config.output.output_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
+        if ddp.is_main_process:
+            save_experiment_config(config, output_dir / "resolved_config.json")
 
-    splits = load_splits(config.data)
-    train_dataset = RandomWindowDataset(
-        sources=splits.train_sources,
-        seq_length=config.model.seq_length,
-        samples_per_epoch=config.data.train_samples_per_epoch,
-        seed=config.train.seed,
-        sampling_strategy=config.data.train_sampling_strategy,
-        token_merge_size=config.data.token_merge_size,
-        token_merge_alphabet=config.data.token_merge_alphabet,
-    )
-    val_dataset = SequentialWindowDataset(
-        sources=splits.val_sources,
-        seq_length=config.model.seq_length,
-        pad_id=config.model.pad_id,
-        token_merge_size=config.data.token_merge_size,
-        token_merge_alphabet=config.data.token_merge_alphabet,
-    )
-    test_dataset = SequentialWindowDataset(
-        sources=splits.test_sources,
-        seq_length=config.model.seq_length,
-        pad_id=config.model.pad_id,
-        token_merge_size=config.data.token_merge_size,
-        token_merge_alphabet=config.data.token_merge_alphabet,
-    )
-    train_loader = DataLoader(
-        train_dataset,
-        batch_size=config.train.batch_size,
-        shuffle=False,
-        num_workers=config.train.num_workers,
-        pin_memory=device.type == "cuda",
-    )
-    val_loader = DataLoader(
-        val_dataset,
-        batch_size=config.train.eval_batch_size,
-        shuffle=False,
-        num_workers=config.train.num_workers,
-        pin_memory=device.type == "cuda",
-    )
-    test_loader = DataLoader(
-        test_dataset,
-        batch_size=config.train.eval_batch_size,
-        shuffle=False,
-        num_workers=config.train.num_workers,
-        pin_memory=device.type == "cuda",
-    )
+        splits = load_splits(config.data)
+        train_dataset = RandomWindowDataset(
+            sources=splits.train_sources,
+            seq_length=config.model.seq_length,
+            samples_per_epoch=config.data.train_samples_per_epoch,
+            seed=config.train.seed,
+            sampling_strategy=config.data.train_sampling_strategy,
+            token_merge_size=config.data.token_merge_size,
+            token_merge_alphabet=config.data.token_merge_alphabet,
+        )
+        val_dataset = SequentialWindowDataset(
+            sources=splits.val_sources,
+            seq_length=config.model.seq_length,
+            pad_id=config.model.pad_id,
+            token_merge_size=config.data.token_merge_size,
+            token_merge_alphabet=config.data.token_merge_alphabet,
+        )
+        test_dataset = SequentialWindowDataset(
+            sources=splits.test_sources,
+            seq_length=config.model.seq_length,
+            pad_id=config.model.pad_id,
+            token_merge_size=config.data.token_merge_size,
+            token_merge_alphabet=config.data.token_merge_alphabet,
+        )
+        train_sampler = (
+            DistributedSampler(train_dataset, num_replicas=ddp.world_size, rank=ddp.rank, shuffle=True)
+            if ddp.is_distributed
+            else None
+        )
+        val_sampler = (
+            DistributedSampler(val_dataset, num_replicas=ddp.world_size, rank=ddp.rank, shuffle=False)
+            if ddp.is_distributed
+            else None
+        )
+        test_sampler = (
+            DistributedSampler(test_dataset, num_replicas=ddp.world_size, rank=ddp.rank, shuffle=False)
+            if ddp.is_distributed
+            else None
+        )
 
-    model = build_model(config.model).to(device)
-    optimizer = AdamW(
-        model.parameters(),
-        lr=config.train.learning_rate,
-        weight_decay=config.train.weight_decay,
-    )
-    total_train_steps = config.train.epochs * len(train_loader)
-    scheduler = build_lr_scheduler(
-        optimizer=optimizer,
-        scheduler_type=config.train.lr_scheduler,
-        warmup_steps=config.train.lr_warmup_steps,
-        total_steps=total_train_steps,
-        min_ratio=config.train.lr_min_ratio,
-    )
-    scaler = torch.cuda.amp.GradScaler(enabled=device.type == "cuda" and config.train.dtype == "float16")
+        dataloader_pin_memory = bool(config.train.pin_memory and device.type == "cuda")
+        dataloader_persistent_workers = bool(config.train.persistent_workers and config.train.num_workers > 0)
+        dataloader_common_kwargs: dict[str, object] = {
+            "num_workers": config.train.num_workers,
+            "pin_memory": dataloader_pin_memory,
+            "persistent_workers": dataloader_persistent_workers,
+        }
+        if config.train.num_workers > 0:
+            dataloader_common_kwargs["prefetch_factor"] = config.train.prefetch_factor
 
-    run_summary: dict[str, object] = {
-        "device": str(device),
-        "model_parameters": int(sum(parameter.numel() for parameter in model.parameters())),
-        "dataset": splits.summary,
-    }
+        train_loader = DataLoader(
+            train_dataset,
+            batch_size=config.train.batch_size,
+            shuffle=train_sampler is None,
+            sampler=train_sampler,
+            **dataloader_common_kwargs,
+        )
+        val_loader = DataLoader(
+            val_dataset,
+            batch_size=config.train.eval_batch_size,
+            shuffle=False,
+            sampler=val_sampler,
+            **dataloader_common_kwargs,
+        )
+        test_loader = DataLoader(
+            test_dataset,
+            batch_size=config.train.eval_batch_size,
+            shuffle=False,
+            sampler=test_sampler,
+            **dataloader_common_kwargs,
+        )
 
-    best_val_bpb = float("inf")
-    global_step = 0
+        base_model = build_model(config.model).to(device)
+        model: torch.nn.Module = base_model
+        if ddp.is_distributed:
+            model = DistributedDataParallel(base_model, device_ids=[device.index], output_device=device.index)
+        optimizer = AdamW(
+            model.parameters(),
+            lr=config.train.learning_rate,
+            weight_decay=config.train.weight_decay,
+        )
+        total_train_steps = config.train.epochs * len(train_loader)
+        scheduler = build_lr_scheduler(
+            optimizer=optimizer,
+            scheduler_type=config.train.lr_scheduler,
+            warmup_steps=config.train.lr_warmup_steps,
+            total_steps=total_train_steps,
+            min_ratio=config.train.lr_min_ratio,
+        )
+        scaler = torch.cuda.amp.GradScaler(enabled=device.type == "cuda" and config.train.dtype == "float16")
 
-    if mode in {"train", "all"}:
-        model.train()
-        optimizer.zero_grad(set_to_none=True)
-        started = time.time()
-        for epoch in range(config.train.epochs):
-            for batch in train_loader:
-                global_step += 1
-                ids = batch["input_ids"].to(device, non_blocking=True)
-                with autocast_context(device, config.train.dtype):
-                    output = model(ids, return_loss=True)
-                    loss = output.loss
+        run_summary: dict[str, object] = {
+            "device": str(device),
+            "gpu_ids": gpu_ids,
+            "distributed_data_parallel": ddp.is_distributed,
+            "world_size": ddp.world_size,
+            "num_workers": config.train.num_workers,
+            "prefetch_factor": config.train.prefetch_factor if config.train.num_workers > 0 else None,
+            "persistent_workers": dataloader_persistent_workers,
+            "pin_memory": dataloader_pin_memory,
+            "model_parameters": int(sum(parameter.numel() for parameter in base_model.parameters())),
+            "dataset": splits.summary,
+        }
 
-                scaler.scale(loss).backward()
-                scaler.unscale_(optimizer)
-                clip_grad_norm_(model.parameters(), config.train.grad_clip_norm)
-                scaler.step(optimizer)
-                scaler.update()
-                if scheduler is not None:
-                    scheduler.step()
-                optimizer.zero_grad(set_to_none=True)
+        best_val_bpb = float("inf")
+        global_step = 0
 
-                if global_step % config.train.log_interval == 0:
-                    tokens_per_second = (
-                        config.train.batch_size * config.model.seq_length * config.train.log_interval
-                    ) / max(time.time() - started, 1e-6)
-                    bases_per_second = tokens_per_second * config.data.token_merge_size
-                    bytes_per_second = bases_per_second
-                    bits_per_base = (loss.item() / math.log(2)) / config.data.token_merge_size
-                    print(
-                        f"[train] epoch={epoch + 1} step={global_step} "
-                        f"loss/token={loss.item():.4f} bits/base={bits_per_base:.4f} "
-                        f"bytes/s={bytes_per_second:.1f} lr={optimizer.param_groups[0]['lr']:.6g}"
+        if mode in {"train", "all"}:
+            model.train()
+            optimizer.zero_grad(set_to_none=True)
+            started = time.time()
+            for epoch in range(config.train.epochs):
+                if train_sampler is not None:
+                    train_sampler.set_epoch(epoch)
+
+                for batch in train_loader:
+                    global_step += 1
+                    ids = batch["input_ids"].to(device, non_blocking=True)
+                    with autocast_context(device, config.train.dtype):
+                        output = model(ids, return_loss=True)
+                        loss = output.loss
+
+                    scaler.scale(loss).backward()
+                    scaler.unscale_(optimizer)
+                    clip_grad_norm_(model.parameters(), config.train.grad_clip_norm)
+                    scaler.step(optimizer)
+                    scaler.update()
+                    if scheduler is not None:
+                        scheduler.step()
+                    optimizer.zero_grad(set_to_none=True)
+
+                    if global_step % config.train.log_interval == 0 and ddp.is_main_process:
+                        tokens_per_second = (
+                            config.train.batch_size * config.model.seq_length * config.train.log_interval
+                        ) / max(time.time() - started, 1e-6)
+                        if ddp.is_distributed:
+                            tokens_per_second *= ddp.world_size
+                        bases_per_second = tokens_per_second * config.data.token_merge_size
+                        bytes_per_second = bases_per_second
+                        bits_per_base = (loss.item() / math.log(2)) / config.data.token_merge_size
+                        print(
+                            f"[train] epoch={epoch + 1} step={global_step} "
+                            f"loss/token={loss.item():.4f} bits/base={bits_per_base:.4f} "
+                            f"bytes/s={bytes_per_second:.1f} lr={optimizer.param_groups[0]['lr']:.6g}"
+                        )
+                        started = time.time()
+
+                    if global_step % config.train.eval_interval == 0:
+                        val_metrics = evaluate_loss(
+                            model,
+                            val_loader,
+                            device,
+                            config.train.dtype,
+                            config.model.pad_id,
+                            config.data.token_merge_size,
+                            is_distributed=ddp.is_distributed,
+                        )
+                        if ddp.is_main_process:
+                            print(
+                                f"[eval] step={global_step} val_loss/token={val_metrics['loss_nats_per_token']:.4f} "
+                                f"val_bits/base={val_metrics['bits_per_base']:.4f}"
+                            )
+                            if val_metrics["bits_per_base"] < best_val_bpb:
+                                best_val_bpb = float(val_metrics["bits_per_base"])
+                                save_checkpoint(
+                                    output_dir / "best.pt",
+                                    unwrap_model(model),
+                                    optimizer,
+                                    global_step,
+                                    best_val_bpb,
+                                )
+                        model.train()
+
+            if best_val_bpb == float("inf"):
+                val_metrics = evaluate_loss(
+                    model,
+                    val_loader,
+                    device,
+                    config.train.dtype,
+                    config.model.pad_id,
+                    config.data.token_merge_size,
+                    is_distributed=ddp.is_distributed,
+                )
+                if ddp.is_main_process:
+                    best_val_bpb = float(val_metrics["bits_per_base"])
+                    save_checkpoint(
+                        output_dir / "best.pt",
+                        unwrap_model(model),
+                        optimizer,
+                        global_step,
+                        best_val_bpb,
                     )
-                    started = time.time()
 
-                if global_step % config.train.eval_interval == 0:
-                    val_metrics = evaluate_loss(
-                        model,
-                        val_loader,
-                        device,
-                        config.train.dtype,
-                        config.model.pad_id,
-                        config.data.token_merge_size,
-                    )
-                    print(
-                        f"[eval] step={global_step} val_loss/token={val_metrics['loss_nats_per_token']:.4f} "
-                        f"val_bits/base={val_metrics['bits_per_base']:.4f}"
-                    )
-                    if val_metrics["bits_per_base"] < best_val_bpb:
-                        best_val_bpb = float(val_metrics["bits_per_base"])
-                        save_checkpoint(output_dir / "best.pt", model, optimizer, global_step, best_val_bpb)
-                    model.train()
+            if ddp.is_main_process:
+                save_checkpoint(
+                    output_dir / "last.pt",
+                    unwrap_model(model),
+                    optimizer,
+                    global_step,
+                    best_val_bpb,
+                )
+                run_summary["best_val_bits_per_base"] = best_val_bpb
 
-        if best_val_bpb == float("inf"):
+        if ddp.is_distributed:
+            dist.barrier()
+
+        checkpoint_path = output_dir / "best.pt"
+        if checkpoint_path.exists():
+            checkpoint = torch.load(checkpoint_path, map_location=device)
+            unwrap_model(model).load_state_dict(checkpoint["model_state"])
+
+        if mode in {"eval", "all", "compress"}:
+            if ddp.is_main_process:
+                print("[stage] running final validation...", flush=True)
             val_metrics = evaluate_loss(
                 model,
                 val_loader,
@@ -415,58 +629,58 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
                 config.train.dtype,
                 config.model.pad_id,
                 config.data.token_merge_size,
+                is_distributed=ddp.is_distributed,
             )
-            best_val_bpb = float(val_metrics["bits_per_base"])
-            save_checkpoint(output_dir / "best.pt", model, optimizer, global_step, best_val_bpb)
+            if ddp.is_main_process:
+                print("[stage] running final test evaluation...", flush=True)
+            test_metrics = evaluate_loss(
+                model,
+                test_loader,
+                device,
+                config.train.dtype,
+                config.model.pad_id,
+                config.data.token_merge_size,
+                is_distributed=ddp.is_distributed,
+            )
 
-        save_checkpoint(output_dir / "last.pt", model, optimizer, global_step, best_val_bpb)
-        run_summary["best_val_bits_per_base"] = best_val_bpb
+            if ddp.is_main_process:
+                species_names = [str(item["species"]) for item in splits.summary["species"]]
+                # Compression runs only on rank 0. Use the underlying module directly so
+                # rank-local forward passes do not depend on other DDP ranks staying active.
+                print("[stage] starting compression on rank 0...", flush=True)
+                compression_model = unwrap_model(model)
+                compression_metrics = evaluate_compression_per_source(
+                    model=compression_model,
+                    test_sources=splits.test_sources,
+                    species_names=species_names,
+                    requested_bytes=config.data.compression_sample_bytes,
+                    seq_length=config.model.seq_length,
+                    pad_id=config.model.pad_id,
+                    eos_id=config.model.eos_id,
+                    device=device,
+                    dtype_name=config.train.dtype,
+                    batch_size=config.train.eval_batch_size,
+                    token_merge_size=config.data.token_merge_size,
+                    token_merge_alphabet=config.data.token_merge_alphabet,
+                )
 
-    checkpoint_path = output_dir / "best.pt"
-    if checkpoint_path.exists():
-        checkpoint = torch.load(checkpoint_path, map_location=device)
-        model.load_state_dict(checkpoint["model_state"])
+                run_summary["validation"] = val_metrics
+                run_summary["test"] = test_metrics
+                run_summary["compression"] = compression_metrics
 
-    if mode in {"eval", "all", "compress"}:
-        val_metrics = evaluate_loss(
-            model,
-            val_loader,
-            device,
-            config.train.dtype,
-            config.model.pad_id,
-            config.data.token_merge_size,
-        )
-        test_metrics = evaluate_loss(
-            model,
-            test_loader,
-            device,
-            config.train.dtype,
-            config.model.pad_id,
-            config.data.token_merge_size,
-        )
-        species_names = [str(item["species"]) for item in splits.summary["species"]]
-        compression_metrics = evaluate_compression_per_source(
-            model=model,
-            test_sources=splits.test_sources,
-            species_names=species_names,
-            requested_bytes=config.data.compression_sample_bytes,
-            seq_length=config.model.seq_length,
-            pad_id=config.model.pad_id,
-            eos_id=config.model.eos_id,
-            device=device,
-            dtype_name=config.train.dtype,
-            batch_size=config.train.eval_batch_size,
-            token_merge_size=config.data.token_merge_size,
-            token_merge_alphabet=config.data.token_merge_alphabet,
-        )
+            if ddp.is_distributed:
+                # Keep non-main ranks alive until rank 0 finishes standalone compression.
+                dist.barrier()
 
-        run_summary["validation"] = val_metrics
-        run_summary["test"] = test_metrics
-        run_summary["compression"] = compression_metrics
+        if ddp.is_main_process:
+            metrics_path = output_dir / "metrics.json"
+            metrics_path.write_text(
+                json.dumps(run_summary, indent=2, ensure_ascii=False),
+                encoding="utf-8",
+            )
+            return run_summary
 
-    metrics_path = output_dir / "metrics.json"
-    metrics_path.write_text(
-        json.dumps(run_summary, indent=2, ensure_ascii=False),
-        encoding="utf-8",
-    )
-    return run_summary
+        return {}
+    finally:
+        if ddp.is_distributed:
+            cleanup_distributed()

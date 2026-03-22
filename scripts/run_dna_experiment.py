@@ -31,7 +31,7 @@ datasets are appended at the end.
 
 Complete example (train + eval + compression, with common overrides):
 
-    python scripts/run_dna_experiment.py \
+    torchrun --nproc_per_node=4 scripts/run_dna_experiment.py \
         --config configs/dna_megabyte_quick.json \
         --mode all \
         --dtype bfloat16 \
@@ -39,13 +39,14 @@ Complete example (train + eval + compression, with common overrides):
         --batch-size 16 \
         --eval-batch-size 32 \
         --learning-rate 3e-4 \
-        --weight-decay 0.01 \
         --species GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe \
-        --train-samples-per-epoch 1000000 \
+        --train-samples-per-epoch 1000 \
         --compression-sample-bytes 100000 \
         --print-config \
-        --seq-length 1024 \
+        --seq-length 4096 \
         --patch-size 4 \
+        --token-merge-size 3 \
+        --weight-decay 0.01 \
         --log-interval 25 \
         --eval-interval 500 \
         --train-ratio 0.6 \
@@ -55,8 +56,24 @@ Complete example (train + eval + compression, with common overrides):
         --lr-warmup-steps 0 \
         --lr-min-ratio 0.2 \
         --grad-clip-norm 1.0 \
+        --num-workers 8 \
+        --prefetch-factor 4 \
+        --persistent-workers \
+        --pin-memory \
         --train-sampling-strategy proportional \
-        --token-merge-size 3
+        --gpu-ids 0 1 2 3
+ 
+Multi-GPU DDP example (2 GPUs):
+
+    torchrun --nproc_per_node=2 scripts/run_dna_experiment.py \
+        --config configs/dna_megabyte_quick.json \
+        --mode train \
+        --device cuda \
+        --num-workers 8 \
+        --prefetch-factor 4 \
+        --persistent-workers \
+        --pin-memory \
+        --gpus 0 1
     
           
 Optional generic overrides (repeatable):
@@ -68,6 +85,7 @@ import argparse
 from datetime import datetime
 import json
 import math
+import os
 from pathlib import Path
 import sys
 from typing import Any
@@ -104,6 +122,32 @@ def _parse_scalar(value: str) -> Any:
         except json.JSONDecodeError:
             return value
     return value
+
+
+def _parse_gpu_ids(values: list[str]) -> list[int]:
+    gpu_ids: list[int] = []
+    for value in values:
+        for token in value.split(","):
+            item = token.strip()
+            if not item:
+                continue
+            try:
+                gpu_id = int(item)
+            except ValueError as error:
+                raise ValueError(f"Invalid GPU id '{item}'. Expected integers like 0 1 or 0,1.") from error
+            if gpu_id < 0:
+                raise ValueError(f"Invalid GPU id '{item}'. GPU id must be >= 0.")
+            gpu_ids.append(gpu_id)
+
+    if not gpu_ids:
+        raise ValueError("--gpus was provided but no valid GPU ids were parsed.")
+
+    # Preserve order while dropping duplicates.
+    deduplicated_gpu_ids: list[int] = []
+    for gpu_id in gpu_ids:
+        if gpu_id not in deduplicated_gpu_ids:
+            deduplicated_gpu_ids.append(gpu_id)
+    return deduplicated_gpu_ids
 
 
 def _set_nested_attr(config: Any, dotted_key: str, value: Any) -> None:
@@ -143,6 +187,8 @@ def _apply_overrides(config: Any, args: argparse.Namespace) -> None:
     _apply_if_not_none(config, "model.global_layers", args.global_layers)
     _apply_if_not_none(config, "model.local_heads", args.local_heads)
     _apply_if_not_none(config, "model.local_layers", args.local_layers)
+    _apply_if_not_none(config, "model.attn_dropout", args.attn_dropout)
+    _apply_if_not_none(config, "model.ff_dropout", args.ff_dropout)
 
     _apply_if_not_none(config, "data.dataset_dir", args.dataset_dir)
     _apply_if_not_none(config, "data.train_ratio", args.train_ratio)
@@ -170,8 +216,13 @@ def _apply_overrides(config: Any, args: argparse.Namespace) -> None:
     _apply_if_not_none(config, "train.lr_min_ratio", args.lr_min_ratio)
     _apply_if_not_none(config, "train.grad_clip_norm", args.grad_clip_norm)
     _apply_if_not_none(config, "train.num_workers", args.num_workers)
+    _apply_if_not_none(config, "train.prefetch_factor", args.prefetch_factor)
+    _apply_if_not_none(config, "train.persistent_workers", args.persistent_workers)
+    _apply_if_not_none(config, "train.pin_memory", args.pin_memory)
     _apply_if_not_none(config, "train.log_interval", args.log_interval)
     _apply_if_not_none(config, "train.eval_interval", args.eval_interval)
+    if args.gpus is not None:
+        config.train.gpu_ids = _parse_gpu_ids(args.gpus)
 
     _apply_if_not_none(config, "output.run_name", args.run_name)
     _apply_if_not_none(config, "output.output_dir", args.output_dir)
@@ -198,6 +249,12 @@ def _validate_config_for_megabyte(config: Any) -> None:
             f"model.seq_length ({config.model.seq_length}) must be divisible by "
             f"model.patch_size ({config.model.patch_size}) for Megabyte."
         )
+
+    if not (0.0 <= config.model.attn_dropout < 1.0):
+        raise ValueError("model.attn_dropout must be in [0.0, 1.0)")
+
+    if not (0.0 <= config.model.ff_dropout < 1.0):
+        raise ValueError("model.ff_dropout must be in [0.0, 1.0)")
 
     ratio_sum = config.data.train_ratio + config.data.val_ratio + config.data.test_ratio
     if not math.isclose(ratio_sum, 1.0, rel_tol=1e-6, abs_tol=1e-6):
@@ -229,6 +286,18 @@ def _validate_config_for_megabyte(config: Any) -> None:
     if not (0.0 <= config.train.lr_min_ratio <= 1.0):
         raise ValueError("train.lr_min_ratio must be in [0.0, 1.0]")
 
+    if config.train.num_workers < 0:
+        raise ValueError("train.num_workers must be >= 0")
+
+    if config.train.prefetch_factor <= 0:
+        raise ValueError("train.prefetch_factor must be >= 1")
+
+    if config.train.gpu_ids is not None:
+        if len(config.train.gpu_ids) == 0:
+            raise ValueError("train.gpu_ids cannot be an empty list when provided")
+        if any((not isinstance(gpu_id, int) or gpu_id < 0) for gpu_id in config.train.gpu_ids):
+            raise ValueError("train.gpu_ids must be a list of non-negative integers")
+
 
 def _apply_timestamp_to_output_dir(config: Any, args: argparse.Namespace) -> None:
     if not args.timestamp_output:
@@ -245,6 +314,8 @@ def _build_parser() -> argparse.ArgumentParser:
             "  python scripts/run_dna_experiment.py --config configs/dna_megabyte_quick.json --mode all\n"
             "  python scripts/run_dna_experiment.py --config configs/dna_megabyte_quick.json --mode train "
             "--batch-size 8 --learning-rate 1e-4 --seq-length 512\n"
+            "  torchrun --nproc_per_node=2 scripts/run_dna_experiment.py --config configs/dna_megabyte_quick.json "
+            "--mode train --device cuda --gpus 0 1 --num-workers 8 --prefetch-factor 4 --persistent-workers\n"
             "  python scripts/run_dna_experiment.py --config configs/dna_megabyte_quick.json "
             "--override train.epochs=2 --override data.species='[\"HoSa\",\"YeMi\"]'"
         ),
@@ -287,6 +358,8 @@ def _build_parser() -> argparse.ArgumentParser:
     model_group.add_argument("--global-layers", type=int)
     model_group.add_argument("--local-heads", type=int)
     model_group.add_argument("--local-layers", type=int)
+    model_group.add_argument("--attn-dropout", type=float, help="Attention dropout used in both global and local transformers.")
+    model_group.add_argument("--ff-dropout", type=float, help="Feed-forward dropout used in both global and local transformers.")
 
     data_group = parser.add_argument_group("data overrides")
     data_group.add_argument("--dataset-dir")
@@ -317,8 +390,27 @@ def _build_parser() -> argparse.ArgumentParser:
     train_group.add_argument("--lr-min-ratio", type=float)
     train_group.add_argument("--grad-clip-norm", type=float)
     train_group.add_argument("--num-workers", type=int)
+    train_group.add_argument("--prefetch-factor", type=int, help="DataLoader prefetch factor per worker (effective when num_workers > 0).")
+    train_group.add_argument(
+        "--persistent-workers",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="Keep DataLoader workers alive between epochs (effective when num_workers > 0).",
+    )
+    train_group.add_argument(
+        "--pin-memory",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="Enable pinned host memory for faster host-to-device transfer on CUDA.",
+    )
     train_group.add_argument("--log-interval", type=int)
     train_group.add_argument("--eval-interval", type=int)
+    train_group.add_argument(
+        "--gpus",
+        "--gpu-ids",
+        nargs="+",
+        help="GPU ids to use, e.g. --gpus 0 1 or --gpus 0,1. For DDP, launch with torchrun and set nproc_per_node to len(gpu_ids).",
+    )
 
     output_group = parser.add_argument_group("output overrides")
     output_group.add_argument("--run-name")
@@ -347,7 +439,9 @@ def main() -> None:
     from dna_compress.experiment import run_experiment
 
     metrics = run_experiment(config, mode=args.mode)
-    print(json.dumps(metrics, indent=2, ensure_ascii=False))
+    rank = int(os.environ.get("RANK", "0"))
+    if rank == 0:
+        print(json.dumps(metrics, indent=2, ensure_ascii=False))
 
 
 if __name__ == "__main__":

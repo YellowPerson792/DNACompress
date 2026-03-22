@@ -8,7 +8,7 @@ from typing import Callable, Iterable
 import numpy as np
 import torch
 
-from .compression import ArithmeticEncoder, baseline_sizes, probabilities_to_cumulative
+from .compression import ArithmeticEncoder, baseline_sizes, probabilities_to_cumulative_batch
 from .tokenization import tokenize_source_bytes
 
 
@@ -112,45 +112,47 @@ def compress_sequence_sliding_token(
     progress_callback: Callable[[int, int], None] | None = None,
 ) -> dict[str, object]:
     symbols = _symbols_with_optional_eos(payload, eos_id, token_merge_size, token_merge_alphabet)
+    symbols_tensor = torch.tensor(symbols, dtype=torch.long)
+
+    padded = torch.full((len(symbols) + seq_length - 1,), pad_id, dtype=torch.long)
+    padded[-len(symbols) :] = symbols_tensor
+    all_windows = padded.unfold(0, seq_length, 1)
+
     total_bits = 0.0
-    probability_rows: list[np.ndarray] = []
-    targets_for_encoding: list[int] = []
     total_batches = max(1, math.ceil(len(symbols) / batch_size))
     processed_batches = 0
+    encoder = ArithmeticEncoder()
+    probability_compute_seconds = 0.0
+    arithmetic_encode_seconds = 0.0
 
     model.eval()
-    compute_started = perf_counter()
     with torch.no_grad():
         for start in range(0, len(symbols), batch_size):
-            current = symbols[start : start + batch_size]
-            windows = torch.full((len(current), seq_length), pad_id, dtype=torch.long)
-            for row_index, symbol_index in enumerate(range(start, start + len(current))):
-                history_start = max(0, symbol_index - seq_length + 1)
-                history = symbols[history_start : symbol_index + 1]
-                windows[row_index, -len(history) :] = torch.tensor(history, dtype=torch.long)
+            target_slice = symbols_tensor[start : start + batch_size]
+            batch = all_windows[start : start + target_slice.shape[0]].to(device, non_blocking=True)
 
-            batch = windows.to(device, non_blocking=True)
+            prob_started = perf_counter()
             with autocast_context(device, dtype_name):
                 output = model(batch, return_loss=False)
                 log_probs = torch.log_softmax(output.lm_logits[:, -1, :], dim=-1)
+            targets_device = target_slice.to(device, non_blocking=True)
+            target_log_probs = log_probs.gather(1, targets_device.unsqueeze(1)).squeeze(1)
+            total_bits += float((-target_log_probs / math.log(2)).sum().item())
+            probability_compute_seconds += perf_counter() - prob_started
 
-            rows_cpu = log_probs.float().cpu()
-            for row_cpu, target in zip(rows_cpu, current):
-                total_bits += float(-row_cpu[target].item() / math.log(2))
-                probability_rows.append(row_cpu.exp().numpy())
-                targets_for_encoding.append(target)
+            encode_started = perf_counter()
+            probs_np = log_probs.float().exp().cpu().numpy()
+            targets_np = target_slice.numpy()
+            cumulative_batch = probabilities_to_cumulative_batch(probs_np)
+            for cumulative, target in zip(cumulative_batch, targets_np):
+                encoder.update(cumulative, int(target))
+            arithmetic_encode_seconds += perf_counter() - encode_started
 
             processed_batches += 1
             if progress_callback is not None:
                 progress_callback(processed_batches, total_batches)
 
-    probability_compute_seconds = perf_counter() - compute_started
-    encode_started = perf_counter()
-    encoder = ArithmeticEncoder()
-    for target, probs in zip(targets_for_encoding, probability_rows):
-        encoder.update(probabilities_to_cumulative(probs), target)
     encoded = encoder.finish()
-    arithmetic_encode_seconds = perf_counter() - encode_started
 
     return _finalize_metrics(
         payload=payload,
@@ -198,8 +200,7 @@ def compress_sequence_train_windows(
 ) -> dict[str, object]:
     symbols = _symbols_with_optional_eos(payload, eos_id, token_merge_size, token_merge_alphabet)
     total_bits = 0.0
-    probability_rows: list[np.ndarray] = []
-    targets_for_encoding: list[int] = []
+    encoder = ArithmeticEncoder()
 
     if overlap_stride is None:
         mode = NON_OVERLAP_MODE
@@ -212,9 +213,10 @@ def compress_sequence_train_windows(
 
     total_batches = max(1, math.ceil(len(window_starts) / batch_size))
     processed_batches = 0
+    probability_compute_seconds = 0.0
+    arithmetic_encode_seconds = 0.0
 
     model.eval()
-    compute_started = perf_counter()
     with torch.no_grad():
         for batch_start in range(0, len(window_starts), batch_size):
             starts = window_starts[batch_start : batch_start + batch_size]
@@ -227,11 +229,14 @@ def compress_sequence_train_windows(
                     windows[row_index, : len(chunk)] = torch.tensor(chunk, dtype=torch.long)
 
             batch = windows.to(device, non_blocking=True)
+            prob_started = perf_counter()
             with autocast_context(device, dtype_name):
                 output = model(batch, return_loss=False)
                 log_probs = torch.log_softmax(output.lm_logits, dim=-1)
-            rows_cpu = log_probs.float().cpu()
+            rows_cpu = log_probs.float().cpu().numpy()
+            probability_compute_seconds += perf_counter() - prob_started
 
+            encode_started = perf_counter()
             for row_index, (start, chunk_length) in enumerate(zip(starts, lengths)):
                 if chunk_length <= 0:
                     continue
@@ -240,24 +245,25 @@ def compress_sequence_train_windows(
                 if overlap_stride is not None and start > 0:
                     local_start = min(seq_length - overlap_stride, chunk_length)
 
-                for local_pos in range(local_start, chunk_length):
-                    target = symbols[start + local_pos]
-                    row_cpu = rows_cpu[row_index, local_pos, :]
-                    total_bits += float(-row_cpu[target].item() / math.log(2))
-                    probability_rows.append(row_cpu.exp().numpy())
-                    targets_for_encoding.append(target)
+                row_log_probs = rows_cpu[row_index, local_start:chunk_length, :]
+                if row_log_probs.shape[0] == 0:
+                    continue
+
+                targets_np = np.asarray(symbols[start + local_start : start + chunk_length], dtype=np.int64)
+                total_bits += float((-row_log_probs[np.arange(row_log_probs.shape[0]), targets_np] / math.log(2)).sum())
+
+                probs_np = np.exp(row_log_probs)
+                cumulative_batch = probabilities_to_cumulative_batch(probs_np)
+                for cumulative, target in zip(cumulative_batch, targets_np):
+                    encoder.update(cumulative, int(target))
+
+            arithmetic_encode_seconds += perf_counter() - encode_started
 
             processed_batches += 1
             if progress_callback is not None:
                 progress_callback(processed_batches, total_batches)
 
-    probability_compute_seconds = perf_counter() - compute_started
-    encode_started = perf_counter()
-    encoder = ArithmeticEncoder()
-    for target, probs in zip(targets_for_encoding, probability_rows):
-        encoder.update(probabilities_to_cumulative(probs), target)
     encoded = encoder.finish()
-    arithmetic_encode_seconds = perf_counter() - encode_started
 
     mode_details: dict[str, object] = {
         "window_policy": "contiguous_train_style",

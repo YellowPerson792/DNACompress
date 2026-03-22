@@ -27,9 +27,11 @@ MegabyteConfig = namedtuple(
         "V", "P", "D_G", "D_L", "T_MAX",
         "g_nheads", "g_nlayers",
         "l_nheads", "l_nlayers",
+        "attn_dropout", "ff_dropout",
         "initializer_range",
         "pad_id", "eos_id",
-    ]
+    ],
+    defaults=(0.0, 0.0)
 )
 
 
@@ -147,6 +149,8 @@ class Megabyte(nn.Module):
             layers=config.g_nlayers,
             dim_head=(config.P*config.D_G)//config.g_nheads,
             heads=config.g_nheads,
+            attn_dropout=config.attn_dropout,
+            ff_dropout=config.ff_dropout,
             flash_attn=True,
         )
         self.gl_linear = nn.Sequential(
@@ -161,6 +165,8 @@ class Megabyte(nn.Module):
             layers=config.l_nlayers,
             dim_head=config.D_L//config.l_nheads,
             heads=config.l_nheads,
+            attn_dropout=config.attn_dropout,
+            ff_dropout=config.ff_dropout,
             flash_attn=True,
         )
         

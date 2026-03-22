@@ -34,6 +34,8 @@ def build_model(model_config: ModelConfig):
         g_nlayers=model_config.global_layers,
         l_nheads=model_config.local_heads,
         l_nlayers=model_config.local_layers,
+        attn_dropout=model_config.attn_dropout,
+        ff_dropout=model_config.ff_dropout,
         initializer_range=model_config.initializer_range,
         pad_id=model_config.pad_id,
         eos_id=model_config.eos_id,
