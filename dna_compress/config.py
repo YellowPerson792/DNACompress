@@ -34,6 +34,9 @@ class DataConfig:
     max_val_bytes_per_species: int | None = 1_048_576
     max_test_bytes_per_species: int | None = 131_072
     train_samples_per_epoch: int = 2_048
+    train_sampling_strategy: str = "proportional"
+    token_merge_size: int = 1
+    token_merge_alphabet: str = "ACGTN"
     compression_sample_bytes: int = 16_384
 
 
@@ -47,6 +50,9 @@ class TrainConfig:
     eval_batch_size: int = 32
     learning_rate: float = 3e-4
     weight_decay: float = 1e-2
+    lr_scheduler: str = "none"
+    lr_warmup_steps: int = 0
+    lr_min_ratio: float = 0.0
     grad_clip_norm: float = 1.0
     num_workers: int = 0
     log_interval: int = 25

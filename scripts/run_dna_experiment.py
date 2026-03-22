@@ -2,32 +2,70 @@ from __future__ import annotations
 
 """Run DNA Megabyte experiments.
 
+1x train-split coverage reference for `seq_length=1024`
+(`train_ratio=0.9`, `max_train_bytes_per_species=null`).
+Species shown in the reference figure are listed first in figure order; local-only
+datasets are appended at the end.
+
+| Species | Train bytes | `train_samples_per_epoch` for 1x coverage |
+| --- | ---: | ---: |
+| OrSa | 38,936,271 | 38,024 |
+| HoSa | 170,777,400 | 166,775 |
+| DaRe | 56,308,518 | 54,989 |
+| ScPo | 9,586,940 | 9,363 |
+| EsCo | 4,177,487 | 4,080 |
+| YeMi | 66,320 | 65 |
+| BuEb | 17,046 | 17 |
+| AgPh | 39,573 | 39 |
+| Total (through AgPh) | 273,352,572 | 273,352 |
+| GaGa | 133,679,065 | 130,546 |
+| DrMe | 28,963,286 | 28,285 |
+| EnIn | 23,762,778 | 23,206 |
+| PlFa | 8,088,041 | 7,899 |
+| HePy | 1,501,042 | 1,466 |
+| AeCa | 1,431,944 | 1,399 |
+| HaHi | 3,501,004 | 3,419 |
+| AnCa | 127,970,708 | 124,972 |
+| WaMe | 8,229,989 | 8,038 |
+| Total (all local datasets) | 617,044,512 | 602,582 |
+
 Complete example (train + eval + compression, with common overrides):
 
     python scripts/run_dna_experiment.py \
-      --config configs/dna_megabyte_quick.json \
-      --mode all \
-      --dtype float16 \
-      --epochs 1 \
-      --batch-size 16 \
-      --eval-batch-size 32 \
-      --learning-rate 3e-4 \
-      --weight-decay 0.01 \
-      --species HoSa \
-      --train-samples-per-epoch 50000 \
-      --compression-sample-bytes 16384 \
-      --output-dir outputs/dna_megabyte \
-      --print-config
+        --config configs/dna_megabyte_quick.json \
+        --mode all \
+        --dtype bfloat16 \
+        --epochs 1 \
+        --batch-size 16 \
+        --eval-batch-size 32 \
+        --learning-rate 3e-4 \
+        --weight-decay 0.01 \
+        --species GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe \
+        --train-samples-per-epoch 1000000 \
+        --compression-sample-bytes 100000 \
+        --print-config \
+        --seq-length 1024 \
+        --patch-size 4 \
+        --log-interval 25 \
+        --eval-interval 500 \
+        --train-ratio 0.6 \
+        --val-ratio 0.2 \
+        --test-ratio 0.2 \
+        --lr-scheduler cosine \
+        --lr-warmup-steps 0 \
+        --lr-min-ratio 0.2 \
+        --grad-clip-norm 1.0 \
+        --train-sampling-strategy proportional \
+        --token-merge-size 3
     
-      --seq-length 1024 \
-      --patch-size 4 \
           
 Optional generic overrides (repeatable):
 
-    --override train.epochs=2 --override data.species='["HoSa","YeMi"]'
+    --override train.epochs=2 --override data.species='["GaGa","DrMe"]'
 """
 
 import argparse
+from datetime import datetime
 import json
 import math
 from pathlib import Path
@@ -39,7 +77,8 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from dna_compress import load_experiment_config, run_experiment
+from dna_compress.config import load_experiment_config
+from dna_compress.tokenization import apply_token_merge_to_model_config, normalize_alphabet
 
 
 def _parse_scalar(value: str) -> Any:
@@ -113,6 +152,9 @@ def _apply_overrides(config: Any, args: argparse.Namespace) -> None:
     _apply_if_not_none(config, "data.max_val_bytes_per_species", args.max_val_bytes)
     _apply_if_not_none(config, "data.max_test_bytes_per_species", args.max_test_bytes)
     _apply_if_not_none(config, "data.train_samples_per_epoch", args.train_samples_per_epoch)
+    _apply_if_not_none(config, "data.train_sampling_strategy", args.train_sampling_strategy)
+    _apply_if_not_none(config, "data.token_merge_size", args.token_merge_size)
+    _apply_if_not_none(config, "data.token_merge_alphabet", args.token_merge_alphabet)
     _apply_if_not_none(config, "data.compression_sample_bytes", args.compression_sample_bytes)
 
     _apply_if_not_none(config, "train.seed", args.seed)
@@ -123,6 +165,9 @@ def _apply_overrides(config: Any, args: argparse.Namespace) -> None:
     _apply_if_not_none(config, "train.eval_batch_size", args.eval_batch_size)
     _apply_if_not_none(config, "train.learning_rate", args.learning_rate)
     _apply_if_not_none(config, "train.weight_decay", args.weight_decay)
+    _apply_if_not_none(config, "train.lr_scheduler", args.lr_scheduler)
+    _apply_if_not_none(config, "train.lr_warmup_steps", args.lr_warmup_steps)
+    _apply_if_not_none(config, "train.lr_min_ratio", args.lr_min_ratio)
     _apply_if_not_none(config, "train.grad_clip_norm", args.grad_clip_norm)
     _apply_if_not_none(config, "train.num_workers", args.num_workers)
     _apply_if_not_none(config, "train.log_interval", args.log_interval)
@@ -139,9 +184,9 @@ def _apply_overrides(config: Any, args: argparse.Namespace) -> None:
 
 
 def _validate_config_for_megabyte(config: Any) -> None:
-    if config.model.implementation not in {"megabyte", "megabyte_in_action"}:
+    if config.model.implementation not in {"megabyte", "megabyte_in_action", "megabyte_relative"}:
         raise ValueError(
-            "model.implementation must be one of 'megabyte' or 'megabyte_in_action' "
+            "model.implementation must be one of 'megabyte', 'megabyte_in_action', or 'megabyte_relative' "
             f"for this project, got '{config.model.implementation}'."
         )
 
@@ -167,6 +212,30 @@ def _validate_config_for_megabyte(config: Any) -> None:
     if config.train.batch_size <= 0 or config.train.eval_batch_size <= 0:
         raise ValueError("train.batch_size and train.eval_batch_size must be > 0")
 
+    if config.data.train_sampling_strategy not in {"proportional", "uniform", "sqrt"}:
+        raise ValueError("data.train_sampling_strategy must be one of: proportional, uniform, sqrt")
+
+    if config.data.token_merge_size <= 0:
+        raise ValueError("data.token_merge_size must be >= 1")
+
+    normalize_alphabet(config.data.token_merge_alphabet)
+
+    if config.train.lr_scheduler not in {"none", "linear", "cosine"}:
+        raise ValueError("train.lr_scheduler must be one of: none, linear, cosine")
+
+    if config.train.lr_warmup_steps < 0:
+        raise ValueError("train.lr_warmup_steps must be >= 0")
+
+    if not (0.0 <= config.train.lr_min_ratio <= 1.0):
+        raise ValueError("train.lr_min_ratio must be in [0.0, 1.0]")
+
+
+def _apply_timestamp_to_output_dir(config: Any, args: argparse.Namespace) -> None:
+    if not args.timestamp_output:
+        return
+    timestamp = datetime.now().strftime(args.timestamp_format)
+    config.output.output_dir = f"{config.output.output_dir}_{timestamp}"
+
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -191,6 +260,17 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--print-config", action="store_true", help="Print the resolved config before running.")
     parser.add_argument("--dry-run", action="store_true", help="Resolve and validate config, then exit.")
     parser.add_argument(
+        "--timestamp-output",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Append timestamp suffix to output_dir (default: enabled). Use --no-timestamp-output to disable.",
+    )
+    parser.add_argument(
+        "--timestamp-format",
+        default="%Y%m%d_%H%M%S",
+        help="strftime format for output timestamp, default: %%Y%%m%%d_%%H%%M%%S",
+    )
+    parser.add_argument(
         "--override",
         action="append",
         default=[],
@@ -198,7 +278,7 @@ def _build_parser() -> argparse.ArgumentParser:
     )
 
     model_group = parser.add_argument_group("model overrides")
-    model_group.add_argument("--implementation", choices=["megabyte", "megabyte_in_action"])
+    model_group.add_argument("--implementation", choices=["megabyte", "megabyte_in_action", "megabyte_relative"])
     model_group.add_argument("--patch-size", type=int)
     model_group.add_argument("--seq-length", type=int)
     model_group.add_argument("--global-dim", type=int)
@@ -218,6 +298,9 @@ def _build_parser() -> argparse.ArgumentParser:
     data_group.add_argument("--max-val-bytes", type=int)
     data_group.add_argument("--max-test-bytes", type=int)
     data_group.add_argument("--train-samples-per-epoch", type=int)
+    data_group.add_argument("--train-sampling-strategy", choices=["proportional", "uniform", "sqrt"])
+    data_group.add_argument("--token-merge-size", type=int, help="Merge this many DNA bases into one token. 1 keeps byte-level tokens.")
+    data_group.add_argument("--token-merge-alphabet", help="DNA alphabet used for merged-token encoding, e.g. ACGTN")
     data_group.add_argument("--compression-sample-bytes", type=int)
 
     train_group = parser.add_argument_group("train overrides")
@@ -229,6 +312,9 @@ def _build_parser() -> argparse.ArgumentParser:
     train_group.add_argument("--eval-batch-size", type=int)
     train_group.add_argument("--learning-rate", type=float)
     train_group.add_argument("--weight-decay", type=float)
+    train_group.add_argument("--lr-scheduler", choices=["none", "linear", "cosine"])
+    train_group.add_argument("--lr-warmup-steps", type=int)
+    train_group.add_argument("--lr-min-ratio", type=float)
     train_group.add_argument("--grad-clip-norm", type=float)
     train_group.add_argument("--num-workers", type=int)
     train_group.add_argument("--log-interval", type=int)
@@ -246,7 +332,9 @@ def main() -> None:
 
     config = load_experiment_config(args.config)
     _apply_overrides(config, args)
+    _apply_timestamp_to_output_dir(config, args)
     _validate_config_for_megabyte(config)
+    apply_token_merge_to_model_config(config.model, config.data)
 
     if args.print_config or args.dry_run:
         print(json.dumps(config.to_dict(), indent=2, ensure_ascii=False))
@@ -254,6 +342,9 @@ def main() -> None:
     if args.dry_run:
         print("Dry-run completed: config resolved and validated.")
         return
+
+    print("[startup] importing training runtime...", flush=True)
+    from dna_compress.experiment import run_experiment
 
     metrics = run_experiment(config, mode=args.mode)
     print(json.dumps(metrics, indent=2, ensure_ascii=False))

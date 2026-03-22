@@ -1,0 +1,207 @@
+{
+  "device": "cuda",
+  "model_parameters": 11376387,
+  "dataset": {
+    "species": [
+      {
+        "species": "OrSa",
+        "total_size": 43262523,
+        "train_bytes": 38936270,
+        "val_bytes": 2163126,
+        "test_bytes": 2163127
+      },
+      {
+        "species": "HoSa",
+        "total_size": 189752667,
+        "train_bytes": 170777400,
+        "val_bytes": 9487633,
+        "test_bytes": 9487634
+      },
+      {
+        "species": "DaRe",
+        "total_size": 62565020,
+        "train_bytes": 56308518,
+        "val_bytes": 3128251,
+        "test_bytes": 3128251
+      },
+      {
+        "species": "ScPo",
+        "total_size": 10652155,
+        "train_bytes": 9586939,
+        "val_bytes": 532607,
+        "test_bytes": 532609
+      },
+      {
+        "species": "EsCo",
+        "total_size": 4641652,
+        "train_bytes": 4177486,
+        "val_bytes": 232082,
+        "test_bytes": 232084
+      },
+      {
+        "species": "YeMi",
+        "total_size": 73689,
+        "train_bytes": 66320,
+        "val_bytes": 3684,
+        "test_bytes": 3685
+      },
+      {
+        "species": "BuEb",
+        "total_size": 18940,
+        "train_bytes": 17046,
+        "val_bytes": 947,
+        "test_bytes": 947
+      },
+      {
+        "species": "AgPh",
+        "total_size": 43970,
+        "train_bytes": 39573,
+        "val_bytes": 2198,
+        "test_bytes": 2199
+      }
+    ],
+    "alphabet_bytes": [
+      65,
+      67,
+      71,
+      84
+    ]
+  },
+  "best_val_bits_per_byte": 1.7533513055987335,
+  "validation": {
+    "loss_nats": 1.215330514006861,
+    "bits_per_byte": 1.7533513055987335,
+    "tokens": 15550528,
+    "elapsed_seconds": 17.03778910636902
+  },
+  "test": {
+    "loss_nats": 1.2102353017959755,
+    "bits_per_byte": 1.7460004682098118,
+    "tokens": 15550536,
+    "elapsed_seconds": 15.398034572601318
+  },
+  "compression": {
+    "aggregate": {
+      "source_count": 8,
+      "total_sample_bytes": 88751,
+      "total_theoretical_bits": 166649.2469242402,
+      "total_theoretical_bits_per_byte": 1.877716836139764,
+      "total_arithmetic_coded_bytes": 20937,
+      "total_arithmetic_bits_per_byte": 1.8872576083649761
+    },
+    "per_source": [
+      {
+        "species": "OrSa",
+        "sample_bytes": 16384,
+        "sample_symbols_with_eos": 16385,
+        "theoretical_bits": 30855.890005362086,
+        "theoretical_bits_per_byte": 1.8832940677100882,
+        "arithmetic_coded_bytes": 3878,
+        "arithmetic_bits_per_byte": 1.8935546875,
+        "ascii_bytes": 16384,
+        "two_bit_pack_bytes": 4096,
+        "gzip_bytes": 4980,
+        "bz2_bytes": 4536,
+        "lzma_bytes": 4720
+      },
+      {
+        "species": "HoSa",
+        "sample_bytes": 16384,
+        "sample_symbols_with_eos": 16385,
+        "theoretical_bits": 29509.568331580114,
+        "theoretical_bits_per_byte": 1.801121113988044,
+        "arithmetic_coded_bytes": 3709,
+        "arithmetic_bits_per_byte": 1.81103515625,
+        "ascii_bytes": 16384,
+        "two_bit_pack_bytes": 4096,
+        "gzip_bytes": 4962,
+        "bz2_bytes": 4501,
+        "lzma_bytes": 4712
+      },
+      {
+        "species": "DaRe",
+        "sample_bytes": 16384,
+        "sample_symbols_with_eos": 16385,
+        "theoretical_bits": 29428.79696281997,
+        "theoretical_bits_per_byte": 1.7961912208752424,
+        "arithmetic_coded_bytes": 3698,
+        "arithmetic_bits_per_byte": 1.8056640625,
+        "ascii_bytes": 16384,
+        "two_bit_pack_bytes": 4096,
+        "gzip_bytes": 4561,
+        "bz2_bytes": 4353,
+        "lzma_bytes": 4268
+      },
+      {
+        "species": "ScPo",
+        "sample_bytes": 16384,
+        "sample_symbols_with_eos": 16385,
+        "theoretical_bits": 31964.81015509638,
+        "theoretical_bits_per_byte": 1.9509771823178943,
+        "arithmetic_coded_bytes": 4017,
+        "arithmetic_bits_per_byte": 1.96142578125,
+        "ascii_bytes": 16384,
+        "two_bit_pack_bytes": 4096,
+        "gzip_bytes": 5059,
+        "bz2_bytes": 4560,
+        "lzma_bytes": 4828
+      },
+      {
+        "species": "EsCo",
+        "sample_bytes": 16384,
+        "sample_symbols_with_eos": 16385,
+        "theoretical_bits": 31756.057144224487,
+        "theoretical_bits_per_byte": 1.9382359096816704,
+        "arithmetic_coded_bytes": 3990,
+        "arithmetic_bits_per_byte": 1.9482421875,
+        "ascii_bytes": 16384,
+        "two_bit_pack_bytes": 4096,
+        "gzip_bytes": 5012,
+        "bz2_bytes": 4531,
+        "lzma_bytes": 4788
+      },
+      {
+        "species": "YeMi",
+        "sample_bytes": 3685,
+        "sample_symbols_with_eos": 3686,
+        "theoretical_bits": 6957.303246629935,
+        "theoretical_bits_per_byte": 1.8880063084477434,
+        "arithmetic_coded_bytes": 873,
+        "arithmetic_bits_per_byte": 1.8952510176390773,
+        "ascii_bytes": 3685,
+        "two_bit_pack_bytes": 922,
+        "gzip_bytes": 1102,
+        "bz2_bytes": 1036,
+        "lzma_bytes": 1152
+      },
+      {
+        "species": "BuEb",
+        "sample_bytes": 947,
+        "sample_symbols_with_eos": 948,
+        "theoretical_bits": 1842.18724244452,
+        "theoretical_bits_per_byte": 1.9452874788220909,
+        "arithmetic_coded_bytes": 229,
+        "arithmetic_bits_per_byte": 1.9345300950369588,
+        "ascii_bytes": 947,
+        "two_bit_pack_bytes": 237,
+        "gzip_bytes": 344,
+        "bz2_bytes": 317,
+        "lzma_bytes": 432
+      },
+      {
+        "species": "AgPh",
+        "sample_bytes": 2199,
+        "sample_symbols_with_eos": 2200,
+        "theoretical_bits": 4334.6338360826785,
+        "theoretical_bits_per_byte": 1.9711841000830734,
+        "arithmetic_coded_bytes": 543,
+        "arithmetic_bits_per_byte": 1.975443383356071,
+        "ascii_bytes": 2199,
+        "two_bit_pack_bytes": 550,
+        "gzip_bytes": 738,
+        "bz2_bytes": 675,
+        "lzma_bytes": 820
+      }
+    ]
+  }
+}

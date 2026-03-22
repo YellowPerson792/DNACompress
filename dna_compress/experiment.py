@@ -5,11 +5,13 @@ import math
 from pathlib import Path
 import random
 import time
+from typing import Callable
 
 import numpy as np
 import torch
 from torch.nn.utils import clip_grad_norm_
 from torch.optim import AdamW
+from torch.optim.lr_scheduler import LambdaLR
 from torch.utils.data import DataLoader
 
 from .compression import arithmetic_encode, baseline_sizes
@@ -20,6 +22,7 @@ from .data import (
     load_splits,
 )
 from .megabyte_loader import build_model
+from .tokenization import apply_token_merge_to_model_config, tokenize_source_bytes
 
 
 def seed_everything(seed: int) -> None:
@@ -68,6 +71,7 @@ def evaluate_loss(
     device: torch.device,
     dtype_name: str,
     pad_id: int,
+    token_merge_size: int,
 ) -> dict[str, float]:
     model.eval()
     total_nats = 0.0
@@ -83,11 +87,18 @@ def evaluate_loss(
             total_nats += float(output.loss.item()) * valid_tokens
             total_tokens += valid_tokens
 
-    average_nats = total_nats / total_tokens
+    total_bases = total_tokens * token_merge_size
+    average_nats_per_token = total_nats / max(total_tokens, 1)
+    average_nats_per_base = total_nats / max(total_bases, 1)
+    bits_per_token = average_nats_per_token / math.log(2)
+    bits_per_base = average_nats_per_base / math.log(2)
     return {
-        "loss_nats": average_nats,
-        "bits_per_byte": average_nats / math.log(2),
+        "loss_nats_per_token": average_nats_per_token,
+        "loss_nats_per_base": average_nats_per_base,
+        "bits_per_token": bits_per_token,
+        "bits_per_base": bits_per_base,
         "tokens": total_tokens,
+        "bases": total_bases,
         "elapsed_seconds": time.time() - start_time,
     }
 
@@ -101,8 +112,12 @@ def evaluate_compression(
     device: torch.device,
     dtype_name: str,
     batch_size: int,
+    token_merge_size: int,
+    token_merge_alphabet: str,
+    progress_callback: Callable[[int, int], None] | None = None,
 ) -> dict[str, float | int]:
-    symbols = list(payload) + [eos_id]
+    token_symbols = tokenize_source_bytes(payload, token_merge_size, token_merge_alphabet)
+    symbols = token_symbols + [eos_id]
     windows = torch.full((len(symbols), seq_length), pad_id, dtype=torch.long)
     for index in range(len(symbols)):
         start = max(0, index - seq_length + 1)
@@ -113,6 +128,8 @@ def evaluate_compression(
     total_bits = 0.0
 
     model.eval()
+    total_batches = math.ceil(len(symbols) / batch_size)
+    processed_batches = 0
     with torch.no_grad():
         for start in range(0, len(symbols), batch_size):
             batch = windows[start : start + batch_size].to(device, non_blocking=True)
@@ -123,16 +140,22 @@ def evaluate_compression(
             for row, target in zip(log_probs, targets):
                 total_bits += float(-row[target].item() / math.log(2))
                 probability_rows.append(row.exp().numpy())
+            processed_batches += 1
+            if progress_callback is not None:
+                progress_callback(processed_batches, total_batches)
 
     compressed = arithmetic_encode(symbols, probability_rows)
     baselines = baseline_sizes(payload)
+    tokenized_bases = len(token_symbols) * token_merge_size
+    bytes_count = len(payload)
     return {
-        "sample_bytes": len(payload),
+        "sample_bytes": bytes_count,
+        "sample_bases": tokenized_bases,
         "sample_symbols_with_eos": len(symbols),
         "theoretical_bits": total_bits,
-        "theoretical_bits_per_byte": total_bits / len(payload),
+        "theoretical_bits_per_base": total_bits / max(tokenized_bases, 1),
         "arithmetic_coded_bytes": len(compressed),
-        "arithmetic_bits_per_byte": (len(compressed) * 8) / len(payload),
+        "arithmetic_bits_per_base": (len(compressed) * 8) / max(tokenized_bases, 1),
         **baselines,
     }
 
@@ -148,13 +171,34 @@ def evaluate_compression_per_source(
     device: torch.device,
     dtype_name: str,
     batch_size: int,
+    token_merge_size: int,
+    token_merge_alphabet: str,
 ) -> dict[str, object]:
     per_source: list[dict[str, object]] = []
     total_sample_bytes = 0
+    total_sample_bases = 0
     total_theoretical_bits = 0.0
     total_arithmetic_bytes = 0
 
-    for source, species_name in zip(test_sources, species_names):
+    def _print_compression_progress(
+        species_name: str,
+        source_index: int,
+        source_total: int,
+        batch_done: int,
+        batch_total: int,
+    ) -> None:
+        ratio = 100.0 * batch_done / max(batch_total, 1)
+        message = (
+            f"\r[compress] source {source_index}/{source_total} ({species_name}) "
+            f"batch {batch_done}/{batch_total} ({ratio:5.1f}%)"
+        )
+        print(message, end="", flush=True)
+
+    source_total = len(test_sources)
+    if source_total == 0:
+        print("[compress] no test sources found.")
+
+    for source_index, (source, species_name) in enumerate(zip(test_sources, species_names), start=1):
         payload = source[:requested_bytes] if len(source) >= requested_bytes else source
         metrics = evaluate_compression(
             model=model,
@@ -165,19 +209,34 @@ def evaluate_compression_per_source(
             device=device,
             dtype_name=dtype_name,
             batch_size=batch_size,
+            token_merge_size=token_merge_size,
+            token_merge_alphabet=token_merge_alphabet,
+            progress_callback=lambda batch_done, batch_total, si=source_index, sn=species_name: _print_compression_progress(
+                sn,
+                si,
+                source_total,
+                batch_done,
+                batch_total,
+            ),
         )
+        print()
         per_source.append({"species": species_name, **metrics})
         total_sample_bytes += int(metrics["sample_bytes"])
+        total_sample_bases += int(metrics["sample_bases"])
         total_theoretical_bits += float(metrics["theoretical_bits"])
         total_arithmetic_bytes += int(metrics["arithmetic_coded_bytes"])
+
+    if source_total > 0:
+        print("[compress] completed.")
 
     aggregate = {
         "source_count": len(per_source),
         "total_sample_bytes": total_sample_bytes,
+        "total_sample_bases": total_sample_bases,
         "total_theoretical_bits": total_theoretical_bits,
-        "total_theoretical_bits_per_byte": total_theoretical_bits / max(total_sample_bytes, 1),
+        "total_theoretical_bits_per_base": total_theoretical_bits / max(total_sample_bases, 1),
         "total_arithmetic_coded_bytes": total_arithmetic_bytes,
-        "total_arithmetic_bits_per_byte": (total_arithmetic_bytes * 8) / max(total_sample_bytes, 1),
+        "total_arithmetic_bits_per_base": (total_arithmetic_bytes * 8) / max(total_sample_bases, 1),
     }
     return {
         "aggregate": aggregate,
@@ -185,9 +244,41 @@ def evaluate_compression_per_source(
     }
 
 
+def build_lr_scheduler(
+    optimizer: AdamW,
+    scheduler_type: str,
+    warmup_steps: int,
+    total_steps: int,
+    min_ratio: float,
+) -> LambdaLR | None:
+    scheduler_type = scheduler_type.lower()
+    if scheduler_type == "none":
+        return None
+
+    warmup_steps = max(0, warmup_steps)
+    total_steps = max(1, total_steps)
+    min_ratio = max(0.0, min(1.0, min_ratio))
+
+    def lr_lambda(step: int) -> float:
+        if warmup_steps > 0 and step < warmup_steps:
+            return (step + 1) / warmup_steps
+
+        decay_steps = max(1, total_steps - warmup_steps)
+        progress = min(1.0, max(0.0, (step - warmup_steps) / decay_steps))
+
+        if scheduler_type == "linear":
+            return 1.0 - (1.0 - min_ratio) * progress
+
+        cosine = 0.5 * (1.0 + math.cos(math.pi * progress))
+        return min_ratio + (1.0 - min_ratio) * cosine
+
+    return LambdaLR(optimizer, lr_lambda=lr_lambda)
+
+
 def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, object]:
     seed_everything(config.train.seed)
     device = resolve_device(config.train.device)
+    apply_token_merge_to_model_config(config.model, config.data)
     output_dir = Path(config.output.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     save_experiment_config(config, output_dir / "resolved_config.json")
@@ -198,16 +289,23 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
         seq_length=config.model.seq_length,
         samples_per_epoch=config.data.train_samples_per_epoch,
         seed=config.train.seed,
+        sampling_strategy=config.data.train_sampling_strategy,
+        token_merge_size=config.data.token_merge_size,
+        token_merge_alphabet=config.data.token_merge_alphabet,
     )
     val_dataset = SequentialWindowDataset(
         sources=splits.val_sources,
         seq_length=config.model.seq_length,
         pad_id=config.model.pad_id,
+        token_merge_size=config.data.token_merge_size,
+        token_merge_alphabet=config.data.token_merge_alphabet,
     )
     test_dataset = SequentialWindowDataset(
         sources=splits.test_sources,
         seq_length=config.model.seq_length,
         pad_id=config.model.pad_id,
+        token_merge_size=config.data.token_merge_size,
+        token_merge_alphabet=config.data.token_merge_alphabet,
     )
     train_loader = DataLoader(
         train_dataset,
@@ -237,6 +335,14 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
         lr=config.train.learning_rate,
         weight_decay=config.train.weight_decay,
     )
+    total_train_steps = config.train.epochs * len(train_loader)
+    scheduler = build_lr_scheduler(
+        optimizer=optimizer,
+        scheduler_type=config.train.lr_scheduler,
+        warmup_steps=config.train.lr_warmup_steps,
+        total_steps=total_train_steps,
+        min_ratio=config.train.lr_min_ratio,
+    )
     scaler = torch.cuda.amp.GradScaler(enabled=device.type == "cuda" and config.train.dtype == "float16")
 
     run_summary: dict[str, object] = {
@@ -265,16 +371,21 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
                 clip_grad_norm_(model.parameters(), config.train.grad_clip_norm)
                 scaler.step(optimizer)
                 scaler.update()
+                if scheduler is not None:
+                    scheduler.step()
                 optimizer.zero_grad(set_to_none=True)
 
                 if global_step % config.train.log_interval == 0:
                     tokens_per_second = (
                         config.train.batch_size * config.model.seq_length * config.train.log_interval
                     ) / max(time.time() - started, 1e-6)
+                    bases_per_second = tokens_per_second * config.data.token_merge_size
+                    bytes_per_second = bases_per_second
+                    bits_per_base = (loss.item() / math.log(2)) / config.data.token_merge_size
                     print(
                         f"[train] epoch={epoch + 1} step={global_step} "
-                        f"loss={loss.item():.4f} bpb={loss.item() / math.log(2):.4f} "
-                        f"tokens/s={tokens_per_second:.1f}"
+                        f"loss/token={loss.item():.4f} bits/base={bits_per_base:.4f} "
+                        f"bytes/s={bytes_per_second:.1f} lr={optimizer.param_groups[0]['lr']:.6g}"
                     )
                     started = time.time()
 
@@ -285,13 +396,14 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
                         device,
                         config.train.dtype,
                         config.model.pad_id,
+                        config.data.token_merge_size,
                     )
                     print(
-                        f"[eval] step={global_step} val_loss={val_metrics['loss_nats']:.4f} "
-                        f"val_bpb={val_metrics['bits_per_byte']:.4f}"
+                        f"[eval] step={global_step} val_loss/token={val_metrics['loss_nats_per_token']:.4f} "
+                        f"val_bits/base={val_metrics['bits_per_base']:.4f}"
                     )
-                    if val_metrics["bits_per_byte"] < best_val_bpb:
-                        best_val_bpb = float(val_metrics["bits_per_byte"])
+                    if val_metrics["bits_per_base"] < best_val_bpb:
+                        best_val_bpb = float(val_metrics["bits_per_base"])
                         save_checkpoint(output_dir / "best.pt", model, optimizer, global_step, best_val_bpb)
                     model.train()
 
@@ -302,12 +414,13 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
                 device,
                 config.train.dtype,
                 config.model.pad_id,
+                config.data.token_merge_size,
             )
-            best_val_bpb = float(val_metrics["bits_per_byte"])
+            best_val_bpb = float(val_metrics["bits_per_base"])
             save_checkpoint(output_dir / "best.pt", model, optimizer, global_step, best_val_bpb)
 
         save_checkpoint(output_dir / "last.pt", model, optimizer, global_step, best_val_bpb)
-        run_summary["best_val_bits_per_byte"] = best_val_bpb
+        run_summary["best_val_bits_per_base"] = best_val_bpb
 
     checkpoint_path = output_dir / "best.pt"
     if checkpoint_path.exists():
@@ -321,6 +434,7 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
             device,
             config.train.dtype,
             config.model.pad_id,
+            config.data.token_merge_size,
         )
         test_metrics = evaluate_loss(
             model,
@@ -328,6 +442,7 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
             device,
             config.train.dtype,
             config.model.pad_id,
+            config.data.token_merge_size,
         )
         species_names = [str(item["species"]) for item in splits.summary["species"]]
         compression_metrics = evaluate_compression_per_source(
@@ -341,6 +456,8 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
             device=device,
             dtype_name=config.train.dtype,
             batch_size=config.train.eval_batch_size,
+            token_merge_size=config.data.token_merge_size,
+            token_merge_alphabet=config.data.token_merge_alphabet,
         )
 
         run_summary["validation"] = val_metrics

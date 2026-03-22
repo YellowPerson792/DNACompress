@@ -1,12 +1,12 @@
 {
   "model": {
-    "implementation": "megabyte",
+    "implementation": "megabyte_in_action",
     "vocab_size": 259,
     "patch_size": 4,
-    "global_dim": 384,
+    "global_dim": 128,
     "local_dim": 128,
     "seq_length": 1024,
-    "global_heads": 16,
+    "global_heads": 8,
     "global_layers": 4,
     "local_heads": 2,
     "local_layers": 2,

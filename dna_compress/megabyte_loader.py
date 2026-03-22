@@ -19,6 +19,8 @@ def build_model(model_config: ModelConfig):
     ensure_repo_on_path()
     if model_config.implementation == "megabyte_in_action":
         from model.megabyte_in_action import Megabyte, MegabyteConfig
+    elif model_config.implementation == "megabyte_relative":
+        from model.megabyte_relative import Megabyte, MegabyteConfig
     else:
         from model.megabyte import Megabyte, MegabyteConfig
 

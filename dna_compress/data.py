@@ -8,6 +8,7 @@ import torch
 from torch.utils.data import Dataset
 
 from .config import DataConfig
+from .tokenization import tokenize_source_bytes
 
 
 @dataclass
@@ -109,30 +110,47 @@ class RandomWindowDataset(Dataset):
         seq_length: int,
         samples_per_epoch: int,
         seed: int,
+        sampling_strategy: str = "proportional",
+        token_merge_size: int = 1,
+        token_merge_alphabet: str = "ACGTN",
     ) -> None:
-        self.sources = [source for source in sources if len(source) >= seq_length]
+        self.sources = [
+            tokenize_source_bytes(source, token_merge_size, token_merge_alphabet)
+            for source in sources
+        ]
+        self.sources = [source for source in self.sources if len(source) >= seq_length]
         if not self.sources:
             raise ValueError("no train sources are long enough for the configured seq_length")
         self.seq_length = seq_length
         self.samples_per_epoch = samples_per_epoch
         self.seed = seed
         self.available = [len(source) - seq_length + 1 for source in self.sources]
-        self.total_available = sum(self.available)
+        self.sampling_strategy = sampling_strategy
+        if self.sampling_strategy == "proportional":
+            self.source_weights = [float(count) for count in self.available]
+        elif self.sampling_strategy == "uniform":
+            self.source_weights = [1.0 for _ in self.available]
+        elif self.sampling_strategy == "sqrt":
+            self.source_weights = [float(count) ** 0.5 for count in self.available]
+        else:
+            raise ValueError(
+                "sampling_strategy must be one of: proportional, uniform, sqrt"
+            )
+
+        self.total_weight = sum(self.source_weights)
+        if self.total_weight <= 0:
+            raise ValueError("sampling source weights must sum to > 0")
 
     def __len__(self) -> int:
         return self.samples_per_epoch
 
     def __getitem__(self, index: int) -> dict[str, torch.Tensor]:
         rng = random.Random(self.seed + index)
-        draw = rng.randrange(self.total_available)
-        source_index = 0
-        while draw >= self.available[source_index]:
-            draw -= self.available[source_index]
-            source_index += 1
+        source_index = rng.choices(range(len(self.sources)), weights=self.source_weights, k=1)[0]
         source = self.sources[source_index]
-        start = draw
+        start = rng.randrange(self.available[source_index])
         window = source[start : start + self.seq_length]
-        ids = torch.frombuffer(bytearray(window), dtype=torch.uint8).to(torch.long)
+        ids = torch.tensor(window, dtype=torch.long)
         return {"input_ids": ids}
 
 
@@ -142,8 +160,14 @@ class SequentialWindowDataset(Dataset):
         sources: list[bytes],
         seq_length: int,
         pad_id: int,
+        token_merge_size: int = 1,
+        token_merge_alphabet: str = "ACGTN",
     ) -> None:
-        self.sources = [source for source in sources if len(source) > 0]
+        tokenized_sources = [
+            tokenize_source_bytes(source, token_merge_size, token_merge_alphabet)
+            for source in sources
+        ]
+        self.sources = [source for source in tokenized_sources if len(source) > 0]
         self.seq_length = seq_length
         self.pad_id = pad_id
         self.index: list[tuple[int, int]] = []
@@ -163,7 +187,7 @@ class SequentialWindowDataset(Dataset):
         source = self.sources[source_idx]
         chunk = source[start : start + self.seq_length]
         ids = torch.full((self.seq_length,), self.pad_id, dtype=torch.long)
-        ids[: len(chunk)] = torch.frombuffer(bytearray(chunk), dtype=torch.uint8).to(torch.long)
+        ids[: len(chunk)] = torch.tensor(chunk, dtype=torch.long)
         return {"input_ids": ids}
 
 

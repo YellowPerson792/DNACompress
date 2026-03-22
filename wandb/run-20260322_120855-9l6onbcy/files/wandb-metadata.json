@@ -1,0 +1,46 @@
+{
+  "os":  "Windows-11-10.0.26200-SP0",
+  "python":  "CPython 3.12.10",
+  "startedAt":  "2026-03-22T04:08:55.012208Z",
+  "args":  [
+    "--run-dir",
+    "outputs/dna_megabyte_1024_4",
+    "--project",
+    "dna-compress"
+  ],
+  "program":  "D:\\MLLMs\\DNACompress\\scripts\\upload_to_wandb.py",
+  "codePath":  "scripts\\upload_to_wandb.py",
+  "codePathLocal":  "scripts\\upload_to_wandb.py",
+  "git":  {
+    "remote":  "https://github.com/YellowPerson792/DNACompress.git",
+    "commit":  "7f4b447c82cd1bd89dedd321c285e1554eaaf968"
+  },
+  "email":  "yellow_person@outlook.com",
+  "root":  "D:\\MLLMs\\DNACompress",
+  "host":  "PC-YPFREE",
+  "executable":  "D:\\MLLMs\\.venv\\Scripts\\python.exe",
+  "cpu_count":  10,
+  "cpu_count_logical":  16,
+  "gpu":  "NVIDIA GeForce RTX 4050 Laptop GPU",
+  "gpu_count":  1,
+  "disk":  {
+    "/":  {
+      "total":  "499774386176",
+      "used":  "403150217216"
+    }
+  },
+  "memory":  {
+    "total":  "16849256448"
+  },
+  "gpu_nvidia":  [
+    {
+      "name":  "NVIDIA GeForce RTX 4050 Laptop GPU",
+      "memoryTotal":  "6439305216",
+      "cudaCores":  2560,
+      "architecture":  "Ada",
+      "uuid":  "GPU-25d77015-9bd7-8fa9-24f8-7773aa31d4d4"
+    }
+  ],
+  "cudaVersion":  "13.0",
+  "writerId":  "gs8lgzyqwzla3chcjvv3f9copgattqk3"
+}

@@ -1,0 +1,9 @@
+{
+  "project": "",
+  "entity": "",
+  "name": "dna_megabyte_half_data",
+  "run_dir": "outputs\\dna_megabyte_half_data",
+  "has_resolved_config": true,
+  "has_metrics_json": true,
+  "has_compression_compare_json": true
+}

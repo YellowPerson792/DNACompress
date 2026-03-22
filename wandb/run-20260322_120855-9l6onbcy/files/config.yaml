@@ -1,0 +1,114 @@
+_wandb:
+    value:
+        cli_version: 0.21.1
+        e:
+            gs8lgzyqwzla3chcjvv3f9copgattqk3:
+                args:
+                    - --run-dir
+                    - outputs/dna_megabyte_1024_4
+                    - --project
+                    - dna-compress
+                codePath: scripts\upload_to_wandb.py
+                codePathLocal: scripts\upload_to_wandb.py
+                cpu_count: 10
+                cpu_count_logical: 16
+                cudaVersion: "13.0"
+                disk:
+                    /:
+                        total: "499774386176"
+                        used: "403150217216"
+                email: yellow_person@outlook.com
+                executable: D:\MLLMs\.venv\Scripts\python.exe
+                git:
+                    commit: 7f4b447c82cd1bd89dedd321c285e1554eaaf968
+                    remote: https://github.com/YellowPerson792/DNACompress.git
+                gpu: NVIDIA GeForce RTX 4050 Laptop GPU
+                gpu_count: 1
+                gpu_nvidia:
+                    - architecture: Ada
+                      cudaCores: 2560
+                      memoryTotal: "6439305216"
+                      name: NVIDIA GeForce RTX 4050 Laptop GPU
+                      uuid: GPU-25d77015-9bd7-8fa9-24f8-7773aa31d4d4
+                host: PC-YPFREE
+                memory:
+                    total: "16849256448"
+                os: Windows-11-10.0.26200-SP0
+                program: D:\MLLMs\DNACompress\scripts\upload_to_wandb.py
+                python: CPython 3.12.10
+                root: D:\MLLMs\DNACompress
+                startedAt: "2026-03-22T04:08:55.012208Z"
+                writerId: gs8lgzyqwzla3chcjvv3f9copgattqk3
+        m: []
+        python_version: 3.12.10
+        t:
+            "3":
+                - 2
+                - 13
+                - 16
+                - 62
+            "4": 3.12.10
+            "5": 0.21.1
+            "8":
+                - 3
+            "12": 0.21.1
+            "13": windows-amd64
+data:
+    value:
+        compression_sample_bytes: 100000
+        dataset_dir: datasets/DNACorpus
+        max_test_bytes_per_species: null
+        max_train_bytes_per_species: null
+        max_val_bytes_per_species: null
+        species:
+            - OrSa
+            - HoSa
+            - DaRe
+            - ScPo
+            - EsCo
+            - YeMi
+            - BuEb
+            - AgPh
+        test_ratio: 0.2
+        token_merge_alphabet: ACGTN
+        token_merge_size: 4
+        train_ratio: 0.6
+        train_samples_per_epoch: 100000
+        train_sampling_strategy: uniform
+        val_ratio: 0.2
+model:
+    value:
+        eos_id: 626
+        global_dim: 128
+        global_heads: 8
+        global_layers: 4
+        implementation: megabyte_in_action
+        initializer_range: 0.02
+        local_dim: 128
+        local_heads: 2
+        local_layers: 2
+        pad_id: 625
+        patch_size: 4
+        seq_length: 1024
+        vocab_size: 627
+output:
+    value:
+        output_dir: outputs/dna_megabyte
+        run_name: dna_megabyte_quick
+train:
+    value:
+        batch_size: 16
+        device: auto
+        dtype: bfloat16
+        epochs: 1
+        eval_batch_size: 32
+        eval_interval: 5000
+        grad_clip_norm: 1
+        learning_rate: 0.0003
+        log_interval: 25
+        lr_min_ratio: 0.2
+        lr_scheduler: cosine
+        lr_warmup_steps: 0
+        num_workers: 0
+        seed: 42
+        weight_decay: 0.01
