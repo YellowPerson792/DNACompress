@@ -31,20 +31,21 @@ datasets are appended at the end.
 
 Complete example (train + eval + compression, with common overrides):
 
-    torchrun --nproc_per_node=4 scripts/run_dna_experiment.py \
-        --config configs/dna_megabyte_quick.json \
+    torchrun --nproc_per_node=2 scripts/run_dna_experiment.py \
+        --config configs/dna_megabyte_in_action_causal_conv_quick.json \
         --mode all \
         --dtype bfloat16 \
         --epochs 1 \
         --batch-size 16 \
         --eval-batch-size 32 \
         --learning-rate 3e-4 \
-        --species GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe \
-        --train-samples-per-epoch 1000 \
+        --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe \
+        --train-samples-per-epoch 2000000 \
         --compression-sample-bytes 100000 \
         --print-config \
-        --seq-length 4096 \
-        --patch-size 4 \
+        --seq-length 1024 \
+        --patch-size 32 \
+        --input-causal-conv-kernel-size 7 \
         --token-merge-size 3 \
         --weight-decay 0.01 \
         --log-interval 25 \
@@ -54,14 +55,11 @@ Complete example (train + eval + compression, with common overrides):
         --test-ratio 0.2 \
         --lr-scheduler cosine \
         --lr-warmup-steps 0 \
-        --lr-min-ratio 0.2 \
+        --lr-min-ratio 0.1 \
         --grad-clip-norm 1.0 \
-        --num-workers 8 \
-        --prefetch-factor 4 \
-        --persistent-workers \
-        --pin-memory \
+        --num-workers 4 \
         --train-sampling-strategy proportional \
-        --gpu-ids 0 1 2 3
+        --gpu-ids 0 3
  
 Multi-GPU DDP example (2 GPUs):
 
@@ -189,6 +187,7 @@ def _apply_overrides(config: Any, args: argparse.Namespace) -> None:
     _apply_if_not_none(config, "model.local_layers", args.local_layers)
     _apply_if_not_none(config, "model.attn_dropout", args.attn_dropout)
     _apply_if_not_none(config, "model.ff_dropout", args.ff_dropout)
+    _apply_if_not_none(config, "model.input_causal_conv_kernel_size", args.input_causal_conv_kernel_size)
 
     _apply_if_not_none(config, "data.dataset_dir", args.dataset_dir)
     _apply_if_not_none(config, "data.train_ratio", args.train_ratio)
@@ -235,9 +234,15 @@ def _apply_overrides(config: Any, args: argparse.Namespace) -> None:
 
 
 def _validate_config_for_megabyte(config: Any) -> None:
-    if config.model.implementation not in {"megabyte", "megabyte_in_action", "megabyte_relative"}:
+    if config.model.implementation not in {
+        "megabyte",
+        "megabyte_in_action",
+        "megabyte_in_action_causal_conv",
+        "megabyte_relative",
+    }:
         raise ValueError(
-            "model.implementation must be one of 'megabyte', 'megabyte_in_action', or 'megabyte_relative' "
+            "model.implementation must be one of 'megabyte', 'megabyte_in_action', "
+            "'megabyte_in_action_causal_conv', or 'megabyte_relative' "
             f"for this project, got '{config.model.implementation}'."
         )
 
@@ -255,6 +260,9 @@ def _validate_config_for_megabyte(config: Any) -> None:
 
     if not (0.0 <= config.model.ff_dropout < 1.0):
         raise ValueError("model.ff_dropout must be in [0.0, 1.0)")
+
+    if config.model.input_causal_conv_kernel_size <= 0:
+        raise ValueError("model.input_causal_conv_kernel_size must be >= 1")
 
     ratio_sum = config.data.train_ratio + config.data.val_ratio + config.data.test_ratio
     if not math.isclose(ratio_sum, 1.0, rel_tol=1e-6, abs_tol=1e-6):
@@ -349,7 +357,10 @@ def _build_parser() -> argparse.ArgumentParser:
     )
 
     model_group = parser.add_argument_group("model overrides")
-    model_group.add_argument("--implementation", choices=["megabyte", "megabyte_in_action", "megabyte_relative"])
+    model_group.add_argument(
+        "--implementation",
+        choices=["megabyte", "megabyte_in_action", "megabyte_in_action_causal_conv", "megabyte_relative"],
+    )
     model_group.add_argument("--patch-size", type=int)
     model_group.add_argument("--seq-length", type=int)
     model_group.add_argument("--global-dim", type=int)
@@ -360,6 +371,11 @@ def _build_parser() -> argparse.ArgumentParser:
     model_group.add_argument("--local-layers", type=int)
     model_group.add_argument("--attn-dropout", type=float, help="Attention dropout used in both global and local transformers.")
     model_group.add_argument("--ff-dropout", type=float, help="Feed-forward dropout used in both global and local transformers.")
+    model_group.add_argument(
+        "--input-causal-conv-kernel-size",
+        type=int,
+        help="Kernel size for the causal Conv1d added before Megabyte-in-Action token embeddings are consumed.",
+    )
 
     data_group = parser.add_argument_group("data overrides")
     data_group.add_argument("--dataset-dir")

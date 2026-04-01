@@ -33,13 +33,16 @@ Modes:
 Complete examples:
 
     python scripts/run_dna_compression.py \
-      --run-dir outputs/dna_megabyte_quick_20260322_221429 \
+      --run-dir outputs/dna_megabyte_in_action_causal_conv \
       --checkpoint-tag best \
       --split train val test \
       --compression-modes train_windows_nonoverlap \
       --compression-sample-bytes 100000 \
-      --species GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe \
-      --device cuda:1
+      --species HoSa \
+      --device cuda:2 
+          
+      --parallel-window-arithmetic \
+      --arithmetic-workers 0
 
     python scripts/run_dna_compression.py \
       --run-dir outputs\\dna_megabyte_quick_l1024_p3 \
@@ -59,6 +62,7 @@ Compatibility (explicit paths still supported):
 import argparse
 import json
 from pathlib import Path
+import subprocess
 import sys
 from typing import Any
 
@@ -137,7 +141,9 @@ def _apply_overrides(config: ExperimentConfig, args: argparse.Namespace) -> None
     if args.species is not None:
         config.data.species = args.species
 
+    _apply_if_not_none(config, "model.implementation", args.implementation)
     _apply_if_not_none(config, "model.seq_length", args.seq_length)
+    _apply_if_not_none(config, "model.input_causal_conv_kernel_size", args.input_causal_conv_kernel_size)
     _apply_if_not_none(config, "data.dataset_dir", args.dataset_dir)
     _apply_if_not_none(config, "data.train_ratio", args.train_ratio)
     _apply_if_not_none(config, "data.val_ratio", args.val_ratio)
@@ -206,9 +212,15 @@ def _species_names(splits) -> list[str]:
 
 
 def _validate_args(config: ExperimentConfig, args: argparse.Namespace) -> None:
-    if config.model.implementation not in {"megabyte", "megabyte_in_action", "megabyte_relative"}:
+    if config.model.implementation not in {
+        "megabyte",
+        "megabyte_in_action",
+        "megabyte_in_action_causal_conv",
+        "megabyte_relative",
+    }:
         raise ValueError(
-            "model.implementation must be one of 'megabyte', 'megabyte_in_action', or 'megabyte_relative' "
+            "model.implementation must be one of 'megabyte', 'megabyte_in_action', "
+            "'megabyte_in_action_causal_conv', or 'megabyte_relative' "
             f"for this project, got '{config.model.implementation}'."
         )
     if config.model.seq_length <= 0 or config.model.patch_size <= 0:
@@ -218,6 +230,8 @@ def _validate_args(config: ExperimentConfig, args: argparse.Namespace) -> None:
             f"model.seq_length ({config.model.seq_length}) must be divisible by "
             f"model.patch_size ({config.model.patch_size}) for Megabyte."
         )
+    if config.model.input_causal_conv_kernel_size <= 0:
+        raise ValueError("model.input_causal_conv_kernel_size must be >= 1")
     if args.overlap_patches is not None and args.overlap_patches <= 0:
         raise ValueError("--overlap-patches must be > 0")
     overlap_stride = _resolve_overlap_stride(config, args)
@@ -296,6 +310,48 @@ def _run_split(
     return split_result
 
 
+def _run_local_payload_export(
+    *,
+    run_dir: Path,
+    compression_json_name: str,
+    export_out_dir: str | None,
+    export_project: str,
+    export_entity: str,
+    export_name: str | None,
+) -> None:
+    export_script = REPO_ROOT / "scripts" / "export_wandb_payload_local.py"
+    if not export_script.exists():
+        print(f"[export] skip: script not found: {export_script}")
+        return
+
+    command = [
+        sys.executable,
+        str(export_script),
+        "--run-dir",
+        str(run_dir),
+        "--compression-json",
+        compression_json_name,
+    ]
+
+    if export_out_dir:
+        command.extend(["--out-dir", export_out_dir])
+    if export_project:
+        command.extend(["--project", export_project])
+    if export_entity:
+        command.extend(["--entity", export_entity])
+    if export_name:
+        command.extend(["--name", export_name])
+
+    print(f"[export] running local payload export for run_dir={run_dir}")
+    completed = subprocess.run(command, check=False, capture_output=True, text=True)
+    if completed.stdout.strip():
+        print(completed.stdout.strip())
+    if completed.returncode != 0:
+        if completed.stderr.strip():
+            print(completed.stderr.strip())
+        print(f"[export] warning: export script failed with exit code {completed.returncode}")
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Run standalone DNA compression comparisons with a trained Megabyte checkpoint.",
@@ -335,10 +391,28 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--print-config", action="store_true", help="Print resolved config before running.")
     parser.add_argument("--output-json", help="Where to save JSON metrics. Defaults to output_dir/compression_compare.json")
+    parser.add_argument(
+        "--no-auto-export",
+        action="store_true",
+        help="Disable automatic execution of scripts/export_wandb_payload_local.py after compression finishes.",
+    )
+    parser.add_argument(
+        "--export-out-dir",
+        default=None,
+        help="Optional output directory for exported tables. Defaults to <run-dir>/wandb_payload_export.",
+    )
+    parser.add_argument("--export-project", default="", help="Optional project metadata for exported run_metadata.json.")
+    parser.add_argument("--export-entity", default="", help="Optional entity metadata for exported run_metadata.json.")
+    parser.add_argument("--export-name", default=None, help="Optional run name for exported run_metadata.json.")
     parser.add_argument("--override", action="append", default=[], help="Generic override in form section.key=value.")
 
     model_group = parser.add_argument_group("model/data overrides")
+    model_group.add_argument(
+        "--implementation",
+        choices=["megabyte", "megabyte_in_action", "megabyte_in_action_causal_conv", "megabyte_relative"],
+    )
     model_group.add_argument("--seq-length", type=int)
+    model_group.add_argument("--input-causal-conv-kernel-size", type=int)
     model_group.add_argument("--dataset-dir")
     model_group.add_argument("--species", nargs="+")
     model_group.add_argument("--train-ratio", type=float)
@@ -415,6 +489,17 @@ def main() -> None:
     output_json.parent.mkdir(parents=True, exist_ok=True)
     output_json.write_text(json.dumps(metrics, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"Saved compression metrics to {output_json}")
+
+    if not args.no_auto_export:
+        export_run_dir = Path(args.run_dir) if args.run_dir is not None else output_json.parent
+        _run_local_payload_export(
+            run_dir=export_run_dir,
+            compression_json_name=output_json.name,
+            export_out_dir=args.export_out_dir,
+            export_project=args.export_project,
+            export_entity=args.export_entity,
+            export_name=args.export_name,
+        )
 
 
 if __name__ == "__main__":

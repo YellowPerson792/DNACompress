@@ -1,0 +1,17 @@
+{
+  "implementation": "megabyte_in_action",
+  "vocab_size": 127,
+  "patch_size": 32,
+  "global_dim": 32,
+  "local_dim": 768,
+  "seq_length": 1024,
+  "global_heads": 16,
+  "global_layers": 24,
+  "local_heads": 12,
+  "local_layers": 12,
+  "attn_dropout": 0.0,
+  "ff_dropout": 0.0,
+  "initializer_range": 0.02,
+  "pad_id": 125,
+  "eos_id": 126
+}

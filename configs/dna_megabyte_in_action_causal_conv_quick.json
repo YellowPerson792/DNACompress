@@ -1,0 +1,51 @@
+{
+  "model": {
+    "implementation": "megabyte_in_action_causal_conv",
+    "vocab_size": 127,
+    "patch_size": 32,
+    "global_dim": 32,
+    "local_dim": 768,
+    "seq_length": 1024,
+    "global_heads": 16,
+    "global_layers": 24,
+    "local_heads": 12,
+    "local_layers": 12,
+    "attn_dropout": 0.0,
+    "ff_dropout": 0.0,
+    "initializer_range": 0.02,
+    "pad_id": 125,
+    "eos_id": 126
+  },
+  "data": {
+    "dataset_dir": "datasets/DNACorpus",
+    "species": [
+      "HoSa"
+    ],
+    "train_ratio": 0.9,
+    "val_ratio": 0.05,
+    "test_ratio": 0.05,
+    "max_train_bytes_per_species": null,
+    "max_val_bytes_per_species": null,
+    "max_test_bytes_per_species": null,
+    "train_samples_per_epoch": 1024,
+    "compression_sample_bytes": 16384
+  },
+  "train": {
+    "seed": 42,
+    "device": "auto",
+    "dtype": "float16",
+    "epochs": 10,
+    "batch_size": 16,
+    "eval_batch_size": 32,
+    "learning_rate": 0.0003,
+    "weight_decay": 0.01,
+    "grad_clip_norm": 1.0,
+    "num_workers": 0,
+    "log_interval": 25,
+    "eval_interval": 500
+  },
+  "output": {
+    "run_name": "dna_megabyte_in_action_causal_conv_quick",
+    "output_dir": "outputs/dna_megabyte_in_action_causal_conv_quick"
+  }
+}

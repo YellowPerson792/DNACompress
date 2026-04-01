@@ -1,0 +1,4 @@
+split,mode,species,sample_bytes,sample_bases,theoretical_bits_per_base,arithmetic_bits_per_base,ascii_bytes,two_bit_pack_bytes,gzip_bytes,bz2_bytes,lzma_bytes,arithmetic_vs_2bit_ratio,arithmetic_bytes_ratio_vs_ascii,arithmetic_vs_gzip_ratio
+train,train_windows_nonoverlap,HoSa,100000,100000,1.878761904296875,1.88272,100000,25000,27817,26629,25732,0.94136,0.23534,0.846029406478053
+val,train_windows_nonoverlap,HoSa,100000,100000,1.8658358642578126,1.86992,100000,25000,28037,26822,26196,0.93496,0.23374,0.8336840603488248
+test,train_windows_nonoverlap,HoSa,100000,100000,1.8882465771484376,1.89208,100000,25000,28409,26828,26684,0.94604,0.23651,0.832517864057165

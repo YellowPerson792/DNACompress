@@ -359,7 +359,7 @@ def compress_source(
             progress_callback=progress_callback,
         )
     raise ValueError(f"Unsupported compression mode '{mode}'")
-
+ 
 
 def summarize_per_source(
     per_source: Iterable[dict[str, object]],

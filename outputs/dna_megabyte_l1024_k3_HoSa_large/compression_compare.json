@@ -1,0 +1,242 @@
+{
+  "device": "cuda:2",
+  "checkpoint_path": "outputs/dna_megabyte_l1024_k3_HoSa_large/best.pt",
+  "checkpoint_step": 8000,
+  "best_val_bpb": 1.6451320704256314,
+  "model_parameters": 327219039,
+  "overlap_stride_tokens": 32,
+  "overlap_stride_patches": 1,
+  "resolved_config": {
+    "model": {
+      "implementation": "megabyte_in_action",
+      "vocab_size": 127,
+      "patch_size": 32,
+      "global_dim": 32,
+      "local_dim": 768,
+      "seq_length": 1024,
+      "global_heads": 16,
+      "global_layers": 24,
+      "local_heads": 12,
+      "local_layers": 12,
+      "attn_dropout": 0.0,
+      "ff_dropout": 0.0,
+      "initializer_range": 0.02,
+      "pad_id": 125,
+      "eos_id": 126
+    },
+    "data": {
+      "dataset_dir": "datasets/DNACorpus",
+      "species": [
+        "HoSa"
+      ],
+      "train_ratio": 0.8,
+      "val_ratio": 0.1,
+      "test_ratio": 0.1,
+      "max_train_bytes_per_species": null,
+      "max_val_bytes_per_species": null,
+      "max_test_bytes_per_species": null,
+      "train_samples_per_epoch": 500000,
+      "train_sampling_strategy": "proportional",
+      "token_merge_size": 3,
+      "token_merge_alphabet": "ACGTN",
+      "compression_sample_bytes": 100000
+    },
+    "train": {
+      "seed": 42,
+      "device": "cuda:2",
+      "dtype": "bfloat16",
+      "epochs": 1,
+      "batch_size": 16,
+      "eval_batch_size": 32,
+      "learning_rate": 0.0003,
+      "weight_decay": 0.01,
+      "lr_scheduler": "cosine",
+      "lr_warmup_steps": 0,
+      "lr_min_ratio": 0.1,
+      "grad_clip_norm": 1.0,
+      "num_workers": 4,
+      "prefetch_factor": 2,
+      "persistent_workers": true,
+      "pin_memory": true,
+      "log_interval": 25,
+      "eval_interval": 500,
+      "gpu_ids": [
+        1,
+        2
+      ]
+    },
+    "output": {
+      "run_name": "dna_megabyte_quick",
+      "output_dir": "outputs/dna_megabyte_quick_20260331_200812"
+    }
+  },
+  "dataset": {
+    "species": [
+      {
+        "species": "HoSa",
+        "total_size": 189752667,
+        "train_bytes": 151802133,
+        "val_bytes": 18975266,
+        "test_bytes": 18975268
+      }
+    ],
+    "alphabet_bytes": [
+      65,
+      67,
+      71,
+      84
+    ]
+  },
+  "results": {
+    "train": {
+      "train_windows_nonoverlap": {
+        "aggregate": {
+          "source_count": 1,
+          "total_sample_bytes": 100000,
+          "total_sample_bases": 99999,
+          "total_theoretical_bits": 156436.2275390625,
+          "total_theoretical_bits_per_base": 1.5643779191698166,
+          "total_arithmetic_coded_bytes": 19565,
+          "total_arithmetic_bits_per_base": 1.5652156521565215,
+          "total_ascii_bytes": 100000,
+          "total_two_bit_pack_bytes": 25000,
+          "total_gzip_bytes": 27817,
+          "total_bz2_bytes": 26629,
+          "total_lzma_bytes": 25732,
+          "total_probability_compute_seconds": 1.0501153600635007,
+          "total_arithmetic_encode_seconds": 0.6138693919638172,
+          "total_compression_process_seconds": 1.6639847520273179,
+          "total_compression_bytes_per_second": 60096.70453900787,
+          "total_compression_bases_per_second": 60096.10357196248
+        },
+        "per_source": [
+          {
+            "species": "HoSa",
+            "mode": "train_windows_nonoverlap",
+            "sample_bytes": 100000,
+            "sample_bases": 99999,
+            "sample_symbols_with_eos": 33334,
+            "theoretical_bits": 156436.2275390625,
+            "theoretical_bits_per_base": 1.5643779191698166,
+            "arithmetic_coded_bytes": 19565,
+            "arithmetic_bits_per_base": 1.5652156521565215,
+            "probability_compute_seconds": 1.0501153600635007,
+            "arithmetic_encode_seconds": 0.6138693919638172,
+            "compression_process_seconds": 1.6639847520273179,
+            "compression_bytes_per_second": 60096.70453900787,
+            "compression_bases_per_second": 60096.10357196248,
+            "compression_symbols_per_second": 20032.635491032885,
+            "ascii_bytes": 100000,
+            "two_bit_pack_bytes": 25000,
+            "gzip_bytes": 27817,
+            "bz2_bytes": 26629,
+            "lzma_bytes": 25732,
+            "window_policy": "contiguous_train_style",
+            "cache_reuse": false,
+            "window_stride": 1024
+          }
+        ]
+      }
+    },
+    "val": {
+      "train_windows_nonoverlap": {
+        "aggregate": {
+          "source_count": 1,
+          "total_sample_bytes": 100000,
+          "total_sample_bases": 99999,
+          "total_theoretical_bits": 176889.45654296875,
+          "total_theoretical_bits_per_base": 1.768912254552233,
+          "total_arithmetic_coded_bytes": 22120,
+          "total_arithmetic_bits_per_base": 1.7696176961769619,
+          "total_ascii_bytes": 100000,
+          "total_two_bit_pack_bytes": 25000,
+          "total_gzip_bytes": 28409,
+          "total_bz2_bytes": 26828,
+          "total_lzma_bytes": 26684,
+          "total_probability_compute_seconds": 0.12278868991415948,
+          "total_arithmetic_encode_seconds": 0.6028045000275597,
+          "total_compression_process_seconds": 0.7255931899417192,
+          "total_compression_bytes_per_second": 137818.27253372123,
+          "total_compression_bases_per_second": 137816.8943509959
+        },
+        "per_source": [
+          {
+            "species": "HoSa",
+            "mode": "train_windows_nonoverlap",
+            "sample_bytes": 100000,
+            "sample_bases": 99999,
+            "sample_symbols_with_eos": 33334,
+            "theoretical_bits": 176889.45654296875,
+            "theoretical_bits_per_base": 1.768912254552233,
+            "arithmetic_coded_bytes": 22120,
+            "arithmetic_bits_per_base": 1.7696176961769619,
+            "probability_compute_seconds": 0.12278868991415948,
+            "arithmetic_encode_seconds": 0.6028045000275597,
+            "compression_process_seconds": 0.7255931899417192,
+            "compression_bytes_per_second": 137818.27253372123,
+            "compression_bases_per_second": 137816.8943509959,
+            "compression_symbols_per_second": 45940.34296639063,
+            "ascii_bytes": 100000,
+            "two_bit_pack_bytes": 25000,
+            "gzip_bytes": 28409,
+            "bz2_bytes": 26828,
+            "lzma_bytes": 26684,
+            "window_policy": "contiguous_train_style",
+            "cache_reuse": false,
+            "window_stride": 1024
+          }
+        ]
+      }
+    },
+    "test": {
+      "train_windows_nonoverlap": {
+        "aggregate": {
+          "source_count": 1,
+          "total_sample_bytes": 100000,
+          "total_sample_bases": 99999,
+          "total_theoretical_bits": 165979.72778320312,
+          "total_theoretical_bits_per_base": 1.659813875970791,
+          "total_arithmetic_coded_bytes": 20755,
+          "total_arithmetic_bits_per_base": 1.6604166041660418,
+          "total_ascii_bytes": 100000,
+          "total_two_bit_pack_bytes": 25000,
+          "total_gzip_bytes": 28143,
+          "total_bz2_bytes": 26732,
+          "total_lzma_bytes": 26168,
+          "total_probability_compute_seconds": 0.1217448910465464,
+          "total_arithmetic_encode_seconds": 0.5933727700030431,
+          "total_compression_process_seconds": 0.7151176610495895,
+          "total_compression_bytes_per_second": 139837.12813528953,
+          "total_compression_bases_per_second": 139835.7297640082
+        },
+        "per_source": [
+          {
+            "species": "HoSa",
+            "mode": "train_windows_nonoverlap",
+            "sample_bytes": 100000,
+            "sample_bases": 99999,
+            "sample_symbols_with_eos": 33334,
+            "theoretical_bits": 165979.72778320312,
+            "theoretical_bits_per_base": 1.659813875970791,
+            "arithmetic_coded_bytes": 20755,
+            "arithmetic_bits_per_base": 1.6604166041660418,
+            "probability_compute_seconds": 0.1217448910465464,
+            "arithmetic_encode_seconds": 0.5933727700030431,
+            "compression_process_seconds": 0.7151176610495895,
+            "compression_bytes_per_second": 139837.12813528953,
+            "compression_bases_per_second": 139835.7297640082,
+            "compression_symbols_per_second": 46613.30829261742,
+            "ascii_bytes": 100000,
+            "two_bit_pack_bytes": 25000,
+            "gzip_bytes": 28143,
+            "bz2_bytes": 26732,
+            "lzma_bytes": 26168,
+            "window_policy": "contiguous_train_style",
+            "cache_reuse": false,
+            "window_stride": 1024
+          }
+        ]
+      }
+    }
+  }
+}

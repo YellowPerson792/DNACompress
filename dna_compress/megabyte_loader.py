@@ -17,14 +17,17 @@ def ensure_repo_on_path() -> None:
 
 def build_model(model_config: ModelConfig):
     ensure_repo_on_path()
+    use_input_causal_conv = model_config.implementation == "megabyte_in_action_causal_conv"
     if model_config.implementation == "megabyte_in_action":
         from model.megabyte_in_action import Megabyte, MegabyteConfig
+    elif use_input_causal_conv:
+        from dna_compress.megabyte_in_action_causal_conv import Megabyte, MegabyteConfig
     elif model_config.implementation == "megabyte_relative":
         from model.megabyte_relative import Megabyte, MegabyteConfig
     else:
         from model.megabyte import Megabyte, MegabyteConfig
 
-    native_config = MegabyteConfig(
+    config_kwargs = dict(
         V=model_config.vocab_size,
         P=model_config.patch_size,
         D_G=model_config.global_dim,
@@ -40,4 +43,7 @@ def build_model(model_config: ModelConfig):
         pad_id=model_config.pad_id,
         eos_id=model_config.eos_id,
     )
+    if use_input_causal_conv:
+        config_kwargs["input_causal_conv_kernel_size"] = model_config.input_causal_conv_kernel_size
+    native_config = MegabyteConfig(**config_kwargs)
     return Megabyte(native_config)

@@ -20,6 +20,7 @@ class ModelConfig:
     local_layers: int = 2
     attn_dropout: float = 0.0
     ff_dropout: float = 0.0
+    input_causal_conv_kernel_size: int = 1
     initializer_range: float = 0.02
     pad_id: int = 257
     eos_id: int = 258

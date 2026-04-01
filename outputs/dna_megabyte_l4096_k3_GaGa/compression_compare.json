@@ -1,0 +1,252 @@
+{
+  "device": "cuda:2",
+  "checkpoint_path": "outputs/dna_megabyte_l4096_k3_GaGa/best.pt",
+  "checkpoint_step": 7000,
+  "best_val_bpb": 1.8245664679648683,
+  "model_parameters": 11194751,
+  "overlap_stride_tokens": 4,
+  "overlap_stride_patches": 1,
+  "parallel_window_arithmetic": false,
+  "arithmetic_workers": 0,
+  "resolved_config": {
+    "model": {
+      "implementation": "megabyte_in_action",
+      "vocab_size": 127,
+      "patch_size": 4,
+      "global_dim": 128,
+      "local_dim": 128,
+      "seq_length": 4096,
+      "global_heads": 8,
+      "global_layers": 4,
+      "local_heads": 2,
+      "local_layers": 2,
+      "attn_dropout": 0.0,
+      "ff_dropout": 0.0,
+      "initializer_range": 0.02,
+      "pad_id": 125,
+      "eos_id": 126
+    },
+    "data": {
+      "dataset_dir": "datasets/DNACorpus",
+      "species": [
+        "GaGa"
+      ],
+      "train_ratio": 0.6,
+      "val_ratio": 0.2,
+      "test_ratio": 0.2,
+      "max_train_bytes_per_species": null,
+      "max_val_bytes_per_species": null,
+      "max_test_bytes_per_species": null,
+      "train_samples_per_epoch": 1000000,
+      "train_sampling_strategy": "proportional",
+      "token_merge_size": 3,
+      "token_merge_alphabet": "ACGTN",
+      "compression_sample_bytes": 1000000
+    },
+    "train": {
+      "seed": 42,
+      "device": "cuda:2",
+      "dtype": "bfloat16",
+      "epochs": 1,
+      "batch_size": 16,
+      "eval_batch_size": 32,
+      "learning_rate": 0.0003,
+      "weight_decay": 0.01,
+      "lr_scheduler": "cosine",
+      "lr_warmup_steps": 0,
+      "lr_min_ratio": 0.2,
+      "grad_clip_norm": 1.0,
+      "num_workers": 4,
+      "prefetch_factor": 2,
+      "persistent_workers": true,
+      "pin_memory": true,
+      "log_interval": 25,
+      "eval_interval": 500,
+      "gpu_ids": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "output": {
+      "run_name": "dna_megabyte_quick",
+      "output_dir": "outputs/dna_megabyte_quick_20260324_212214"
+    }
+  },
+  "dataset": {
+    "species": [
+      {
+        "species": "GaGa",
+        "total_size": 148532294,
+        "train_bytes": 89119376,
+        "val_bytes": 29706458,
+        "test_bytes": 29706460
+      }
+    ],
+    "alphabet_bytes": [
+      65,
+      67,
+      71,
+      84
+    ]
+  },
+  "results": {
+    "train": {
+      "train_windows_nonoverlap": {
+        "aggregate": {
+          "source_count": 1,
+          "total_sample_bytes": 1000000,
+          "total_sample_bases": 999999,
+          "total_theoretical_bits": 1717725.2041015625,
+          "total_theoretical_bits_per_base": 1.7177269218284843,
+          "total_arithmetic_coded_bytes": 214836,
+          "total_arithmetic_bits_per_base": 1.7186897186897188,
+          "total_ascii_bytes": 1000000,
+          "total_two_bit_pack_bytes": 250000,
+          "total_gzip_bytes": 260570,
+          "total_bz2_bytes": 258119,
+          "total_lzma_bytes": 236448,
+          "total_probability_compute_seconds": 0.3941776099964045,
+          "total_arithmetic_encode_seconds": 5.54775134898955,
+          "total_compression_process_seconds": 5.9419289589859545,
+          "total_compression_bytes_per_second": 168295.51596837994,
+          "total_compression_bases_per_second": 168295.34767286398
+        },
+        "per_source": [
+          {
+            "species": "GaGa",
+            "mode": "train_windows_nonoverlap",
+            "sample_bytes": 1000000,
+            "sample_bases": 999999,
+            "sample_symbols_with_eos": 333334,
+            "theoretical_bits": 1717725.2041015625,
+            "theoretical_bits_per_base": 1.7177269218284843,
+            "arithmetic_coded_bytes": 214836,
+            "arithmetic_bits_per_base": 1.7186897186897188,
+            "probability_compute_seconds": 0.3941776099964045,
+            "arithmetic_encode_seconds": 5.54775134898955,
+            "compression_process_seconds": 5.9419289589859545,
+            "compression_bytes_per_second": 168295.51596837994,
+            "compression_bases_per_second": 168295.34767286398,
+            "compression_symbols_per_second": 56098.617519803964,
+            "ascii_bytes": 1000000,
+            "two_bit_pack_bytes": 250000,
+            "gzip_bytes": 260570,
+            "bz2_bytes": 258119,
+            "lzma_bytes": 236448,
+            "window_policy": "contiguous_train_style",
+            "cache_reuse": false,
+            "arithmetic_window_chunked": false,
+            "arithmetic_window_chunks": 1,
+            "window_stride": 4096
+          }
+        ]
+      }
+    },
+    "val": {
+      "train_windows_nonoverlap": {
+        "aggregate": {
+          "source_count": 1,
+          "total_sample_bytes": 1000000,
+          "total_sample_bases": 999999,
+          "total_theoretical_bits": 1837046.48828125,
+          "total_theoretical_bits_per_base": 1.8370483253295753,
+          "total_arithmetic_coded_bytes": 229737,
+          "total_arithmetic_bits_per_base": 1.837897837897838,
+          "total_ascii_bytes": 1000000,
+          "total_two_bit_pack_bytes": 250000,
+          "total_gzip_bytes": 276938,
+          "total_bz2_bytes": 268542,
+          "total_lzma_bytes": 256716,
+          "total_probability_compute_seconds": 0.19614299206295982,
+          "total_arithmetic_encode_seconds": 5.538504208961967,
+          "total_compression_process_seconds": 5.734647201024927,
+          "total_compression_bytes_per_second": 174378.64352340184,
+          "total_compression_bases_per_second": 174378.46914475833
+        },
+        "per_source": [
+          {
+            "species": "GaGa",
+            "mode": "train_windows_nonoverlap",
+            "sample_bytes": 1000000,
+            "sample_bases": 999999,
+            "sample_symbols_with_eos": 333334,
+            "theoretical_bits": 1837046.48828125,
+            "theoretical_bits_per_base": 1.8370483253295753,
+            "arithmetic_coded_bytes": 229737,
+            "arithmetic_bits_per_base": 1.837897837897838,
+            "probability_compute_seconds": 0.19614299206295982,
+            "arithmetic_encode_seconds": 5.538504208961967,
+            "compression_process_seconds": 5.734647201024927,
+            "compression_bytes_per_second": 174378.64352340184,
+            "compression_bases_per_second": 174378.46914475833,
+            "compression_symbols_per_second": 58126.33076022963,
+            "ascii_bytes": 1000000,
+            "two_bit_pack_bytes": 250000,
+            "gzip_bytes": 276938,
+            "bz2_bytes": 268542,
+            "lzma_bytes": 256716,
+            "window_policy": "contiguous_train_style",
+            "cache_reuse": false,
+            "arithmetic_window_chunked": false,
+            "arithmetic_window_chunks": 1,
+            "window_stride": 4096
+          }
+        ]
+      }
+    },
+    "test": {
+      "train_windows_nonoverlap": {
+        "aggregate": {
+          "source_count": 1,
+          "total_sample_bytes": 1000000,
+          "total_sample_bases": 999999,
+          "total_theoretical_bits": 1805764.55859375,
+          "total_theoretical_bits_per_base": 1.8057663643601143,
+          "total_arithmetic_coded_bytes": 225827,
+          "total_arithmetic_bits_per_base": 1.8066178066178067,
+          "total_ascii_bytes": 1000000,
+          "total_two_bit_pack_bytes": 250000,
+          "total_gzip_bytes": 271300,
+          "total_bz2_bytes": 266337,
+          "total_lzma_bytes": 250448,
+          "total_probability_compute_seconds": 0.208075069996994,
+          "total_arithmetic_encode_seconds": 5.685580357036088,
+          "total_compression_process_seconds": 5.893655427033082,
+          "total_compression_bytes_per_second": 169673.98457215354,
+          "total_compression_bases_per_second": 169673.81489816896
+        },
+        "per_source": [
+          {
+            "species": "GaGa",
+            "mode": "train_windows_nonoverlap",
+            "sample_bytes": 1000000,
+            "sample_bases": 999999,
+            "sample_symbols_with_eos": 333334,
+            "theoretical_bits": 1805764.55859375,
+            "theoretical_bits_per_base": 1.8057663643601143,
+            "arithmetic_coded_bytes": 225827,
+            "arithmetic_bits_per_base": 1.8066178066178067,
+            "probability_compute_seconds": 0.208075069996994,
+            "arithmetic_encode_seconds": 5.685580357036088,
+            "compression_process_seconds": 5.893655427033082,
+            "compression_bytes_per_second": 169673.98457215354,
+            "compression_bases_per_second": 169673.81489816896,
+            "compression_symbols_per_second": 56558.10797337422,
+            "ascii_bytes": 1000000,
+            "two_bit_pack_bytes": 250000,
+            "gzip_bytes": 271300,
+            "bz2_bytes": 266337,
+            "lzma_bytes": 250448,
+            "window_policy": "contiguous_train_style",
+            "cache_reuse": false,
+            "arithmetic_window_chunked": false,
+            "arithmetic_window_chunks": 1,
+            "window_stride": 4096
+          }
+        ]
+      }
+    }
+  }
+}
