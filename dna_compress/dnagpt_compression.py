@@ -111,6 +111,7 @@ def compress_dnagpt_sequence_sliding(
             gather_index = torch.tensor([length - 1 for length in used_lengths], device=device, dtype=torch.long)
             row_index = torch.arange(len(batch_targets), device=device)
             next_token_logits = logits[row_index, gather_index, :]
+            probs_np = torch.softmax(next_token_logits.float(), dim=-1).cpu().numpy()
             probability_compute_seconds += perf_counter() - prob_started
 
             targets_device = torch.tensor(batch_targets, dtype=torch.long, device=device)
@@ -118,7 +119,6 @@ def compress_dnagpt_sequence_sliding(
             total_bits += float((-target_log_probs / math.log(2)).sum().item())
 
             encode_started = perf_counter()
-            probs_np = torch.softmax(next_token_logits.float(), dim=-1).cpu().numpy()
             cumulative_batch = probabilities_to_cumulative_batch(probs_np)
             for cumulative, target in zip(cumulative_batch, batch_targets):
                 encoder.update(cumulative, int(target))
@@ -192,6 +192,7 @@ def compress_dnagpt_sequence_train_windows(
             batch_input = batch_input.to(device, non_blocking=True)
             with autocast_context(device, dtype_name):
                 logits = model(batch_input)
+            probs_cpu = torch.softmax(logits.float(), dim=-1).cpu().numpy()
             probability_compute_seconds += perf_counter() - prob_started
 
             encode_started = perf_counter()
@@ -202,7 +203,7 @@ def compress_dnagpt_sequence_train_windows(
                 targets_device = torch.tensor(chunk, dtype=torch.long, device=device)
                 target_log_probs = torch.log_softmax(row_logits, dim=-1).gather(1, targets_device[:, None]).squeeze(1)
                 total_bits += float((-target_log_probs / math.log(2)).sum().item())
-                probs_np = torch.softmax(row_logits.float(), dim=-1).cpu().numpy()
+                probs_np = probs_cpu[row_index, prefix_length : prefix_length + chunk_length, :]
                 cumulative_batch = probabilities_to_cumulative_batch(probs_np)
                 for cumulative, target in zip(cumulative_batch, chunk):
                     encoder.update(cumulative, int(target))

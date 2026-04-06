@@ -135,13 +135,13 @@ def compress_sequence_sliding_token(
             with autocast_context(device, dtype_name):
                 output = model(batch, return_loss=False)
                 log_probs = torch.log_softmax(output.lm_logits[:, -1, :], dim=-1)
+            probs_np = log_probs.float().exp().cpu().numpy()
             targets_device = target_slice.to(device, non_blocking=True)
             target_log_probs = log_probs.gather(1, targets_device.unsqueeze(1)).squeeze(1)
             total_bits += float((-target_log_probs / math.log(2)).sum().item())
             probability_compute_seconds += perf_counter() - prob_started
 
             encode_started = perf_counter()
-            probs_np = log_probs.float().exp().cpu().numpy()
             targets_np = target_slice.numpy()
             cumulative_batch = probabilities_to_cumulative_batch(probs_np)
             for cumulative, target in zip(cumulative_batch, targets_np):
@@ -234,6 +234,7 @@ def compress_sequence_train_windows(
                 output = model(batch, return_loss=False)
                 log_probs = torch.log_softmax(output.lm_logits, dim=-1)
             rows_cpu = log_probs.float().cpu().numpy()
+            probs_cpu = log_probs.float().exp().cpu().numpy()
             probability_compute_seconds += perf_counter() - prob_started
 
             encode_started = perf_counter()
@@ -246,13 +247,13 @@ def compress_sequence_train_windows(
                     local_start = min(seq_length - overlap_stride, chunk_length)
 
                 row_log_probs = rows_cpu[row_index, local_start:chunk_length, :]
-                if row_log_probs.shape[0] == 0:
+                probs_np = probs_cpu[row_index, local_start:chunk_length, :]
+                if probs_np.shape[0] == 0:
                     continue
 
                 targets_np = np.asarray(symbols[start + local_start : start + chunk_length], dtype=np.int64)
                 total_bits += float((-row_log_probs[np.arange(row_log_probs.shape[0]), targets_np] / math.log(2)).sum())
 
-                probs_np = np.exp(row_log_probs)
                 cumulative_batch = probabilities_to_cumulative_batch(probs_np)
                 for cumulative, target in zip(cumulative_batch, targets_np):
                     encoder.update(cumulative, int(target))
