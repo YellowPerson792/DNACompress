@@ -6,6 +6,7 @@ Example: evaluate official DNAGPT 0.1B multi-organism weights on HoSa test split
         
     python scripts/run_dnagpt_compression.py \
       --split train val test \
+      --eval-batch-size 36 \
       --config configs/dna_dnagpt_quick.json \
       --weight third_party/DNAGPT/checkpoints/dna_gpt0.1b_m.pth \
       --compression-modes train_windows_nonoverlap \

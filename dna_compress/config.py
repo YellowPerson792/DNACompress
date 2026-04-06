@@ -74,6 +74,13 @@ class TrainConfig:
 class OutputConfig:
     run_name: str = "dna_megabyte_quick"
     output_dir: str = "outputs/dna_megabyte_quick"
+    wandb_enabled: bool = False
+    wandb_project: str = ""
+    wandb_entity: str = ""
+    wandb_name: str | None = None
+    wandb_group: str = ""
+    wandb_tags: list[str] = field(default_factory=list)
+    wandb_mode: str = "online"
 
 
 @dataclass

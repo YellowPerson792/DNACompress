@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 import random
 import time
-from typing import Callable
+from typing import Any, Callable, TextIO
 
 import numpy as np
 import torch
@@ -158,6 +158,59 @@ def autocast_context(device: torch.device, dtype_name: str):
     if dtype is None:
         return torch.autocast(device_type="cuda", enabled=False)
     return torch.autocast(device_type="cuda", dtype=dtype)
+
+
+def open_training_log_file(output_dir: Path, filename: str = "training_metrics.jsonl") -> tuple[Path, TextIO]:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    path = output_dir / filename
+    handle = path.open("a", encoding="utf-8")
+    return path, handle
+
+
+def write_training_log_event(handle: TextIO, event: dict[str, object]) -> None:
+    handle.write(json.dumps(event, ensure_ascii=False) + "\n")
+    handle.flush()
+
+
+def init_wandb_run(config: ExperimentConfig, output_dir: Path) -> Any | None:
+    enabled = bool(config.output.wandb_enabled or config.output.wandb_project)
+    if not enabled:
+        return None
+
+    if not config.output.wandb_project:
+        raise ValueError("W&B is enabled but output.wandb_project is empty.")
+
+    try:
+        import wandb
+    except ImportError as error:
+        raise ImportError("W&B realtime logging requires wandb. Install with: pip install wandb") from error
+
+    run_name = config.output.wandb_name or config.output.run_name or output_dir.name
+    tags = config.output.wandb_tags if config.output.wandb_tags else None
+    entity = config.output.wandb_entity or None
+    group = config.output.wandb_group or None
+
+    return wandb.init(
+        project=config.output.wandb_project,
+        entity=entity,
+        name=run_name,
+        group=group,
+        tags=tags,
+        mode=config.output.wandb_mode,
+        job_type="train",
+        dir=str(output_dir),
+        config=config.to_dict(),
+        reinit=True,
+    )
+
+
+def log_wandb_metrics(wandb_run: Any | None, payload: dict[str, object], step: int | None = None) -> None:
+    if wandb_run is None:
+        return
+    if step is None:
+        wandb_run.log(payload)
+        return
+    wandb_run.log(payload, step=step)
 
 
 def save_checkpoint(path: Path, model: torch.nn.Module, optimizer: AdamW, step: int, best_val_bpb: float) -> None:
@@ -401,12 +454,16 @@ def build_lr_scheduler(
 def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, object]:
     seed_everything(config.train.seed)
     ddp, device, gpu_ids = setup_distributed_context(config.train.device, config.train.gpu_ids)
+    train_log_handle: TextIO | None = None
+    wandb_run = None
     try:
         apply_token_merge_to_model_config(config.model, config.data)
         output_dir = Path(config.output.output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
         if ddp.is_main_process:
             save_experiment_config(config, output_dir / "resolved_config.json")
+            training_log_path, train_log_handle = open_training_log_file(output_dir)
+            wandb_run = init_wandb_run(config, output_dir)
 
         splits = load_splits(config.data)
         train_dataset = RandomWindowDataset(
@@ -511,6 +568,8 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
             "model_parameters": int(sum(parameter.numel() for parameter in base_model.parameters())),
             "dataset": splits.summary,
         }
+        if ddp.is_main_process and train_log_handle is not None:
+            run_summary["training_log_jsonl"] = str(training_log_path)
 
         best_val_bpb = float("inf")
         global_step = 0
@@ -548,10 +607,35 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
                         bases_per_second = tokens_per_second * config.data.token_merge_size
                         bytes_per_second = bases_per_second
                         bits_per_base = (loss.item() / math.log(2)) / config.data.token_merge_size
+                        if train_log_handle is not None:
+                            write_training_log_event(
+                                train_log_handle,
+                                {
+                                    "event": "train",
+                                    "step": global_step,
+                                    "epoch": epoch + 1,
+                                    "loss_nats_per_token": float(loss.item()),
+                                    "bits_per_base": float(bits_per_base),
+                                    "learning_rate": float(optimizer.param_groups[0]["lr"]),
+                                    "tokens_per_second": float(tokens_per_second),
+                                },
+                            )
+                        log_wandb_metrics(
+                            wandb_run,
+                            {
+                                "epoch": epoch + 1,
+                                "train/loss": float(loss.item()),
+                                "train/bpb": float(bits_per_base),
+                                "train/lr": float(optimizer.param_groups[0]["lr"]),
+                                "train/tokens_per_second": float(tokens_per_second),
+                            },
+                            step=global_step,
+                        )
                         print(
                             f"[train] epoch={epoch + 1} step={global_step} "
                             f"loss/token={loss.item():.4f} bits/base={bits_per_base:.4f} "
-                            f"bytes/s={bytes_per_second:.1f} lr={optimizer.param_groups[0]['lr']:.6g}"
+                            f"bytes/s={bytes_per_second:.1f} lr={optimizer.param_groups[0]['lr']:.6g}",
+                            flush=True,
                         )
                         started = time.time()
 
@@ -566,9 +650,35 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
                             is_distributed=ddp.is_distributed,
                         )
                         if ddp.is_main_process:
+                            if train_log_handle is not None:
+                                write_training_log_event(
+                                    train_log_handle,
+                                    {
+                                        "event": "eval",
+                                        "split": "val",
+                                        "step": global_step,
+                                        "epoch": epoch + 1,
+                                        "loss_nats_per_token": float(val_metrics["loss_nats_per_token"]),
+                                        "bits_per_base": float(val_metrics["bits_per_base"]),
+                                        "tokens": int(val_metrics["tokens"]),
+                                        "bases": int(val_metrics["bases"]),
+                                    },
+                                )
+                            log_wandb_metrics(
+                                wandb_run,
+                                {
+                                    "epoch": epoch + 1,
+                                    "eval/loss": float(val_metrics["loss_nats_per_token"]),
+                                    "eval/bpb": float(val_metrics["bits_per_base"]),
+                                    "val/loss": float(val_metrics["loss_nats_per_token"]),
+                                    "val/bpb": float(val_metrics["bits_per_base"]),
+                                },
+                                step=global_step,
+                            )
                             print(
                                 f"[eval] step={global_step} val_loss/token={val_metrics['loss_nats_per_token']:.4f} "
-                                f"val_bits/base={val_metrics['bits_per_base']:.4f}"
+                                f"val_bits/base={val_metrics['bits_per_base']:.4f}",
+                                flush=True,
                             )
                             if val_metrics["bits_per_base"] < best_val_bpb:
                                 best_val_bpb = float(val_metrics["bits_per_base"])
@@ -644,6 +754,48 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
             )
 
             if ddp.is_main_process:
+                if train_log_handle is not None:
+                    write_training_log_event(
+                        train_log_handle,
+                        {
+                            "event": "eval",
+                            "split": "val",
+                            "step": global_step,
+                            "epoch": config.train.epochs,
+                            "loss_nats_per_token": float(val_metrics["loss_nats_per_token"]),
+                            "bits_per_base": float(val_metrics["bits_per_base"]),
+                            "tokens": int(val_metrics["tokens"]),
+                            "bases": int(val_metrics["bases"]),
+                            "is_final": True,
+                        },
+                    )
+                    write_training_log_event(
+                        train_log_handle,
+                        {
+                            "event": "eval",
+                            "split": "test",
+                            "step": global_step,
+                            "epoch": config.train.epochs,
+                            "loss_nats_per_token": float(test_metrics["loss_nats_per_token"]),
+                            "bits_per_base": float(test_metrics["bits_per_base"]),
+                            "tokens": int(test_metrics["tokens"]),
+                            "bases": int(test_metrics["bases"]),
+                            "is_final": True,
+                        },
+                    )
+                log_wandb_metrics(
+                    wandb_run,
+                    {
+                        "epoch": config.train.epochs,
+                        "eval/final_loss": float(val_metrics["loss_nats_per_token"]),
+                        "eval/final_bpb": float(val_metrics["bits_per_base"]),
+                        "val/final_loss": float(val_metrics["loss_nats_per_token"]),
+                        "val/final_bpb": float(val_metrics["bits_per_base"]),
+                        "test/loss": float(test_metrics["loss_nats_per_token"]),
+                        "test/bpb": float(test_metrics["bits_per_base"]),
+                    },
+                    step=global_step,
+                )
                 species_names = [str(item["species"]) for item in splits.summary["species"]]
                 # Compression runs only on rank 0. Use the underlying module directly so
                 # rank-local forward passes do not depend on other DDP ranks staying active.
@@ -678,9 +830,19 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
                 json.dumps(run_summary, indent=2, ensure_ascii=False),
                 encoding="utf-8",
             )
+            if wandb_run is not None:
+                if "best_val_bits_per_base" in run_summary:
+                    wandb_run.summary["best_val/bpb"] = run_summary["best_val_bits_per_base"]
+                if "model_parameters" in run_summary:
+                    wandb_run.summary["model_parameters"] = run_summary["model_parameters"]
+                wandb_run.summary["output_dir"] = str(output_dir)
             return run_summary
 
         return {}
     finally:
+        if train_log_handle is not None:
+            train_log_handle.close()
+        if wandb_run is not None:
+            wandb_run.finish()
         if ddp.is_distributed:
             cleanup_distributed()
