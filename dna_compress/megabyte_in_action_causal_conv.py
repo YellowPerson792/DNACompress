@@ -6,9 +6,18 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 from einops import rearrange
-from einops.layers.torch import Rearrange
 
 from model.attend import Attend
+
+
+class Rearrange(nn.Module):
+    def __init__(self, pattern: str, **axes_lengths):
+        super().__init__()
+        self.pattern = pattern
+        self.axes_lengths = axes_lengths
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return rearrange(x, self.pattern, **self.axes_lengths)
 
 
 MegabyteConfig = namedtuple(

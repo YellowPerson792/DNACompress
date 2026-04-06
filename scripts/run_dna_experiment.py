@@ -31,7 +31,7 @@ datasets are appended at the end.
 
 Complete example (train + eval + compression, with common overrides):
 
-    torchrun --nproc_per_node=2 scripts/run_dna_experiment.py \
+    python scripts/run_dna_experiment.py \
         --config configs/dna_megabyte_in_action_causal_conv_quick.json \
         --mode all \
         --dtype bfloat16 \
@@ -40,7 +40,7 @@ Complete example (train + eval + compression, with common overrides):
         --eval-batch-size 32 \
         --learning-rate 3e-4 \
         --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe \
-        --train-samples-per-epoch 2000000 \
+        --train-samples-per-epoch 1000000 \
         --compression-sample-bytes 100000 \
         --print-config \
         --seq-length 1024 \
@@ -50,15 +50,16 @@ Complete example (train + eval + compression, with common overrides):
         --weight-decay 0.01 \
         --log-interval 25 \
         --eval-interval 500 \
-        --train-ratio 0.6 \
-        --val-ratio 0.2 \
-        --test-ratio 0.2 \
+        --train-ratio 0.8 \
+        --val-ratio 0.1 \
+        --test-ratio 0.1 \
         --lr-scheduler cosine \
         --lr-warmup-steps 0 \
         --lr-min-ratio 0.1 \
         --grad-clip-norm 1.0 \
         --num-workers 4 \
-        --train-sampling-strategy proportional \
+        --train-sampling-strategy proportional 
+            
         --gpu-ids 0 3
  
 Multi-GPU DDP example (2 GPUs):
