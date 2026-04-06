@@ -9,6 +9,8 @@ from typing import Any
 @dataclass
 class ModelConfig:
     implementation: str = "megabyte"
+    variant: str = "dna_gpt0.1b_m"
+    pretrained_weight_path: str | None = None
     vocab_size: int = 259
     patch_size: int = 8
     global_dim: int = 64
@@ -30,6 +32,7 @@ class ModelConfig:
 class DataConfig:
     dataset_dir: str = "datasets/DNACorpus"
     species: list[str] = field(default_factory=lambda: ["HoSa"])
+    species_prefix_map: dict[str, str] = field(default_factory=dict)
     train_ratio: float = 0.9
     val_ratio: float = 0.05
     test_ratio: float = 0.05
@@ -48,6 +51,7 @@ class TrainConfig:
     seed: int = 42
     device: str = "auto"
     dtype: str = "float16"
+    init_from: str = "scratch"
     epochs: int = 1
     batch_size: int = 16
     eval_batch_size: int = 32

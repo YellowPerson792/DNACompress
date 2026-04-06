@@ -1,0 +1,50 @@
+{
+  "model": {
+    "implementation": "dnagpt",
+    "variant": "dna_gpt0.1b_m",
+    "pretrained_weight_path": null,
+    "seq_length": 512
+  },
+  "data": {
+    "dataset_dir": "datasets/DNACorpus",
+    "species": [
+      "HoSa"
+    ],
+    "species_prefix_map": {},
+    "train_ratio": 0.9,
+    "val_ratio": 0.05,
+    "test_ratio": 0.05,
+    "max_train_bytes_per_species": 1048576,
+    "max_val_bytes_per_species": 262144,
+    "max_test_bytes_per_species": 262144,
+    "train_samples_per_epoch": 2048,
+    "train_sampling_strategy": "proportional",
+    "token_merge_size": 1,
+    "compression_sample_bytes": 16384
+  },
+  "train": {
+    "seed": 42,
+    "device": "auto",
+    "dtype": "float16",
+    "init_from": "scratch",
+    "epochs": 1,
+    "batch_size": 8,
+    "eval_batch_size": 8,
+    "learning_rate": 0.0003,
+    "weight_decay": 0.01,
+    "lr_scheduler": "none",
+    "lr_warmup_steps": 0,
+    "lr_min_ratio": 0.0,
+    "grad_clip_norm": 1.0,
+    "num_workers": 0,
+    "prefetch_factor": 2,
+    "persistent_workers": false,
+    "pin_memory": true,
+    "log_interval": 25,
+    "eval_interval": 100
+  },
+  "output": {
+    "run_name": "dna_dnagpt_quick",
+    "output_dir": "outputs/dna_dnagpt_quick"
+  }
+}
