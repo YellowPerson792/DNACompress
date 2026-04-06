@@ -1,0 +1,3 @@
+metric,value
+compression_compare.best_val_bpb,
+compression_compare.checkpoint_step,
