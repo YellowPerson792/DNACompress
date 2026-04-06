@@ -39,8 +39,8 @@ Complete examples:
       --compression-modes train_windows_nonoverlap \
       --compression-sample-bytes 100000 \
       --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe \
-      --device cuda:2 
           
+      --device cuda:2 
       --parallel-window-arithmetic \
       --arithmetic-workers 0
 

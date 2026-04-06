@@ -1,8 +1,8 @@
 {
-  "project": "dna-compress",
+  "project": "",
   "entity": "",
-  "name": "dnagpt-0p1bm-all-species-nonoverlap",
-  "run_dir": "outputs/dnagpt_0p1bm_all_species_nonoverlap",
+  "name": "dnagpt_0p1bm_all_species_nonoverlap",
+  "run_dir": "outputs\\dnagpt_0p1bm_all_species_nonoverlap",
   "has_resolved_config": false,
   "has_metrics_json": false,
   "has_compression_compare_json": true

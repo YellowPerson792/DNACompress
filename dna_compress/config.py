@@ -36,9 +36,9 @@ class DataConfig:
     train_ratio: float = 0.9
     val_ratio: float = 0.05
     test_ratio: float = 0.05
-    max_train_bytes_per_species: int | None = 8_388_608
-    max_val_bytes_per_species: int | None = 1_048_576
-    max_test_bytes_per_species: int | None = 131_072
+    max_train_bytes_per_species: int | None = None
+    max_val_bytes_per_species: int | None = None
+    max_test_bytes_per_species: int | None = None
     train_samples_per_epoch: int = 2_048
     train_sampling_strategy: str = "proportional"
     token_merge_size: int = 1
