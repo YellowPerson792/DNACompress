@@ -10,14 +10,14 @@ Example: evaluate official DNAGPT 0.1B multi-organism weights on HoSa test split
       --config configs/dna_dnagpt_quick.json \
       --weight third_party/DNAGPT/checkpoints/dna_gpt0.1b_m.pth \
       --compression-modes train_windows_nonoverlap \
-      --compression-sample-bytes 50000 \
+      --compression-sample-bytes 60000 \
       --train-ratio 0.6 \
       --val-ratio 0.2 \
       --test-ratio 0.2 \
       --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe \
-      --output-dir outputs/dnagpt_0p1bm_all_species_nonoverlap \
-      --output-json outputs/dnagpt_0p1bm_all_species_nonoverlap/compression_compare.json \
-      --export-out-dir outputs/dnagpt_0p1bm_all_species_nonoverlap/stastics
+      --output-dir outputs/dna_dnagpt_0p1bm_all \
+      --output-json outputs/dna_dnagpt_0p1bm_all/compression_compare.json \
+      --export-out-dir outputs/dna_dnagpt_0p1bm_all/stastics
       
       --device cuda:2 \
       
@@ -26,7 +26,7 @@ Example: evaluate official DNAGPT 0.1B multi-organism weights on HoSa test split
       --eval-batch-size 10 \
       --run-dir outputs/dna_dnagpt_finetune \
       --compression-modes train_windows_nonoverlap \
-      --compression-sample-bytes 50000 \
+      --compression-sample-bytes 60000 \
       --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe 
 
 """

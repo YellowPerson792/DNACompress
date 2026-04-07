@@ -2,7 +2,7 @@
   "project": "",
   "entity": "",
   "name": "dna_dnagpt_0p1bm_all",
-  "run_dir": "outputs\\dna_dnagpt_0p1bm_all",
+  "run_dir": "outputs/dna_dnagpt_0p1bm_all",
   "has_resolved_config": false,
   "has_metrics_json": false,
   "has_compression_compare_json": true
