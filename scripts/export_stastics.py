@@ -13,7 +13,7 @@ Outputs:
 
 Example:
     python scripts/export_stastics.py \
-      --run-dir outputs/dna_dnagpt_finetune
+      --run-dir outputs/dna_dnagpt_0p1bm_all_finetune
 """
 
 import argparse

@@ -33,11 +33,10 @@ python scripts/run_dnagpt_experiment.py \
         --num-workers 4 \
         --train-sampling-strategy proportional 
             
-        --wandb-project dna-compress 
-            
         --gpu-ids 1 3 \
         --wandb-project dna-compress \
         --wandb-name dnagpt-realtime \
+        --wandb-project dna-compress 
         
 Example: Multi-GPU training
 

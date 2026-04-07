@@ -1,5 +1,7 @@
 metric,value
 best_val_bits_per_base,1.6829326135337026
+compression_compare.best_val_bpb,1.6829326135337026
+compression_compare.checkpoint_step,18500
 config.data.compression_sample_bytes,100000
 config.data.dataset_dir,datasets/DNACorpus
 config.data.max_test_bytes_per_species,

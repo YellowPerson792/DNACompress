@@ -31,9 +31,9 @@ Modes:
     exact cache reuse is not enabled in this evaluator
 
 Complete examples:
-
+    
     python scripts/run_dna_compression.py \
-      --run-dir outputs/dna_megabyte_all_data \
+      --run-dir outputs/dna_megabyte_large_all \
       --checkpoint-tag best \
       --split train val test \
       --compression-modes train_windows_nonoverlap \

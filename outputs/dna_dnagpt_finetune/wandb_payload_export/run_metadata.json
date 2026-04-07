@@ -1,9 +1,0 @@
-{
-  "project": "",
-  "entity": "",
-  "name": "dna_dnagpt_finetune",
-  "run_dir": "outputs/dna_dnagpt_finetune",
-  "has_resolved_config": true,
-  "has_metrics_json": true,
-  "has_compression_compare_json": false
-}

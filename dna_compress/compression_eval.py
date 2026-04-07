@@ -418,19 +418,6 @@ def summarize_per_source(
         for row in rows
     )
     total_softmax_seconds = sum(float(row.get("softmax_seconds", 0.0)) for row in rows)
-    total_model_forward_softmax_seconds = sum(
-        float(
-            row.get(
-                "model_forward_softmax_seconds",
-                row.get("model_forward_seconds", 0.0) + row.get("softmax_seconds", 0.0),
-            )
-        )
-        for row in rows
-    )
-    total_probability_compute_seconds = sum(
-        float(row.get("probability_compute_seconds", row.get("model_forward_softmax_seconds", 0.0)))
-        for row in rows
-    )
     total_data_transfer_seconds = sum(float(row.get("data_transfer_seconds", 0.0)) for row in rows)
     total_arithmetic_encode_seconds = sum(float(row.get("arithmetic_encode_seconds", 0.0)) for row in rows)
     total_compression_process_seconds = sum(float(row.get("compression_process_seconds", 0.0)) for row in rows)
@@ -450,8 +437,6 @@ def summarize_per_source(
         "total_lzma_bytes": total_lzma_bytes,
         "total_model_forward_seconds": total_model_forward_seconds,
         "total_softmax_seconds": total_softmax_seconds,
-        "total_model_forward_softmax_seconds": total_model_forward_softmax_seconds,
-        "total_probability_compute_seconds": total_probability_compute_seconds,
         "total_data_transfer_seconds": total_data_transfer_seconds,
         "total_arithmetic_encode_seconds": total_arithmetic_encode_seconds,
         "total_compression_process_seconds": total_compression_process_seconds,

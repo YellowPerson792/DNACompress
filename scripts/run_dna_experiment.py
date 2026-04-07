@@ -32,38 +32,37 @@ datasets are appended at the end.
 Complete example (train + eval + compression, with common overrides):
 
     python scripts/run_dna_experiment.py \
-        --config configs/dna_megabyte_in_action_causal_conv_quick.json \
+        --config configs/dna_megabyte_large.json \
         --mode all \
         --dtype bfloat16 \
         --epochs 1 \
-        --batch-size 16 \
+        --batch-size 32 \
         --eval-batch-size 32 \
         --learning-rate 3e-4 \
         --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe \
-        --train-samples-per-epoch 1000000 \
+        --train-samples-per-epoch 600000 \
         --compression-sample-bytes 100000 \
         --print-config \
         --seq-length 1024 \
         --patch-size 32 \
-        --input-causal-conv-kernel-size 7 \
         --token-merge-size 3 \
         --weight-decay 0.01 \
         --log-interval 25 \
         --eval-interval 500 \
-        --train-ratio 0.8 \
-        --val-ratio 0.1 \
-        --test-ratio 0.1 \
+        --train-ratio 0.6 \
+        --val-ratio 0.2 \
+        --test-ratio 0.2 \
         --lr-scheduler cosine \
         --lr-warmup-steps 0 \
         --lr-min-ratio 0.1 \
         --grad-clip-norm 1.0 \
         --num-workers 4 \
-        --train-sampling-strategy proportional \
-        --wandb-project dna-compress 
+        --train-sampling-strategy proportional 
             
         --gpu-ids 0 3 \
         --wandb-project dna-compress \
         --wandb-name megabyte-realtime \
+        --input-causal-conv-kernel-size 7 
  
 Multi-GPU DDP example (2 GPUs):
 

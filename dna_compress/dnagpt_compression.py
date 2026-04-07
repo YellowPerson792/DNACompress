@@ -129,17 +129,17 @@ def compress_dnagpt_sequence_sliding(
                 row_index = torch.arange(len(batch_targets), device=device)
                 next_token_logits = logits[row_index, gather_index, :]
                 next_token_log_probs = torch.log_softmax(next_token_logits, dim=-1)
-                next_token_probs = torch.softmax(next_token_logits.float(), dim=-1)
+                next_token_probs = next_token_log_probs.float().exp()
+                targets_device = torch.tensor(batch_targets, dtype=torch.long, device=device)
+                target_log_probs = next_token_log_probs.gather(1, targets_device.unsqueeze(1)).squeeze(1)
+                total_bits += float((-target_log_probs / math.log(2)).sum().item())
                 softmax_seconds += perf_counter() - softmax_started
 
             transfer_started = perf_counter()
-            log_probs_np = next_token_log_probs.float().cpu().numpy()
             probs_np = next_token_probs.cpu().numpy()
             data_transfer_seconds += perf_counter() - transfer_started
 
             encode_started = perf_counter()
-            targets_np = np.asarray(batch_targets, dtype=np.int64)
-            total_bits += float((-log_probs_np[np.arange(log_probs_np.shape[0]), targets_np] / math.log(2)).sum())
             cumulative_batch = probabilities_to_cumulative_batch(probs_np)
             for cumulative, target in zip(cumulative_batch, batch_targets):
                 encoder.update(cumulative, int(target))

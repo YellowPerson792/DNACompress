@@ -6,29 +6,29 @@ Example: evaluate official DNAGPT 0.1B multi-organism weights on HoSa test split
         
     python scripts/run_dnagpt_compression.py \
       --split train val test \
-      --eval-batch-size 36 \
+      --eval-batch-size 10 \
       --config configs/dna_dnagpt_quick.json \
       --weight third_party/DNAGPT/checkpoints/dna_gpt0.1b_m.pth \
       --compression-modes train_windows_nonoverlap \
-      --compression-sample-bytes 100000 \
+      --compression-sample-bytes 50000 \
+      --train-ratio 0.6 \
+      --val-ratio 0.2 \
+      --test-ratio 0.2 \
       --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe \
       --output-dir outputs/dnagpt_0p1bm_all_species_nonoverlap \
       --output-json outputs/dnagpt_0p1bm_all_species_nonoverlap/compression_compare.json \
-      --export-out-dir outputs/dnagpt_0p1bm_all_species_nonoverlap/wandb_payload_export
+      --export-out-dir outputs/dnagpt_0p1bm_all_species_nonoverlap/stastics
       
       --device cuda:2 \
       
     python scripts/run_dnagpt_compression.py \
       --split train val test \
-      --eval-batch-size 36 \
+      --eval-batch-size 10 \
       --config configs/dna_dnagpt_quick.json \
       --run-dir outputs/dna_dnagpt_finetune \
       --compression-modes train_windows_nonoverlap \
-      --compression-sample-bytes 100000 \
-      --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe \
-      --output-dir outputs/dnagpt_0p1bm_all_species_nonoverlap \
-      --output-json outputs/dnagpt_0p1bm_all_species_nonoverlap/compression_compare.json \
-      --export-out-dir outputs/dnagpt_0p1bm_all_species_nonoverlap/stastics
+      --compression-sample-bytes 50000 \
+      --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe 
 
 """
 
@@ -258,7 +258,7 @@ def _run_local_payload_export(
     export_out_dir: str | None,
     export_entity: str,
 ) -> None:
-    export_script = REPO_ROOT / "scripts" / "export_wandb_payload_local.py"
+    export_script = REPO_ROOT / "scripts" / "export_stastics.py"
     if not export_script.exists():
         print(f"[export] skip: script not found: {export_script}")
         return
