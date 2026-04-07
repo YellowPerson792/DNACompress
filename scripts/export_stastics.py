@@ -12,8 +12,8 @@ Outputs:
 - compression_per_source_by_split_mode.csv
 
 Example:
-    python scripts/export_wandb_payload_local.py \
-      --run-dir outputs/dnagpt_0p1bm_all_species_nonoverlap
+    python scripts/export_stastics.py \
+      --run-dir outputs/dna_dnagpt_finetune
 """
 
 import argparse
@@ -250,7 +250,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--out-dir",
         default=None,
-        help="Output directory for exported files. Defaults to <run-dir>/wandb_payload_export.",
+        help="Output directory for exported files. Defaults to <run-dir>/stastics.",
     )
     parser.add_argument(
         "--resolved-config",
@@ -281,7 +281,7 @@ def main() -> None:
     if not run_dir.exists() or not run_dir.is_dir():
         raise FileNotFoundError(f"run-dir not found or not a directory: {run_dir}")
 
-    out_dir = Path(args.out_dir) if args.out_dir else (run_dir / "wandb_payload_export")
+    out_dir = Path(args.out_dir) if args.out_dir else (run_dir / "stastics")
     out_dir.mkdir(parents=True, exist_ok=True)
 
     resolved_config_path = run_dir / args.resolved_config

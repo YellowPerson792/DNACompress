@@ -1,0 +1,16 @@
+{"time":"2026-04-07T17:45:05.430577047+08:00","level":"INFO","msg":"stream: starting","core version":"0.19.10","symlink path":"/root/autodl-tmp/DNACompress/wandb/run-20260407_174505-m15lnig2/logs/debug-core.log"}
+{"time":"2026-04-07T17:45:06.072790785+08:00","level":"INFO","msg":"created new stream","id":"m15lnig2"}
+{"time":"2026-04-07T17:45:06.07287732+08:00","level":"INFO","msg":"stream: started","id":"m15lnig2"}
+{"time":"2026-04-07T17:45:06.073009132+08:00","level":"INFO","msg":"writer: Do: started","stream_id":"m15lnig2"}
+{"time":"2026-04-07T17:45:06.073161836+08:00","level":"INFO","msg":"sender: started","stream_id":"m15lnig2"}
+{"time":"2026-04-07T17:45:06.073302703+08:00","level":"INFO","msg":"handler: started","stream_id":"m15lnig2"}
+{"time":"2026-04-07T17:45:06.668435166+08:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2026-04-07T17:45:07.942233938+08:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2026-04-07T17:45:07.942311878+08:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2026-04-07T17:45:08.074731774+08:00","level":"INFO","msg":"handler: operation stats","stats":{"operations":[{"desc":"uploading wandb-metadata.json","runtime_seconds":0.697998523,"progress":"1.3KB/1.3KB"},{"desc":"uploading requirements.txt","runtime_seconds":0.697039382,"progress":"6.8KB/6.8KB"},{"desc":"uploading summary","runtime_seconds":0.186866384},{"desc":"updating run config","runtime_seconds":0.13183639}],"total_operations":4}}
+{"time":"2026-04-07T17:45:09.120426013+08:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-04-07T17:45:11.202316257+08:00","level":"INFO","msg":"stream: closing","id":"m15lnig2"}
+{"time":"2026-04-07T17:45:11.202348628+08:00","level":"INFO","msg":"handler: closed","stream_id":"m15lnig2"}
+{"time":"2026-04-07T17:45:11.202366581+08:00","level":"INFO","msg":"writer: Close: closed","stream_id":"m15lnig2"}
+{"time":"2026-04-07T17:45:11.202391456+08:00","level":"INFO","msg":"sender: closed","stream_id":"m15lnig2"}
+{"time":"2026-04-07T17:45:11.202610789+08:00","level":"INFO","msg":"stream: closed","id":"m15lnig2"}

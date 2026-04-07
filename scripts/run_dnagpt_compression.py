@@ -14,13 +14,21 @@ Example: evaluate official DNAGPT 0.1B multi-organism weights on HoSa test split
       --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe \
       --output-dir outputs/dnagpt_0p1bm_all_species_nonoverlap \
       --output-json outputs/dnagpt_0p1bm_all_species_nonoverlap/compression_compare.json \
-      --export-out-dir outputs/dnagpt_0p1bm_all_species_nonoverlap/wandb_payload_export \
-      --export-project dna-compress \
-      --export-name dnagpt-0p1bm-all-species-nonoverlap
+      --export-out-dir outputs/dnagpt_0p1bm_all_species_nonoverlap/wandb_payload_export
       
       --device cuda:2 \
-      --run-dir outputs/dna_megabyte_all_data \
-      --checkpoint-tag best 
+      
+    python scripts/run_dnagpt_compression.py \
+      --split train val test \
+      --eval-batch-size 36 \
+      --config configs/dna_dnagpt_quick.json \
+      --run-dir outputs/dna_dnagpt_finetune \
+      --compression-modes train_windows_nonoverlap \
+      --compression-sample-bytes 100000 \
+      --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe \
+      --output-dir outputs/dnagpt_0p1bm_all_species_nonoverlap \
+      --output-json outputs/dnagpt_0p1bm_all_species_nonoverlap/compression_compare.json \
+      --export-out-dir outputs/dnagpt_0p1bm_all_species_nonoverlap/stastics
 
 """
 
@@ -248,9 +256,7 @@ def _run_local_payload_export(
     run_dir: Path,
     compression_json_name: str,
     export_out_dir: str | None,
-    export_project: str,
     export_entity: str,
-    export_name: str | None,
 ) -> None:
     export_script = REPO_ROOT / "scripts" / "export_wandb_payload_local.py"
     if not export_script.exists():
@@ -267,12 +273,8 @@ def _run_local_payload_export(
     ]
     if export_out_dir:
         command.extend(["--out-dir", export_out_dir])
-    if export_project:
-        command.extend(["--project", export_project])
     if export_entity:
         command.extend(["--entity", export_entity])
-    if export_name:
-        command.extend(["--name", export_name])
 
     print(f"[export] running local payload export for run_dir={run_dir}")
     completed = subprocess.run(command, check=False, capture_output=True, text=True)
@@ -303,9 +305,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--output-json", help="Where to save JSON metrics. Defaults to run_dir/compression_compare.json")
     parser.add_argument("--no-auto-export", action="store_true")
     parser.add_argument("--export-out-dir", default=None)
-    parser.add_argument("--export-project", default="")
     parser.add_argument("--export-entity", default="")
-    parser.add_argument("--export-name", default=None)
     parser.add_argument("--override", action="append", default=[], help="Generic override in form section.key=value.")
 
     model_group = parser.add_argument_group("model/data overrides")
@@ -398,13 +398,12 @@ def main() -> None:
 
     if not args.no_auto_export:
         export_run_dir = Path(args.run_dir) if args.run_dir is not None else output_json.parent
+        export_out_dir = args.export_out_dir if args.export_out_dir is not None else args.run_dir
         _run_local_payload_export(
             run_dir=export_run_dir,
             compression_json_name=output_json.name,
-            export_out_dir=args.export_out_dir,
-            export_project=args.export_project,
+            export_out_dir=export_out_dir,
             export_entity=args.export_entity,
-            export_name=args.export_name,
         )
 
 

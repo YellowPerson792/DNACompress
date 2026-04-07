@@ -4,3 +4,5 @@
 # Local datasets
 datasets/
 **/*.pt
+**/__pycache__/
+**/__pycache__/**

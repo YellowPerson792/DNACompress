@@ -31,7 +31,9 @@ python scripts/run_dnagpt_experiment.py \
         --lr-min-ratio 0.1 \
         --grad-clip-norm 1.0 \
         --num-workers 4 \
-        --train-sampling-strategy proportional \
+        --train-sampling-strategy proportional 
+            
+        --wandb-project dna-compress 
             
         --gpu-ids 1 3 \
         --wandb-project dna-compress \

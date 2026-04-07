@@ -4,9 +4,9 @@ from __future__ import annotations
 
 Example:
     python scripts/upload_training_log_to_wandb.py \
-      --run-dir outputs/dnagpt_0p1bm_all_species_nonoverlap \
+      --run-dir outputs/dna_dnagpt_finetune \
       --project dna-compress \
-      --name dnagpt-0p1bm-all-species
+      --name dnagpt-0p1bm-finetune 
 """
 
 import argparse

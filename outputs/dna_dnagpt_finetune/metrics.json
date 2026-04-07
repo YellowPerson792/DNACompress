@@ -1,0 +1,549 @@
+{
+  "device": "cuda:0",
+  "gpu_ids": [
+    0
+  ],
+  "distributed_data_parallel": false,
+  "world_size": 1,
+  "num_workers": 4,
+  "prefetch_factor": 2,
+  "persistent_workers": false,
+  "pin_memory": true,
+  "model_parameters": 117170688,
+  "dataset": {
+    "species": [
+      {
+        "species": "OrSa",
+        "total_size": 43262523,
+        "train_bytes": 25957513,
+        "val_bytes": 8652504,
+        "test_bytes": 8652506
+      },
+      {
+        "species": "HoSa",
+        "total_size": 189752667,
+        "train_bytes": 113851600,
+        "val_bytes": 37950533,
+        "test_bytes": 37950534
+      },
+      {
+        "species": "DaRe",
+        "total_size": 62565020,
+        "train_bytes": 37539012,
+        "val_bytes": 12513004,
+        "test_bytes": 12513004
+      },
+      {
+        "species": "ScPo",
+        "total_size": 10652155,
+        "train_bytes": 6391293,
+        "val_bytes": 2130431,
+        "test_bytes": 2130431
+      },
+      {
+        "species": "EsCo",
+        "total_size": 4641652,
+        "train_bytes": 2784991,
+        "val_bytes": 928330,
+        "test_bytes": 928331
+      },
+      {
+        "species": "YeMi",
+        "total_size": 73689,
+        "train_bytes": 44213,
+        "val_bytes": 14737,
+        "test_bytes": 14739
+      },
+      {
+        "species": "BuEb",
+        "total_size": 18940,
+        "train_bytes": 11364,
+        "val_bytes": 3788,
+        "test_bytes": 3788
+      },
+      {
+        "species": "AgPh",
+        "total_size": 43970,
+        "train_bytes": 26382,
+        "val_bytes": 8794,
+        "test_bytes": 8794
+      },
+      {
+        "species": "GaGa",
+        "total_size": 148532294,
+        "train_bytes": 89119376,
+        "val_bytes": 29706458,
+        "test_bytes": 29706460
+      },
+      {
+        "species": "DrMe",
+        "total_size": 32181429,
+        "train_bytes": 19308857,
+        "val_bytes": 6436285,
+        "test_bytes": 6436287
+      },
+      {
+        "species": "EnIn",
+        "total_size": 26403087,
+        "train_bytes": 15841852,
+        "val_bytes": 5280617,
+        "test_bytes": 5280618
+      },
+      {
+        "species": "PlFa",
+        "total_size": 8986712,
+        "train_bytes": 5392027,
+        "val_bytes": 1797342,
+        "test_bytes": 1797343
+      },
+      {
+        "species": "HePy",
+        "total_size": 1667825,
+        "train_bytes": 1000695,
+        "val_bytes": 333565,
+        "test_bytes": 333565
+      },
+      {
+        "species": "AeCa",
+        "total_size": 1591049,
+        "train_bytes": 954629,
+        "val_bytes": 318209,
+        "test_bytes": 318211
+      },
+      {
+        "species": "HaHi",
+        "total_size": 3890005,
+        "train_bytes": 2334003,
+        "val_bytes": 778001,
+        "test_bytes": 778001
+      },
+      {
+        "species": "AnCa",
+        "total_size": 142189675,
+        "train_bytes": 85313805,
+        "val_bytes": 28437935,
+        "test_bytes": 28437935
+      },
+      {
+        "species": "WaMe",
+        "total_size": 9144432,
+        "train_bytes": 5486659,
+        "val_bytes": 1828886,
+        "test_bytes": 1828887
+      }
+    ],
+    "alphabet_bytes": [
+      65,
+      67,
+      71,
+      84
+    ]
+  },
+  "dnagpt": {
+    "variant": "dna_gpt0.1b_m",
+    "kmer_size": 6,
+    "dynamic_kmer": true,
+    "tokenizer_vocab_size": 19564,
+    "pad_id": 20,
+    "unk_id": 0,
+    "seq_length_tokens": 512,
+    "max_len_tokens": 512,
+    "requested_init_from": "pretrained",
+    "loaded_checkpoint_path": "third_party/DNAGPT/checkpoints/dna_gpt0.1b_m.pth",
+    "tokenized_train": {
+      "total_dna_token_count": 68559719,
+      "total_bases": 411358271,
+      "per_species": [
+        {
+          "species": "OrSa",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 4326253,
+          "total_bases": 25957513
+        },
+        {
+          "species": "HoSa",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 18975267,
+          "total_bases": 113851600
+        },
+        {
+          "species": "DaRe",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 6256502,
+          "total_bases": 37539012
+        },
+        {
+          "species": "ScPo",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 1065216,
+          "total_bases": 6391293
+        },
+        {
+          "species": "EsCo",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 464166,
+          "total_bases": 2784991
+        },
+        {
+          "species": "YeMi",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 7369,
+          "total_bases": 44213
+        },
+        {
+          "species": "BuEb",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 1894,
+          "total_bases": 11364
+        },
+        {
+          "species": "AgPh",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 4397,
+          "total_bases": 26382
+        },
+        {
+          "species": "GaGa",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 14853230,
+          "total_bases": 89119376
+        },
+        {
+          "species": "DrMe",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 3218143,
+          "total_bases": 19308857
+        },
+        {
+          "species": "EnIn",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 2640309,
+          "total_bases": 15841852
+        },
+        {
+          "species": "PlFa",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 898672,
+          "total_bases": 5392027
+        },
+        {
+          "species": "HePy",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 166783,
+          "total_bases": 1000695
+        },
+        {
+          "species": "AeCa",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 159105,
+          "total_bases": 954629
+        },
+        {
+          "species": "HaHi",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 389001,
+          "total_bases": 2334003
+        },
+        {
+          "species": "AnCa",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 14218968,
+          "total_bases": 85313805
+        },
+        {
+          "species": "WaMe",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 914444,
+          "total_bases": 5486659
+        }
+      ]
+    },
+    "tokenized_val": {
+      "total_dna_token_count": 22853243,
+      "total_bases": 137119419,
+      "per_species": [
+        {
+          "species": "OrSa",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 1442084,
+          "total_bases": 8652504
+        },
+        {
+          "species": "HoSa",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 6325089,
+          "total_bases": 37950533
+        },
+        {
+          "species": "DaRe",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 2085501,
+          "total_bases": 12513004
+        },
+        {
+          "species": "ScPo",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 355072,
+          "total_bases": 2130431
+        },
+        {
+          "species": "EsCo",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 154722,
+          "total_bases": 928330
+        },
+        {
+          "species": "YeMi",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 2457,
+          "total_bases": 14737
+        },
+        {
+          "species": "BuEb",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 632,
+          "total_bases": 3788
+        },
+        {
+          "species": "AgPh",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 1466,
+          "total_bases": 8794
+        },
+        {
+          "species": "GaGa",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 4951077,
+          "total_bases": 29706458
+        },
+        {
+          "species": "DrMe",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 1072715,
+          "total_bases": 6436285
+        },
+        {
+          "species": "EnIn",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 880103,
+          "total_bases": 5280617
+        },
+        {
+          "species": "PlFa",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 299557,
+          "total_bases": 1797342
+        },
+        {
+          "species": "HePy",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 55595,
+          "total_bases": 333565
+        },
+        {
+          "species": "AeCa",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 53035,
+          "total_bases": 318209
+        },
+        {
+          "species": "HaHi",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 129667,
+          "total_bases": 778001
+        },
+        {
+          "species": "AnCa",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 4739656,
+          "total_bases": 28437935
+        },
+        {
+          "species": "WaMe",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 304815,
+          "total_bases": 1828886
+        }
+      ]
+    },
+    "tokenized_test": {
+      "total_dna_token_count": 22853246,
+      "total_bases": 137119434,
+      "per_species": [
+        {
+          "species": "OrSa",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 1442085,
+          "total_bases": 8652506
+        },
+        {
+          "species": "HoSa",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 6325089,
+          "total_bases": 37950534
+        },
+        {
+          "species": "DaRe",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 2085501,
+          "total_bases": 12513004
+        },
+        {
+          "species": "ScPo",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 355072,
+          "total_bases": 2130431
+        },
+        {
+          "species": "EsCo",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 154722,
+          "total_bases": 928331
+        },
+        {
+          "species": "YeMi",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 2457,
+          "total_bases": 14739
+        },
+        {
+          "species": "BuEb",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 632,
+          "total_bases": 3788
+        },
+        {
+          "species": "AgPh",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 1466,
+          "total_bases": 8794
+        },
+        {
+          "species": "GaGa",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 4951077,
+          "total_bases": 29706460
+        },
+        {
+          "species": "DrMe",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 1072715,
+          "total_bases": 6436287
+        },
+        {
+          "species": "EnIn",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 880103,
+          "total_bases": 5280618
+        },
+        {
+          "species": "PlFa",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 299558,
+          "total_bases": 1797343
+        },
+        {
+          "species": "HePy",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 55595,
+          "total_bases": 333565
+        },
+        {
+          "species": "AeCa",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 53036,
+          "total_bases": 318211
+        },
+        {
+          "species": "HaHi",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 129667,
+          "total_bases": 778001
+        },
+        {
+          "species": "AnCa",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 4739656,
+          "total_bases": 28437935
+        },
+        {
+          "species": "WaMe",
+          "prefix_token": null,
+          "prefix_token_count": 0,
+          "dna_token_count": 304815,
+          "total_bases": 1828887
+        }
+      ]
+    }
+  },
+  "training_log_jsonl": "outputs/dna_dnagpt_quick_20260406_233136/training_metrics.jsonl",
+  "best_val_bits_per_base": 1.6829326135337026,
+  "validation": {
+    "loss_nats_per_token": 6.999117986145199,
+    "loss_nats_per_base": 1.166519996143266,
+    "bits_per_token": 10.097592809208427,
+    "bits_per_base": 1.6829326135337026,
+    "tokens": 22853243,
+    "bases": 137119419,
+    "elapsed_seconds": 108.92421913146973
+  },
+  "test": {
+    "loss_nats_per_token": 6.995353352921944,
+    "loss_nats_per_base": 1.1658925826024777,
+    "bits_per_token": 10.092161591526471,
+    "bits_per_base": 1.6820274471298209,
+    "tokens": 22853246,
+    "bases": 137119434,
+    "elapsed_seconds": 108.74318408966064
+  }
+}
