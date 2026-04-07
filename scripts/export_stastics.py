@@ -12,7 +12,7 @@ Outputs:
 - compression_per_source_by_split_mode.csv
 
 Example:
-    python scripts/export_wandb_payload_local.py \
+    python scripts/export_stastics.py \
       --run-dir outputs/dnagpt_0p1bm_all_species_nonoverlap
 """
 

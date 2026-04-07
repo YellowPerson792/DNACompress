@@ -40,7 +40,7 @@ Complete examples:
       --compression-sample-bytes 100000 \
       --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe \
       --output-json outputs/dna_megabyte_all_data/compression_compare.json \
-      --export-out-dir outputs/dna_megabyte_all_data/wandb_payload_export \
+      --export-out-dir outputs/dna_megabyte_all_data/stastics \
       --export-project dna-compress \
       --export-name megabyte-all-species-nonoverlap 
           
@@ -55,7 +55,7 @@ Complete examples:
       --overlap-patches 128 \
       --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh \
       --output-json outputs/dna_megabyte_quick_l1024_p3/compression_compare.json \
-      --export-out-dir outputs/dna_megabyte_quick_l1024_p3/wandb_payload_export
+      --export-out-dir outputs/dna_megabyte_quick_l1024_p3/stastics
 
 Compatibility (explicit paths still supported):
 
