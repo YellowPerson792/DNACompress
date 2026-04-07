@@ -3,6 +3,11 @@
 
 # Local datasets
 datasets/
+
+# Python cache / bytecode
+*.py[cod]
+__pycache__/
+
 **/*.pt
 **/__pycache__/
 **/__pycache__/**

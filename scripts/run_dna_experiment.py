@@ -59,7 +59,7 @@ Complete example (train + eval + compression, with common overrides):
         --grad-clip-norm 1.0 \
         --num-workers 4 \
         --train-sampling-strategy proportional \
-        --wandb-project dna-compress \
+        --wandb-project dna-compress 
             
         --gpu-ids 0 3 \
         --wandb-project dna-compress \

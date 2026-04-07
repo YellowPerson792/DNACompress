@@ -33,13 +33,18 @@ def _finalize_metrics(
     total_bits: float,
     encoded: bytes,
     mode: str,
-    probability_compute_seconds: float,
+    model_forward_seconds: float,
+    softmax_seconds: float,
+    data_transfer_seconds: float,
     arithmetic_encode_seconds: float,
     mode_details: dict[str, object] | None = None,
 ) -> dict[str, object]:
     sample_bytes = len(payload)
     sample_bases = tokenized_source.total_bases
-    compression_process_seconds = probability_compute_seconds + arithmetic_encode_seconds
+    model_forward_softmax_seconds = model_forward_seconds + softmax_seconds
+    compression_process_seconds = (
+        model_forward_seconds + softmax_seconds + data_transfer_seconds + arithmetic_encode_seconds
+    )
     return {
         "mode": mode,
         "sample_bytes": sample_bytes,
@@ -51,7 +56,11 @@ def _finalize_metrics(
         "theoretical_bits_per_base": total_bits / max(sample_bases, 1),
         "arithmetic_coded_bytes": len(encoded),
         "arithmetic_bits_per_base": (len(encoded) * 8) / max(sample_bases, 1),
-        "probability_compute_seconds": probability_compute_seconds,
+        "model_forward_seconds": model_forward_seconds,
+        "softmax_seconds": softmax_seconds,
+        "model_forward_softmax_seconds": model_forward_softmax_seconds,
+        "probability_compute_seconds": model_forward_softmax_seconds,
+        "data_transfer_seconds": data_transfer_seconds,
         "arithmetic_encode_seconds": arithmetic_encode_seconds,
         "compression_process_seconds": compression_process_seconds,
         "compression_bytes_per_second": sample_bytes / max(compression_process_seconds, 1e-12),
@@ -80,7 +89,9 @@ def compress_dnagpt_sequence_sliding(
 
     encoder = ArithmeticEncoder()
     total_bits = 0.0
-    probability_compute_seconds = 0.0
+    model_forward_seconds = 0.0
+    softmax_seconds = 0.0
+    data_transfer_seconds = 0.0
     arithmetic_encode_seconds = 0.0
     total_batches = max(1, math.ceil(len(dna_tokens) / batch_size))
     processed_batches = 0
@@ -104,21 +115,31 @@ def compress_dnagpt_sequence_sliding(
             for row_index, context_tokens in enumerate(contexts):
                 batch_input[row_index, : len(context_tokens)] = torch.tensor(context_tokens, dtype=torch.long)
 
-            prob_started = perf_counter()
+            transfer_started = perf_counter()
             batch_input = batch_input.to(device, non_blocking=True)
-            with autocast_context(device, dtype_name):
-                logits = model(batch_input)
-            gather_index = torch.tensor([length - 1 for length in used_lengths], device=device, dtype=torch.long)
-            row_index = torch.arange(len(batch_targets), device=device)
-            next_token_logits = logits[row_index, gather_index, :]
-            probs_np = torch.softmax(next_token_logits.float(), dim=-1).cpu().numpy()
-            probability_compute_seconds += perf_counter() - prob_started
+            data_transfer_seconds += perf_counter() - transfer_started
 
-            targets_device = torch.tensor(batch_targets, dtype=torch.long, device=device)
-            target_log_probs = torch.log_softmax(next_token_logits, dim=-1).gather(1, targets_device[:, None]).squeeze(1)
-            total_bits += float((-target_log_probs / math.log(2)).sum().item())
+            with autocast_context(device, dtype_name):
+                forward_started = perf_counter()
+                logits = model(batch_input)
+                model_forward_seconds += perf_counter() - forward_started
+
+                softmax_started = perf_counter()
+                gather_index = torch.tensor([length - 1 for length in used_lengths], device=device, dtype=torch.long)
+                row_index = torch.arange(len(batch_targets), device=device)
+                next_token_logits = logits[row_index, gather_index, :]
+                next_token_log_probs = torch.log_softmax(next_token_logits, dim=-1)
+                next_token_probs = torch.softmax(next_token_logits.float(), dim=-1)
+                softmax_seconds += perf_counter() - softmax_started
+
+            transfer_started = perf_counter()
+            log_probs_np = next_token_log_probs.float().cpu().numpy()
+            probs_np = next_token_probs.cpu().numpy()
+            data_transfer_seconds += perf_counter() - transfer_started
 
             encode_started = perf_counter()
+            targets_np = np.asarray(batch_targets, dtype=np.int64)
+            total_bits += float((-log_probs_np[np.arange(log_probs_np.shape[0]), targets_np] / math.log(2)).sum())
             cumulative_batch = probabilities_to_cumulative_batch(probs_np)
             for cumulative, target in zip(cumulative_batch, batch_targets):
                 encoder.update(cumulative, int(target))
@@ -135,7 +156,9 @@ def compress_dnagpt_sequence_sliding(
         total_bits=total_bits,
         encoded=encoded,
         mode=SLIDING_TOKEN_MODE,
-        probability_compute_seconds=probability_compute_seconds,
+        model_forward_seconds=model_forward_seconds,
+        softmax_seconds=softmax_seconds,
+        data_transfer_seconds=data_transfer_seconds,
         arithmetic_encode_seconds=arithmetic_encode_seconds,
         mode_details={
             "window_stride": 1,
@@ -166,7 +189,9 @@ def compress_dnagpt_sequence_train_windows(
     starts = list(range(0, len(dna_tokens), target_capacity))
     encoder = ArithmeticEncoder()
     total_bits = 0.0
-    probability_compute_seconds = 0.0
+    model_forward_seconds = 0.0
+    softmax_seconds = 0.0
+    data_transfer_seconds = 0.0
     arithmetic_encode_seconds = 0.0
     total_batches = max(1, math.ceil(len(starts) / batch_size))
     processed_batches = 0
@@ -188,21 +213,34 @@ def compress_dnagpt_sequence_train_windows(
                 for offset, token_id in enumerate(chunk[:-1]):
                     batch_input[row_index, prefix_length + offset + 1] = int(token_id)
 
-            prob_started = perf_counter()
+            transfer_started = perf_counter()
             batch_input = batch_input.to(device, non_blocking=True)
+            data_transfer_seconds += perf_counter() - transfer_started
+
             with autocast_context(device, dtype_name):
+                forward_started = perf_counter()
                 logits = model(batch_input)
-            probs_cpu = torch.softmax(logits.float(), dim=-1).cpu().numpy()
-            probability_compute_seconds += perf_counter() - prob_started
+                model_forward_seconds += perf_counter() - forward_started
+
+                softmax_started = perf_counter()
+                log_probs = torch.log_softmax(logits, dim=-1)
+                probs = log_probs.float().exp()
+                softmax_seconds += perf_counter() - softmax_started
+
+            transfer_started = perf_counter()
+            rows_cpu = log_probs.float().cpu().numpy()
+            probs_cpu = probs.cpu().numpy()
+            data_transfer_seconds += perf_counter() - transfer_started
 
             encode_started = perf_counter()
             for row_index, (chunk, chunk_length) in enumerate(zip(chunk_targets, chunk_lengths)):
                 if chunk_length <= 0:
                     continue
-                row_logits = logits[row_index, prefix_length : prefix_length + chunk_length, :]
-                targets_device = torch.tensor(chunk, dtype=torch.long, device=device)
-                target_log_probs = torch.log_softmax(row_logits, dim=-1).gather(1, targets_device[:, None]).squeeze(1)
-                total_bits += float((-target_log_probs / math.log(2)).sum().item())
+                row_log_probs = rows_cpu[row_index, prefix_length : prefix_length + chunk_length, :]
+                if row_log_probs.shape[0] == 0:
+                    continue
+                targets_np = np.asarray(chunk, dtype=np.int64)
+                total_bits += float((-row_log_probs[np.arange(row_log_probs.shape[0]), targets_np] / math.log(2)).sum())
                 probs_np = probs_cpu[row_index, prefix_length : prefix_length + chunk_length, :]
                 cumulative_batch = probabilities_to_cumulative_batch(probs_np)
                 for cumulative, target in zip(cumulative_batch, chunk):
@@ -220,7 +258,9 @@ def compress_dnagpt_sequence_train_windows(
         total_bits=total_bits,
         encoded=encoded,
         mode=NON_OVERLAP_MODE,
-        probability_compute_seconds=probability_compute_seconds,
+        model_forward_seconds=model_forward_seconds,
+        softmax_seconds=softmax_seconds,
+        data_transfer_seconds=data_transfer_seconds,
         arithmetic_encode_seconds=arithmetic_encode_seconds,
         mode_details={
             "window_stride": target_capacity,

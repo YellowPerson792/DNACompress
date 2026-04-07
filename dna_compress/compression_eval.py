@@ -70,13 +70,18 @@ def _finalize_metrics(
     total_bits: float,
     encoded: bytes,
     mode: CompressionMode,
-    probability_compute_seconds: float,
+    model_forward_seconds: float,
+    softmax_seconds: float,
+    data_transfer_seconds: float,
     arithmetic_encode_seconds: float,
     mode_details: dict[str, object] | None = None,
 ) -> dict[str, object]:
     sample_bytes = len(payload)
     sample_bases = symbol_count_without_eos * token_merge_size
-    compression_process_seconds = probability_compute_seconds + arithmetic_encode_seconds
+    model_forward_softmax_seconds = model_forward_seconds + softmax_seconds
+    compression_process_seconds = (
+        model_forward_seconds + softmax_seconds + data_transfer_seconds + arithmetic_encode_seconds
+    )
     return {
         "mode": mode,
         "sample_bytes": sample_bytes,
@@ -86,7 +91,11 @@ def _finalize_metrics(
         "theoretical_bits_per_base": total_bits / max(sample_bases, 1),
         "arithmetic_coded_bytes": len(encoded),
         "arithmetic_bits_per_base": (len(encoded) * 8) / max(sample_bases, 1),
-        "probability_compute_seconds": probability_compute_seconds,
+        "model_forward_seconds": model_forward_seconds,
+        "softmax_seconds": softmax_seconds,
+        "model_forward_softmax_seconds": model_forward_softmax_seconds,
+        "probability_compute_seconds": model_forward_softmax_seconds,
+        "data_transfer_seconds": data_transfer_seconds,
         "arithmetic_encode_seconds": arithmetic_encode_seconds,
         "compression_process_seconds": compression_process_seconds,
         "compression_bytes_per_second": sample_bytes / max(compression_process_seconds, 1e-12),
@@ -122,27 +131,40 @@ def compress_sequence_sliding_token(
     total_batches = max(1, math.ceil(len(symbols) / batch_size))
     processed_batches = 0
     encoder = ArithmeticEncoder()
-    probability_compute_seconds = 0.0
+    model_forward_seconds = 0.0
+    softmax_seconds = 0.0
+    data_transfer_seconds = 0.0
     arithmetic_encode_seconds = 0.0
 
     model.eval()
     with torch.no_grad():
         for start in range(0, len(symbols), batch_size):
             target_slice = symbols_tensor[start : start + batch_size]
-            batch = all_windows[start : start + target_slice.shape[0]].to(device, non_blocking=True)
+            batch = all_windows[start : start + target_slice.shape[0]]
+            targets_np = target_slice.numpy()
 
-            prob_started = perf_counter()
-            with autocast_context(device, dtype_name):
-                output = model(batch, return_loss=False)
-                log_probs = torch.log_softmax(output.lm_logits[:, -1, :], dim=-1)
-            probs_np = log_probs.float().exp().cpu().numpy()
+            transfer_started = perf_counter()
+            batch = batch.to(device, non_blocking=True)
             targets_device = target_slice.to(device, non_blocking=True)
-            target_log_probs = log_probs.gather(1, targets_device.unsqueeze(1)).squeeze(1)
-            total_bits += float((-target_log_probs / math.log(2)).sum().item())
-            probability_compute_seconds += perf_counter() - prob_started
+            data_transfer_seconds += perf_counter() - transfer_started
+
+            with autocast_context(device, dtype_name):
+                forward_started = perf_counter()
+                output = model(batch, return_loss=False)
+                model_forward_seconds += perf_counter() - forward_started
+
+                softmax_started = perf_counter()
+                log_probs = torch.log_softmax(output.lm_logits[:, -1, :], dim=-1)
+                probs = log_probs.float().exp()
+                target_log_probs = log_probs.gather(1, targets_device.unsqueeze(1)).squeeze(1)
+                total_bits += float((-target_log_probs / math.log(2)).sum().item())
+                softmax_seconds += perf_counter() - softmax_started
+
+            transfer_started = perf_counter()
+            probs_np = probs.cpu().numpy()
+            data_transfer_seconds += perf_counter() - transfer_started
 
             encode_started = perf_counter()
-            targets_np = target_slice.numpy()
             cumulative_batch = probabilities_to_cumulative_batch(probs_np)
             for cumulative, target in zip(cumulative_batch, targets_np):
                 encoder.update(cumulative, int(target))
@@ -162,7 +184,9 @@ def compress_sequence_sliding_token(
         total_bits=total_bits,
         encoded=encoded,
         mode=SLIDING_TOKEN_MODE,
-        probability_compute_seconds=probability_compute_seconds,
+        model_forward_seconds=model_forward_seconds,
+        softmax_seconds=softmax_seconds,
+        data_transfer_seconds=data_transfer_seconds,
         arithmetic_encode_seconds=arithmetic_encode_seconds,
         mode_details={
             "window_stride": 1,
@@ -213,7 +237,9 @@ def compress_sequence_train_windows(
 
     total_batches = max(1, math.ceil(len(window_starts) / batch_size))
     processed_batches = 0
-    probability_compute_seconds = 0.0
+    model_forward_seconds = 0.0
+    softmax_seconds = 0.0
+    data_transfer_seconds = 0.0
     arithmetic_encode_seconds = 0.0
 
     model.eval()
@@ -228,14 +254,24 @@ def compress_sequence_train_windows(
                 if chunk:
                     windows[row_index, : len(chunk)] = torch.tensor(chunk, dtype=torch.long)
 
+            transfer_started = perf_counter()
             batch = windows.to(device, non_blocking=True)
-            prob_started = perf_counter()
+            data_transfer_seconds += perf_counter() - transfer_started
+
             with autocast_context(device, dtype_name):
+                forward_started = perf_counter()
                 output = model(batch, return_loss=False)
+                model_forward_seconds += perf_counter() - forward_started
+
+                softmax_started = perf_counter()
                 log_probs = torch.log_softmax(output.lm_logits, dim=-1)
+                probs = log_probs.float().exp()
+                softmax_seconds += perf_counter() - softmax_started
+
+            transfer_started = perf_counter()
             rows_cpu = log_probs.float().cpu().numpy()
-            probs_cpu = log_probs.float().exp().cpu().numpy()
-            probability_compute_seconds += perf_counter() - prob_started
+            probs_cpu = probs.cpu().numpy()
+            data_transfer_seconds += perf_counter() - transfer_started
 
             encode_started = perf_counter()
             for row_index, (start, chunk_length) in enumerate(zip(starts, lengths)):
@@ -291,7 +327,9 @@ def compress_sequence_train_windows(
         total_bits=total_bits,
         encoded=encoded,
         mode=mode,
-        probability_compute_seconds=probability_compute_seconds,
+        model_forward_seconds=model_forward_seconds,
+        softmax_seconds=softmax_seconds,
+        data_transfer_seconds=data_transfer_seconds,
         arithmetic_encode_seconds=arithmetic_encode_seconds,
         mode_details=mode_details,
     )
@@ -375,7 +413,25 @@ def summarize_per_source(
     total_gzip_bytes = sum(int(row["gzip_bytes"]) for row in rows)
     total_bz2_bytes = sum(int(row["bz2_bytes"]) for row in rows)
     total_lzma_bytes = sum(int(row["lzma_bytes"]) for row in rows)
-    total_probability_compute_seconds = sum(float(row.get("probability_compute_seconds", 0.0)) for row in rows)
+    total_model_forward_seconds = sum(
+        float(row.get("model_forward_seconds", row.get("model_forward_softmax_seconds", row.get("probability_compute_seconds", 0.0))))
+        for row in rows
+    )
+    total_softmax_seconds = sum(float(row.get("softmax_seconds", 0.0)) for row in rows)
+    total_model_forward_softmax_seconds = sum(
+        float(
+            row.get(
+                "model_forward_softmax_seconds",
+                row.get("model_forward_seconds", 0.0) + row.get("softmax_seconds", 0.0),
+            )
+        )
+        for row in rows
+    )
+    total_probability_compute_seconds = sum(
+        float(row.get("probability_compute_seconds", row.get("model_forward_softmax_seconds", 0.0)))
+        for row in rows
+    )
+    total_data_transfer_seconds = sum(float(row.get("data_transfer_seconds", 0.0)) for row in rows)
     total_arithmetic_encode_seconds = sum(float(row.get("arithmetic_encode_seconds", 0.0)) for row in rows)
     total_compression_process_seconds = sum(float(row.get("compression_process_seconds", 0.0)) for row in rows)
 
@@ -392,7 +448,11 @@ def summarize_per_source(
         "total_gzip_bytes": total_gzip_bytes,
         "total_bz2_bytes": total_bz2_bytes,
         "total_lzma_bytes": total_lzma_bytes,
+        "total_model_forward_seconds": total_model_forward_seconds,
+        "total_softmax_seconds": total_softmax_seconds,
+        "total_model_forward_softmax_seconds": total_model_forward_softmax_seconds,
         "total_probability_compute_seconds": total_probability_compute_seconds,
+        "total_data_transfer_seconds": total_data_transfer_seconds,
         "total_arithmetic_encode_seconds": total_arithmetic_encode_seconds,
         "total_compression_process_seconds": total_compression_process_seconds,
         "total_compression_bytes_per_second": total_sample_bytes / max(total_compression_process_seconds, 1e-12),

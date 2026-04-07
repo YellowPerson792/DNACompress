@@ -1,7 +1,7 @@
 {
-  "project": "",
+  "project": "dna-compress",
   "entity": "",
-  "name": "dna_megabyte_all_data",
+  "name": "megabyte-all-species-nonoverlap",
   "run_dir": "outputs\\dna_megabyte_all_data",
   "has_resolved_config": true,
   "has_metrics_json": false,
