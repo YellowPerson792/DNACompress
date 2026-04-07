@@ -8,7 +8,12 @@ from typing import Callable, Iterable
 import numpy as np
 import torch
 
-from .compression import ArithmeticEncoder, baseline_sizes, probabilities_to_cumulative_batch
+from .compression import (
+    ArithmeticEncoder,
+    baseline_sizes,
+    probabilities_to_cumulative_batch,
+    resolve_arithmetic_coding_metadata,
+)
 from .tokenization import tokenize_source_bytes
 
 
@@ -74,6 +79,7 @@ def _finalize_metrics(
     softmax_seconds: float,
     data_transfer_seconds: float,
     arithmetic_encode_seconds: float,
+    arithmetic_metadata: dict[str, object],
     mode_details: dict[str, object] | None = None,
 ) -> dict[str, object]:
     sample_bytes = len(payload)
@@ -101,6 +107,7 @@ def _finalize_metrics(
         "compression_bytes_per_second": sample_bytes / max(compression_process_seconds, 1e-12),
         "compression_bases_per_second": sample_bases / max(compression_process_seconds, 1e-12),
         "compression_symbols_per_second": len(symbols) / max(compression_process_seconds, 1e-12),
+        **arithmetic_metadata,
         **baseline_sizes(payload),
         **(mode_details or {}),
     }
@@ -118,6 +125,8 @@ def compress_sequence_sliding_token(
     batch_size: int,
     token_merge_size: int,
     token_merge_alphabet: str,
+    arithmetic_frequency_total: int | None,
+    arithmetic_target_uniform_mass: float,
     progress_callback: Callable[[int, int], None] | None = None,
 ) -> dict[str, object]:
     symbols = _symbols_with_optional_eos(payload, eos_id, token_merge_size, token_merge_alphabet)
@@ -135,6 +144,7 @@ def compress_sequence_sliding_token(
     softmax_seconds = 0.0
     data_transfer_seconds = 0.0
     arithmetic_encode_seconds = 0.0
+    arithmetic_metadata: dict[str, object] | None = None
 
     model.eval()
     with torch.no_grad():
@@ -165,7 +175,16 @@ def compress_sequence_sliding_token(
             data_transfer_seconds += perf_counter() - transfer_started
 
             encode_started = perf_counter()
-            cumulative_batch = probabilities_to_cumulative_batch(probs_np)
+            if arithmetic_metadata is None:
+                arithmetic_metadata = resolve_arithmetic_coding_metadata(
+                    vocab_size=int(probs_np.shape[1]),
+                    requested_total=arithmetic_frequency_total,
+                    target_uniform_mass=arithmetic_target_uniform_mass,
+                )
+            cumulative_batch = probabilities_to_cumulative_batch(
+                probs_np,
+                total=int(arithmetic_metadata["arithmetic_frequency_total"]),
+            )
             for cumulative, target in zip(cumulative_batch, targets_np):
                 encoder.update(cumulative, int(target))
             arithmetic_encode_seconds += perf_counter() - encode_started
@@ -175,6 +194,8 @@ def compress_sequence_sliding_token(
                 progress_callback(processed_batches, total_batches)
 
     encoded = encoder.finish()
+    if arithmetic_metadata is None:
+        raise RuntimeError("Failed to resolve arithmetic coding metadata for sliding-token compression.")
 
     return _finalize_metrics(
         payload=payload,
@@ -188,6 +209,7 @@ def compress_sequence_sliding_token(
         softmax_seconds=softmax_seconds,
         data_transfer_seconds=data_transfer_seconds,
         arithmetic_encode_seconds=arithmetic_encode_seconds,
+        arithmetic_metadata=arithmetic_metadata,
         mode_details={
             "window_stride": 1,
             "window_policy": "right_aligned_sliding_context",
@@ -220,6 +242,8 @@ def compress_sequence_train_windows(
     overlap_stride: int | None = None,
     token_merge_size: int,
     token_merge_alphabet: str,
+    arithmetic_frequency_total: int | None,
+    arithmetic_target_uniform_mass: float,
     progress_callback: Callable[[int, int], None] | None = None,
 ) -> dict[str, object]:
     symbols = _symbols_with_optional_eos(payload, eos_id, token_merge_size, token_merge_alphabet)
@@ -241,6 +265,7 @@ def compress_sequence_train_windows(
     softmax_seconds = 0.0
     data_transfer_seconds = 0.0
     arithmetic_encode_seconds = 0.0
+    arithmetic_metadata: dict[str, object] | None = None
 
     model.eval()
     with torch.no_grad():
@@ -290,7 +315,16 @@ def compress_sequence_train_windows(
                 targets_np = np.asarray(symbols[start + local_start : start + chunk_length], dtype=np.int64)
                 total_bits += float((-row_log_probs[np.arange(row_log_probs.shape[0]), targets_np] / math.log(2)).sum())
 
-                cumulative_batch = probabilities_to_cumulative_batch(probs_np)
+                if arithmetic_metadata is None:
+                    arithmetic_metadata = resolve_arithmetic_coding_metadata(
+                        vocab_size=int(probs_np.shape[1]),
+                        requested_total=arithmetic_frequency_total,
+                        target_uniform_mass=arithmetic_target_uniform_mass,
+                    )
+                cumulative_batch = probabilities_to_cumulative_batch(
+                    probs_np,
+                    total=int(arithmetic_metadata["arithmetic_frequency_total"]),
+                )
                 for cumulative, target in zip(cumulative_batch, targets_np):
                     encoder.update(cumulative, int(target))
 
@@ -301,6 +335,8 @@ def compress_sequence_train_windows(
                 progress_callback(processed_batches, total_batches)
 
     encoded = encoder.finish()
+    if arithmetic_metadata is None:
+        raise RuntimeError("Failed to resolve arithmetic coding metadata for train-window compression.")
 
     mode_details: dict[str, object] = {
         "window_policy": "contiguous_train_style",
@@ -331,6 +367,7 @@ def compress_sequence_train_windows(
         softmax_seconds=softmax_seconds,
         data_transfer_seconds=data_transfer_seconds,
         arithmetic_encode_seconds=arithmetic_encode_seconds,
+        arithmetic_metadata=arithmetic_metadata,
         mode_details=mode_details,
     )
 
@@ -350,6 +387,8 @@ def compress_source(
     overlap_stride: int = 1,
     token_merge_size: int = 1,
     token_merge_alphabet: str = "ACGTN",
+    arithmetic_frequency_total: int | None = None,
+    arithmetic_target_uniform_mass: float = 0.01,
     progress_callback: Callable[[int, int], None] | None = None,
 ) -> dict[str, object]:
     payload = sample_payload(source, requested_bytes)
@@ -365,6 +404,8 @@ def compress_source(
             batch_size=batch_size,
             token_merge_size=token_merge_size,
             token_merge_alphabet=token_merge_alphabet,
+            arithmetic_frequency_total=arithmetic_frequency_total,
+            arithmetic_target_uniform_mass=arithmetic_target_uniform_mass,
             progress_callback=progress_callback,
         )
     if mode == NON_OVERLAP_MODE:
@@ -380,6 +421,8 @@ def compress_source(
             overlap_stride=None,
             token_merge_size=token_merge_size,
             token_merge_alphabet=token_merge_alphabet,
+            arithmetic_frequency_total=arithmetic_frequency_total,
+            arithmetic_target_uniform_mass=arithmetic_target_uniform_mass,
             progress_callback=progress_callback,
         )
     if mode == OVERLAP_MODE:
@@ -395,6 +438,8 @@ def compress_source(
             overlap_stride=overlap_stride,
             token_merge_size=token_merge_size,
             token_merge_alphabet=token_merge_alphabet,
+            arithmetic_frequency_total=arithmetic_frequency_total,
+            arithmetic_target_uniform_mass=arithmetic_target_uniform_mass,
             progress_callback=progress_callback,
         )
     raise ValueError(f"Unsupported compression mode '{mode}'")
@@ -422,7 +467,7 @@ def summarize_per_source(
     total_arithmetic_encode_seconds = sum(float(row.get("arithmetic_encode_seconds", 0.0)) for row in rows)
     total_compression_process_seconds = sum(float(row.get("compression_process_seconds", 0.0)) for row in rows)
 
-    return {
+    summary = {
         "source_count": len(rows),
         "total_sample_bytes": total_sample_bytes,
         "total_sample_bases": total_sample_bases,
@@ -443,3 +488,12 @@ def summarize_per_source(
         "total_compression_bytes_per_second": total_sample_bytes / max(total_compression_process_seconds, 1e-12),
         "total_compression_bases_per_second": total_sample_bases / max(total_compression_process_seconds, 1e-12),
     }
+    for key in (
+        "arithmetic_frequency_total",
+        "arithmetic_vocab_size",
+        "arithmetic_target_uniform_mass",
+        "arithmetic_effective_uniform_mass",
+    ):
+        if rows and all(row.get(key) == rows[0].get(key) for row in rows):
+            summary[key] = rows[0].get(key)
+    return summary

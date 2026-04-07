@@ -4,6 +4,7 @@ import bz2
 import gzip
 import io
 import lzma
+import math
 from typing import Iterable
 
 import numpy as np
@@ -80,6 +81,75 @@ class ArithmeticEncoder:
         return self.bit_output.finish()
 
 
+MIN_FREQUENCY_TOTAL = 1 << 15
+
+
+def max_supported_frequency_total(state_bits: int = ArithmeticEncoder.STATE_BITS) -> int:
+    if state_bits < 2:
+        raise ValueError("state_bits must be >= 2")
+    return (1 << (state_bits - 2)) + 2
+
+
+def _next_power_of_two(value: int) -> int:
+    if value <= 1:
+        return 1
+    return 1 << (value - 1).bit_length()
+
+
+def resolve_frequency_total(
+    vocab_size: int,
+    requested_total: int | None,
+    target_uniform_mass: float,
+    state_bits: int = ArithmeticEncoder.STATE_BITS,
+) -> int:
+    if vocab_size <= 0:
+        raise ValueError("vocab_size must be > 0")
+    if not (0.0 < target_uniform_mass <= 1.0):
+        raise ValueError("target_uniform_mass must be in (0.0, 1.0]")
+
+    if requested_total is None:
+        minimum_required = max(
+            MIN_FREQUENCY_TOTAL,
+            vocab_size + 1,
+            math.ceil(vocab_size / target_uniform_mass),
+        )
+        total = _next_power_of_two(minimum_required)
+    else:
+        total = int(requested_total)
+
+    if total <= vocab_size:
+        raise ValueError(
+            f"frequency total ({total}) must exceed vocabulary size ({vocab_size})"
+        )
+
+    max_total = max_supported_frequency_total(state_bits)
+    if total > max_total:
+        raise ValueError(
+            f"frequency total ({total}) exceeds 32-bit arithmetic coding limit ({max_total})"
+        )
+    return total
+
+
+def resolve_arithmetic_coding_metadata(
+    vocab_size: int,
+    requested_total: int | None,
+    target_uniform_mass: float,
+    state_bits: int = ArithmeticEncoder.STATE_BITS,
+) -> dict[str, float | int]:
+    frequency_total = resolve_frequency_total(
+        vocab_size=vocab_size,
+        requested_total=requested_total,
+        target_uniform_mass=target_uniform_mass,
+        state_bits=state_bits,
+    )
+    return {
+        "arithmetic_frequency_total": frequency_total,
+        "arithmetic_vocab_size": int(vocab_size),
+        "arithmetic_target_uniform_mass": float(target_uniform_mass),
+        "arithmetic_effective_uniform_mass": float(vocab_size) / float(frequency_total),
+    }
+
+
 def probabilities_to_cumulative(probabilities: np.ndarray, total: int = 1 << 15) -> np.ndarray:
     return probabilities_to_cumulative_batch(probabilities, total=total)
 
@@ -135,7 +205,12 @@ def probabilities_to_cumulative_batch(probabilities: np.ndarray, total: int = 1 
     return cumulative
 
 
-def arithmetic_encode(symbols: Iterable[int], probability_rows: Iterable[np.ndarray], batch_size: int = 512) -> bytes:
+def arithmetic_encode(
+    symbols: Iterable[int],
+    probability_rows: Iterable[np.ndarray],
+    batch_size: int = 512,
+    total: int = MIN_FREQUENCY_TOTAL,
+) -> bytes:
     encoder = ArithmeticEncoder()
 
     symbol_chunk: list[int] = []
@@ -144,7 +219,7 @@ def arithmetic_encode(symbols: Iterable[int], probability_rows: Iterable[np.ndar
     def flush_chunk() -> None:
         if not probs_chunk:
             return
-        cumulative_batch = probabilities_to_cumulative_batch(np.stack(probs_chunk, axis=0))
+        cumulative_batch = probabilities_to_cumulative_batch(np.stack(probs_chunk, axis=0), total=total)
         for symbol_value, cumulative in zip(symbol_chunk, cumulative_batch):
             encoder.update(cumulative, int(symbol_value))
         symbol_chunk.clear()

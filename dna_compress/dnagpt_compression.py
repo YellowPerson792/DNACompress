@@ -7,7 +7,12 @@ from typing import Callable
 import numpy as np
 import torch
 
-from .compression import ArithmeticEncoder, baseline_sizes, probabilities_to_cumulative_batch
+from .compression import (
+    ArithmeticEncoder,
+    baseline_sizes,
+    probabilities_to_cumulative_batch,
+    resolve_arithmetic_coding_metadata,
+)
 from .compression_eval import NON_OVERLAP_MODE, SLIDING_TOKEN_MODE
 from .dnagpt_data import max_target_tokens
 from .dnagpt_tokenization import TokenizedDNASource, tokenize_dna_source
@@ -37,6 +42,7 @@ def _finalize_metrics(
     softmax_seconds: float,
     data_transfer_seconds: float,
     arithmetic_encode_seconds: float,
+    arithmetic_metadata: dict[str, object],
     mode_details: dict[str, object] | None = None,
 ) -> dict[str, object]:
     sample_bytes = len(payload)
@@ -66,6 +72,7 @@ def _finalize_metrics(
         "compression_bytes_per_second": sample_bytes / max(compression_process_seconds, 1e-12),
         "compression_bases_per_second": sample_bases / max(compression_process_seconds, 1e-12),
         "compression_symbols_per_second": len(tokenized_source.dna_token_ids) / max(compression_process_seconds, 1e-12),
+        **arithmetic_metadata,
         **baseline_sizes(payload),
         **(mode_details or {}),
     }
@@ -81,6 +88,7 @@ def compress_dnagpt_sequence_sliding(
     device: torch.device,
     dtype_name: str,
     batch_size: int,
+    arithmetic_metadata: dict[str, object],
     progress_callback: Callable[[int, int], None] | None = None,
 ) -> dict[str, object]:
     dna_tokens = tokenized_source.dna_token_ids
@@ -140,7 +148,10 @@ def compress_dnagpt_sequence_sliding(
             data_transfer_seconds += perf_counter() - transfer_started
 
             encode_started = perf_counter()
-            cumulative_batch = probabilities_to_cumulative_batch(probs_np)
+            cumulative_batch = probabilities_to_cumulative_batch(
+                probs_np,
+                total=int(arithmetic_metadata["arithmetic_frequency_total"]),
+            )
             for cumulative, target in zip(cumulative_batch, batch_targets):
                 encoder.update(cumulative, int(target))
             arithmetic_encode_seconds += perf_counter() - encode_started
@@ -160,6 +171,7 @@ def compress_dnagpt_sequence_sliding(
         softmax_seconds=softmax_seconds,
         data_transfer_seconds=data_transfer_seconds,
         arithmetic_encode_seconds=arithmetic_encode_seconds,
+        arithmetic_metadata=arithmetic_metadata,
         mode_details={
             "window_stride": 1,
             "window_policy": "left_context_sliding",
@@ -178,6 +190,7 @@ def compress_dnagpt_sequence_train_windows(
     device: torch.device,
     dtype_name: str,
     batch_size: int,
+    arithmetic_metadata: dict[str, object],
     progress_callback: Callable[[int, int], None] | None = None,
 ) -> dict[str, object]:
     dna_tokens = tokenized_source.dna_token_ids
@@ -242,7 +255,10 @@ def compress_dnagpt_sequence_train_windows(
                 targets_np = np.asarray(chunk, dtype=np.int64)
                 total_bits += float((-row_log_probs[np.arange(row_log_probs.shape[0]), targets_np] / math.log(2)).sum())
                 probs_np = probs_cpu[row_index, prefix_length : prefix_length + chunk_length, :]
-                cumulative_batch = probabilities_to_cumulative_batch(probs_np)
+                cumulative_batch = probabilities_to_cumulative_batch(
+                    probs_np,
+                    total=int(arithmetic_metadata["arithmetic_frequency_total"]),
+                )
                 for cumulative, target in zip(cumulative_batch, chunk):
                     encoder.update(cumulative, int(target))
             arithmetic_encode_seconds += perf_counter() - encode_started
@@ -262,6 +278,7 @@ def compress_dnagpt_sequence_train_windows(
         softmax_seconds=softmax_seconds,
         data_transfer_seconds=data_transfer_seconds,
         arithmetic_encode_seconds=arithmetic_encode_seconds,
+        arithmetic_metadata=arithmetic_metadata,
         mode_details={
             "window_stride": target_capacity,
             "window_policy": "contiguous_train_style",
@@ -285,6 +302,8 @@ def compress_dnagpt_source(
     batch_size: int,
     requested_bytes: int | None,
     mode: str,
+    arithmetic_frequency_total: int | None,
+    arithmetic_target_uniform_mass: float,
     progress_callback: Callable[[int, int], None] | None = None,
 ) -> dict[str, object]:
     payload = sample_payload(source, requested_bytes)
@@ -294,6 +313,11 @@ def compress_dnagpt_source(
         tokenizer=tokenizer,
         kmer_size=kmer_size,
         species_prefix_map=species_prefix_map,
+    )
+    arithmetic_metadata = resolve_arithmetic_coding_metadata(
+        vocab_size=len(tokenizer),
+        requested_total=arithmetic_frequency_total,
+        target_uniform_mass=arithmetic_target_uniform_mass,
     )
     if mode == SLIDING_TOKEN_MODE:
         metrics = compress_dnagpt_sequence_sliding(
@@ -305,6 +329,7 @@ def compress_dnagpt_source(
             device=device,
             dtype_name=dtype_name,
             batch_size=batch_size,
+            arithmetic_metadata=arithmetic_metadata,
             progress_callback=progress_callback,
         )
     elif mode == NON_OVERLAP_MODE:
@@ -317,6 +342,7 @@ def compress_dnagpt_source(
             device=device,
             dtype_name=dtype_name,
             batch_size=batch_size,
+            arithmetic_metadata=arithmetic_metadata,
             progress_callback=progress_callback,
         )
     else:

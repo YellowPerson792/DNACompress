@@ -102,6 +102,10 @@ def _collect_summary_metrics(metrics: dict[str, Any], compression_compare: dict[
         for key in ["checkpoint_step", "best_val_bpb", "overlap_stride_tokens", "overlap_stride_patches"]:
             if key in compression_compare:
                 summary[f"compression_compare.{key}"] = compression_compare[key]
+        arithmetic = compression_compare.get("arithmetic")
+        if isinstance(arithmetic, dict):
+            for key, value in arithmetic.items():
+                summary[f"compression_compare.arithmetic.{key}"] = value
 
     return summary
 
@@ -176,6 +180,10 @@ def _build_compression_tables(compression_compare: dict[str, Any] | None) -> tup
                     "sample_bases": source_row.get("sample_bases"),
                     "theoretical_bits_per_base": source_row.get("theoretical_bits_per_base"),
                     "arithmetic_bits_per_base": source_row.get("arithmetic_bits_per_base"),
+                    "arithmetic_frequency_total": source_row.get("arithmetic_frequency_total"),
+                    "arithmetic_vocab_size": source_row.get("arithmetic_vocab_size"),
+                    "arithmetic_target_uniform_mass": source_row.get("arithmetic_target_uniform_mass"),
+                    "arithmetic_effective_uniform_mass": source_row.get("arithmetic_effective_uniform_mass"),
                     "ascii_bytes": source_row.get("ascii_bytes"),
                     "two_bit_pack_bytes": source_row.get("two_bit_pack_bytes"),
                     "gzip_bytes": source_row.get("gzip_bytes"),

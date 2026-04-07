@@ -24,7 +24,6 @@ Example: evaluate official DNAGPT 0.1B multi-organism weights on HoSa test split
     python scripts/run_dnagpt_compression.py \
       --split train val test \
       --eval-batch-size 10 \
-      --config configs/dna_dnagpt_quick.json \
       --run-dir outputs/dna_dnagpt_finetune \
       --compression-modes train_windows_nonoverlap \
       --compression-sample-bytes 50000 \
@@ -238,6 +237,8 @@ def _run_split(
                 batch_size=config.train.eval_batch_size,
                 requested_bytes=config.data.compression_sample_bytes,
                 mode=mode,
+                arithmetic_frequency_total=config.arithmetic.frequency_total,
+                arithmetic_target_uniform_mass=config.arithmetic.target_uniform_mass,
                 progress_callback=_on_progress,
             )
             print()
@@ -385,6 +386,23 @@ def main() -> None:
             modes=args.compression_modes,
             device=device,
         )
+        if "arithmetic" not in metrics:
+            split_result = metrics["results"][split_name]
+            if isinstance(split_result, dict):
+                for mode_payload in split_result.values():
+                    if not isinstance(mode_payload, dict):
+                        continue
+                    aggregate = mode_payload.get("aggregate")
+                    if not isinstance(aggregate, dict):
+                        continue
+                    if "arithmetic_frequency_total" in aggregate:
+                        metrics["arithmetic"] = {
+                            "frequency_total": aggregate.get("arithmetic_frequency_total"),
+                            "vocab_size": aggregate.get("arithmetic_vocab_size"),
+                            "target_uniform_mass": aggregate.get("arithmetic_target_uniform_mass"),
+                            "effective_uniform_mass": aggregate.get("arithmetic_effective_uniform_mass"),
+                        }
+                        break
 
     if args.output_json:
         output_json = Path(args.output_json)

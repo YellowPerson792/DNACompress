@@ -84,11 +84,18 @@ class OutputConfig:
 
 
 @dataclass
+class ArithmeticCodingConfig:
+    frequency_total: int | None = None
+    target_uniform_mass: float = 0.01
+
+
+@dataclass
 class ExperimentConfig:
     model: ModelConfig = field(default_factory=ModelConfig)
     data: DataConfig = field(default_factory=DataConfig)
     train: TrainConfig = field(default_factory=TrainConfig)
     output: OutputConfig = field(default_factory=OutputConfig)
+    arithmetic: ArithmeticCodingConfig = field(default_factory=ArithmeticCodingConfig)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -111,6 +118,7 @@ def load_experiment_config(path: str | Path) -> ExperimentConfig:
         data=_merge_dataclass(DataConfig, raw.get("data")),
         train=_merge_dataclass(TrainConfig, raw.get("train")),
         output=_merge_dataclass(OutputConfig, raw.get("output")),
+        arithmetic=_merge_dataclass(ArithmeticCodingConfig, raw.get("arithmetic")),
     )
 
 

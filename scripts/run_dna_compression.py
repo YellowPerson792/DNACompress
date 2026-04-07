@@ -250,6 +250,10 @@ def _validate_args(config: ExperimentConfig, args: argparse.Namespace) -> None:
     if config.data.token_merge_size <= 0:
         raise ValueError("data.token_merge_size must be >= 1")
     normalize_alphabet(config.data.token_merge_alphabet)
+    if config.arithmetic.frequency_total is not None and config.arithmetic.frequency_total <= 0:
+        raise ValueError("arithmetic.frequency_total must be > 0 when provided")
+    if not (0.0 < config.arithmetic.target_uniform_mass <= 1.0):
+        raise ValueError("arithmetic.target_uniform_mass must be in (0.0, 1.0]")
 
 
 def _resolve_overlap_stride(config: ExperimentConfig, args: argparse.Namespace) -> int:
@@ -303,6 +307,8 @@ def _run_split(
                 overlap_stride=overlap_stride,
                 token_merge_size=config.data.token_merge_size,
                 token_merge_alphabet=config.data.token_merge_alphabet,
+                arithmetic_frequency_total=config.arithmetic.frequency_total,
+                arithmetic_target_uniform_mass=config.arithmetic.target_uniform_mass,
                 progress_callback=_on_progress,
             )
             print()
@@ -485,6 +491,23 @@ def main() -> None:
             overlap_stride=overlap_stride,
             device=device,
         )
+        if "arithmetic" not in metrics:
+            split_result = metrics["results"][split_name]
+            if isinstance(split_result, dict):
+                for mode_payload in split_result.values():
+                    if not isinstance(mode_payload, dict):
+                        continue
+                    aggregate = mode_payload.get("aggregate")
+                    if not isinstance(aggregate, dict):
+                        continue
+                    if "arithmetic_frequency_total" in aggregate:
+                        metrics["arithmetic"] = {
+                            "frequency_total": aggregate.get("arithmetic_frequency_total"),
+                            "vocab_size": aggregate.get("arithmetic_vocab_size"),
+                            "target_uniform_mass": aggregate.get("arithmetic_target_uniform_mass"),
+                            "effective_uniform_mass": aggregate.get("arithmetic_effective_uniform_mass"),
+                        }
+                        break
 
     if args.output_json:
         output_json = Path(args.output_json)

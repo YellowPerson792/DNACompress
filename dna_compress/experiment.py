@@ -18,7 +18,12 @@ from torch.optim.lr_scheduler import LambdaLR
 from torch.utils.data import DataLoader
 from torch.utils.data.distributed import DistributedSampler
 
-from .compression import ArithmeticEncoder, baseline_sizes, probabilities_to_cumulative_batch
+from .compression import (
+    ArithmeticEncoder,
+    baseline_sizes,
+    probabilities_to_cumulative_batch,
+    resolve_arithmetic_coding_metadata,
+)
 from .config import ExperimentConfig, save_experiment_config
 from .data import (
     RandomWindowDataset,
@@ -282,6 +287,8 @@ def evaluate_compression(
     batch_size: int,
     token_merge_size: int,
     token_merge_alphabet: str,
+    arithmetic_frequency_total: int | None,
+    arithmetic_target_uniform_mass: float,
     progress_callback: Callable[[int, int], None] | None = None,
 ) -> dict[str, float | int]:
     token_symbols = tokenize_source_bytes(payload, token_merge_size, token_merge_alphabet)
@@ -295,6 +302,7 @@ def evaluate_compression(
 
     encoder = ArithmeticEncoder()
     total_bits = 0.0
+    arithmetic_metadata: dict[str, float | int] | None = None
 
     model.eval()
     total_batches = math.ceil(len(symbols) / batch_size)
@@ -312,7 +320,16 @@ def evaluate_compression(
 
             probs_np = log_probs.exp().cpu().numpy()
             targets_np = target_tensor.cpu().numpy()
-            cumulative_batch = probabilities_to_cumulative_batch(probs_np)
+            if arithmetic_metadata is None:
+                arithmetic_metadata = resolve_arithmetic_coding_metadata(
+                    vocab_size=int(probs_np.shape[1]),
+                    requested_total=arithmetic_frequency_total,
+                    target_uniform_mass=arithmetic_target_uniform_mass,
+                )
+            cumulative_batch = probabilities_to_cumulative_batch(
+                probs_np,
+                total=int(arithmetic_metadata["arithmetic_frequency_total"]),
+            )
             for cumulative, target in zip(cumulative_batch, targets_np):
                 encoder.update(cumulative, int(target))
 
@@ -321,6 +338,8 @@ def evaluate_compression(
                 progress_callback(processed_batches, total_batches)
 
     compressed = encoder.finish()
+    if arithmetic_metadata is None:
+        raise RuntimeError("Failed to resolve arithmetic coding metadata during compression evaluation.")
     baselines = baseline_sizes(payload)
     tokenized_bases = len(token_symbols) * token_merge_size
     bytes_count = len(payload)
@@ -332,6 +351,7 @@ def evaluate_compression(
         "theoretical_bits_per_base": total_bits / max(tokenized_bases, 1),
         "arithmetic_coded_bytes": len(compressed),
         "arithmetic_bits_per_base": (len(compressed) * 8) / max(tokenized_bases, 1),
+        **arithmetic_metadata,
         **baselines,
     }
 
@@ -349,6 +369,8 @@ def evaluate_compression_per_source(
     batch_size: int,
     token_merge_size: int,
     token_merge_alphabet: str,
+    arithmetic_frequency_total: int | None,
+    arithmetic_target_uniform_mass: float,
 ) -> dict[str, object]:
     per_source: list[dict[str, object]] = []
     total_sample_bytes = 0
@@ -387,6 +409,8 @@ def evaluate_compression_per_source(
             batch_size=batch_size,
             token_merge_size=token_merge_size,
             token_merge_alphabet=token_merge_alphabet,
+            arithmetic_frequency_total=arithmetic_frequency_total,
+            arithmetic_target_uniform_mass=arithmetic_target_uniform_mass,
             progress_callback=lambda batch_done, batch_total, si=source_index, sn=species_name: _print_compression_progress(
                 sn,
                 si,
@@ -414,6 +438,14 @@ def evaluate_compression_per_source(
         "total_arithmetic_coded_bytes": total_arithmetic_bytes,
         "total_arithmetic_bits_per_base": (total_arithmetic_bytes * 8) / max(total_sample_bases, 1),
     }
+    for key in (
+        "arithmetic_frequency_total",
+        "arithmetic_vocab_size",
+        "arithmetic_target_uniform_mass",
+        "arithmetic_effective_uniform_mass",
+    ):
+        if per_source and all(row.get(key) == per_source[0].get(key) for row in per_source):
+            aggregate[key] = per_source[0].get(key)
     return {
         "aggregate": aggregate,
         "per_source": per_source,
@@ -814,6 +846,8 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
                     batch_size=config.train.eval_batch_size,
                     token_merge_size=config.data.token_merge_size,
                     token_merge_alphabet=config.data.token_merge_alphabet,
+                    arithmetic_frequency_total=config.arithmetic.frequency_total,
+                    arithmetic_target_uniform_mass=config.arithmetic.target_uniform_mass,
                 )
 
                 run_summary["validation"] = val_metrics

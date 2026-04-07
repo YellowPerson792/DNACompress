@@ -312,6 +312,10 @@ def _validate_config_for_megabyte(config: Any) -> None:
 
     if config.train.prefetch_factor <= 0:
         raise ValueError("train.prefetch_factor must be >= 1")
+    if config.arithmetic.frequency_total is not None and config.arithmetic.frequency_total <= 0:
+        raise ValueError("arithmetic.frequency_total must be > 0 when provided")
+    if not (0.0 < config.arithmetic.target_uniform_mass <= 1.0):
+        raise ValueError("arithmetic.target_uniform_mass must be in (0.0, 1.0]")
 
     if config.train.gpu_ids is not None:
         if len(config.train.gpu_ids) == 0:
