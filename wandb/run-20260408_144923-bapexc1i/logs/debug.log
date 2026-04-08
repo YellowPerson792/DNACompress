@@ -1,0 +1,29 @@
+2026-04-08 14:49:23,974 INFO    MainThread:3075 [wandb_setup.py:_flush():68] Current SDK version is 0.19.10
+2026-04-08 14:49:23,974 INFO    MainThread:3075 [wandb_setup.py:_flush():68] Configure stats pid to 3075
+2026-04-08 14:49:23,975 INFO    MainThread:3075 [wandb_setup.py:_flush():68] Loading settings from /root/.config/wandb/settings
+2026-04-08 14:49:23,975 INFO    MainThread:3075 [wandb_setup.py:_flush():68] Loading settings from /root/autodl-tmp/DNACompress/wandb/settings
+2026-04-08 14:49:23,975 INFO    MainThread:3075 [wandb_setup.py:_flush():68] Loading settings from environment variables
+2026-04-08 14:49:23,975 INFO    MainThread:3075 [wandb_init.py:setup_run_log_directory():724] Logging user logs to /root/autodl-tmp/DNACompress/wandb/run-20260408_144923-bapexc1i/logs/debug.log
+2026-04-08 14:49:23,975 INFO    MainThread:3075 [wandb_init.py:setup_run_log_directory():725] Logging internal logs to /root/autodl-tmp/DNACompress/wandb/run-20260408_144923-bapexc1i/logs/debug-internal.log
+2026-04-08 14:49:23,975 INFO    MainThread:3075 [wandb_init.py:init():852] calling init triggers
+2026-04-08 14:49:23,975 INFO    MainThread:3075 [wandb_init.py:init():857] wandb.init called with sweep_config: {}
+config: {'model': {'implementation': 'megabyte_in_action', 'variant': 'dna_gpt0.1b_m', 'pretrained_weight_path': None, 'vocab_size': 127, 'patch_size': 32, 'global_dim': 32, 'local_dim': 768, 'seq_length': 1024, 'global_heads': 16, 'global_layers': 24, 'local_heads': 12, 'local_layers': 12, 'attn_dropout': 0.0, 'ff_dropout': 0.0, 'input_causal_conv_kernel_size': 1, 'initializer_range': 0.02, 'pad_id': 125, 'eos_id': 126}, 'data': {'dataset_dir': 'datasets/DNACorpus', 'species': ['OrSa', 'HoSa', 'DaRe', 'ScPo', 'EsCo', 'YeMi', 'BuEb', 'AgPh', 'GaGa', 'DrMe', 'EnIn', 'PlFa', 'HePy', 'AeCa', 'HaHi', 'AnCa', 'WaMe'], 'species_prefix_map': {}, 'train_ratio': 0.6, 'val_ratio': 0.2, 'test_ratio': 0.2, 'max_train_bytes_per_species': None, 'max_val_bytes_per_species': None, 'max_test_bytes_per_species': None, 'train_samples_per_epoch': 600000, 'train_sampling_strategy': 'proportional', 'token_merge_size': 3, 'token_merge_alphabet': 'ACGTN', 'compression_sample_bytes': 100000}, 'train': {'seed': 42, 'device': 'auto', 'dtype': 'bfloat16', 'init_from': 'scratch', 'epochs': 1, 'batch_size': 32, 'eval_batch_size': 32, 'learning_rate': 0.0003, 'weight_decay': 0.01, 'lr_scheduler': 'cosine', 'lr_warmup_steps': 0, 'lr_min_ratio': 0.1, 'grad_clip_norm': 1.0, 'num_workers': 4, 'prefetch_factor': 2, 'persistent_workers': True, 'pin_memory': True, 'log_interval': 25, 'eval_interval': 500, 'gpu_ids': None}, 'output': {'run_name': 'dna_megabyte_large', 'output_dir': 'outputs/dna_megabyte_large_20260407_190122', 'wandb_enabled': False, 'wandb_project': '', 'wandb_entity': '', 'wandb_name': None, 'wandb_group': '', 'wandb_tags': [], 'wandb_mode': 'online'}, '_wandb': {}}
+2026-04-08 14:49:23,976 INFO    MainThread:3075 [wandb_init.py:init():893] starting backend
+2026-04-08 14:49:23,976 INFO    MainThread:3075 [wandb_init.py:init():897] sending inform_init request
+2026-04-08 14:49:23,983 INFO    MainThread:3075 [backend.py:_multiprocessing_setup():101] multiprocessing start_methods=fork,spawn,forkserver, using: spawn
+2026-04-08 14:49:23,984 INFO    MainThread:3075 [wandb_init.py:init():907] backend started and connected
+2026-04-08 14:49:23,987 INFO    MainThread:3075 [wandb_init.py:init():1002] updated telemetry
+2026-04-08 14:49:23,997 INFO    MainThread:3075 [wandb_init.py:init():1026] communicating run to backend with 90.0 second timeout
+2026-04-08 14:49:25,320 INFO    MainThread:3075 [wandb_init.py:init():1101] starting run threads in backend
+2026-04-08 14:49:25,653 INFO    MainThread:3075 [wandb_run.py:_console_start():2566] atexit reg
+2026-04-08 14:49:25,653 INFO    MainThread:3075 [wandb_run.py:_redirect():2414] redirect: wrap_raw
+2026-04-08 14:49:25,653 INFO    MainThread:3075 [wandb_run.py:_redirect():2483] Wrapping output streams.
+2026-04-08 14:49:25,653 INFO    MainThread:3075 [wandb_run.py:_redirect():2506] Redirects installed.
+2026-04-08 14:49:25,655 INFO    MainThread:3075 [wandb_init.py:init():1147] run started, returning control to user process
+2026-04-08 14:49:25,746 INFO    MainThread:3075 [wandb_run.py:_finish():2314] finishing run ypfree-/dna-compress/bapexc1i
+2026-04-08 14:49:25,746 INFO    MainThread:3075 [wandb_run.py:_atexit_cleanup():2531] got exitcode: 0
+2026-04-08 14:49:25,746 INFO    MainThread:3075 [wandb_run.py:_restore():2513] restore
+2026-04-08 14:49:25,746 INFO    MainThread:3075 [wandb_run.py:_restore():2519] restore done
+2026-04-08 14:49:28,908 INFO    MainThread:3075 [wandb_run.py:_footer_history_summary_info():4160] rendering history
+2026-04-08 14:49:28,909 INFO    MainThread:3075 [wandb_run.py:_footer_history_summary_info():4192] rendering summary
+2026-04-08 14:49:28,909 INFO    MainThread:3075 [wandb_run.py:_footer_sync_info():4121] logging synced files

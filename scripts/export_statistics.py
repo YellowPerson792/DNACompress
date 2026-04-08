@@ -12,8 +12,8 @@ Outputs:
 - compression_per_source_by_split_mode.csv
 
 Example:
-    python scripts/export_stastics.py \
-      --run-dir outputs/dna_dnagpt_0p1bm_all_finetune
+    python scripts/export_statistics.py \
+      --run-dir outputs/dna_megabyte_large_all_finished
 """
 
 import argparse
@@ -258,7 +258,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--out-dir",
         default=None,
-        help="Output directory for exported files. Defaults to <run-dir>/stastics.",
+        help="Output directory for exported files. Defaults to <run-dir>/statistics.",
     )
     parser.add_argument(
         "--resolved-config",
@@ -289,7 +289,7 @@ def main() -> None:
     if not run_dir.exists() or not run_dir.is_dir():
         raise FileNotFoundError(f"run-dir not found or not a directory: {run_dir}")
 
-    out_dir = Path(args.out_dir) if args.out_dir else (run_dir / "stastics")
+    out_dir = Path(args.out_dir) if args.out_dir else (run_dir / "statistics")
     out_dir.mkdir(parents=True, exist_ok=True)
 
     resolved_config_path = run_dir / args.resolved_config

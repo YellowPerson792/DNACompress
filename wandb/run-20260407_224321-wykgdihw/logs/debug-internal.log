@@ -1,0 +1,16 @@
+{"time":"2026-04-07T22:43:21.439779134+08:00","level":"INFO","msg":"stream: starting","core version":"0.19.10","symlink path":"/root/autodl-tmp/DNACompress/wandb/run-20260407_224321-wykgdihw/logs/debug-core.log"}
+{"time":"2026-04-07T22:43:22.579895373+08:00","level":"INFO","msg":"created new stream","id":"wykgdihw"}
+{"time":"2026-04-07T22:43:22.580005084+08:00","level":"INFO","msg":"stream: started","id":"wykgdihw"}
+{"time":"2026-04-07T22:43:22.580031518+08:00","level":"INFO","msg":"writer: Do: started","stream_id":"wykgdihw"}
+{"time":"2026-04-07T22:43:22.580117489+08:00","level":"INFO","msg":"handler: started","stream_id":"wykgdihw"}
+{"time":"2026-04-07T22:43:22.580046285+08:00","level":"INFO","msg":"sender: started","stream_id":"wykgdihw"}
+{"time":"2026-04-07T22:43:23.280696925+08:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2026-04-07T22:43:25.191862528+08:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2026-04-07T22:43:25.191967321+08:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2026-04-07T22:43:25.192050796+08:00","level":"INFO","msg":"handler: operation stats","stats":{"operations":[{"desc":"uploading data","runtime_seconds":0.66846664}],"total_operations":1}}
+{"time":"2026-04-07T22:43:26.699458609+08:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-04-07T22:43:28.966421428+08:00","level":"INFO","msg":"stream: closing","id":"wykgdihw"}
+{"time":"2026-04-07T22:43:28.966451638+08:00","level":"INFO","msg":"handler: closed","stream_id":"wykgdihw"}
+{"time":"2026-04-07T22:43:28.966467561+08:00","level":"INFO","msg":"writer: Close: closed","stream_id":"wykgdihw"}
+{"time":"2026-04-07T22:43:28.966478316+08:00","level":"INFO","msg":"sender: closed","stream_id":"wykgdihw"}
+{"time":"2026-04-07T22:43:28.966711499+08:00","level":"INFO","msg":"stream: closed","id":"wykgdihw"}

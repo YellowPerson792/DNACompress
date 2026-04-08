@@ -32,7 +32,7 @@ datasets are appended at the end.
 Complete example (train + eval + compression, with common overrides):
 
     python scripts/run_dna_experiment.py \
-        --config configs/dna_megabyte_large.json \
+        --config configs/dna_megabyte_quick.json \
         --mode all \
         --dtype bfloat16 \
         --epochs 1 \
@@ -44,7 +44,7 @@ Complete example (train + eval + compression, with common overrides):
         --compression-sample-bytes 100000 \
         --print-config \
         --seq-length 1024 \
-        --patch-size 32 \
+        --patch-size 4 \
         --token-merge-size 3 \
         --weight-decay 0.01 \
         --log-interval 25 \

@@ -1,0 +1,16 @@
+{"time":"2026-04-08T14:49:23.987432668+08:00","level":"INFO","msg":"stream: starting","core version":"0.19.10","symlink path":"/root/autodl-tmp/DNACompress/wandb/run-20260408_144923-bapexc1i/logs/debug-core.log"}
+{"time":"2026-04-08T14:49:24.643640311+08:00","level":"INFO","msg":"created new stream","id":"bapexc1i"}
+{"time":"2026-04-08T14:49:24.643684121+08:00","level":"INFO","msg":"stream: started","id":"bapexc1i"}
+{"time":"2026-04-08T14:49:24.643705847+08:00","level":"INFO","msg":"writer: Do: started","stream_id":"bapexc1i"}
+{"time":"2026-04-08T14:49:24.643708966+08:00","level":"INFO","msg":"handler: started","stream_id":"bapexc1i"}
+{"time":"2026-04-08T14:49:24.643769217+08:00","level":"INFO","msg":"sender: started","stream_id":"bapexc1i"}
+{"time":"2026-04-08T14:49:25.364436205+08:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2026-04-08T14:49:26.621075434+08:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2026-04-08T14:49:26.62114273+08:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2026-04-08T14:49:26.74875628+08:00","level":"INFO","msg":"handler: operation stats","stats":{"operations":[{"desc":"uploading requirements.txt","runtime_seconds":0.727855353,"progress":"6.8KB/6.8KB"},{"desc":"uploading wandb-metadata.json","runtime_seconds":0.260433521,"progress":"1.3KB/1.3KB"},{"desc":"uploading data","runtime_seconds":0.260169383},{"desc":"updating run config","runtime_seconds":0.126721292}],"total_operations":4}}
+{"time":"2026-04-08T14:49:27.896001141+08:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-04-08T14:49:28.910216582+08:00","level":"INFO","msg":"stream: closing","id":"bapexc1i"}
+{"time":"2026-04-08T14:49:28.910243974+08:00","level":"INFO","msg":"handler: closed","stream_id":"bapexc1i"}
+{"time":"2026-04-08T14:49:28.910258261+08:00","level":"INFO","msg":"writer: Close: closed","stream_id":"bapexc1i"}
+{"time":"2026-04-08T14:49:28.910272091+08:00","level":"INFO","msg":"sender: closed","stream_id":"bapexc1i"}
+{"time":"2026-04-08T14:49:28.910482501+08:00","level":"INFO","msg":"stream: closed","id":"bapexc1i"}

@@ -31,18 +31,15 @@ Modes:
     exact cache reuse is not enabled in this evaluator
 
 Complete examples:
-    
+
     python scripts/run_dna_compression.py \
-      --run-dir outputs/dna_megabyte_large_all \
+      --run-dir outputs/dna_megabyte_large_all_finished \
       --checkpoint-tag best \
       --split train val test \
+      --eval-batch-size 10 \
       --compression-modes train_windows_nonoverlap \
-      --compression-sample-bytes 100000 \
-      --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe \
-      --output-json outputs/dna_megabyte_all_data/compression_compare.json \
-      --export-out-dir outputs/dna_megabyte_all_data/stastics \
-      --export-project dna-compress \
-      --export-name megabyte-all-species-nonoverlap 
+      --compression-sample-bytes 60000 \
+      --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe 
           
       --device cuda:2 
       --parallel-window-arithmetic \
@@ -55,7 +52,7 @@ Complete examples:
       --overlap-patches 128 \
       --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh \
       --output-json outputs/dna_megabyte_quick_l1024_p3/compression_compare.json \
-      --export-out-dir outputs/dna_megabyte_quick_l1024_p3/stastics
+      --export-out-dir outputs/dna_megabyte_quick_l1024_p3/statistics
 
 Compatibility (explicit paths still supported):
 
@@ -331,7 +328,7 @@ def _run_local_payload_export(
     export_entity: str,
     export_name: str | None,
 ) -> None:
-    export_script = REPO_ROOT / "scripts" / "export_wandb_payload_local.py"
+    export_script = REPO_ROOT / "scripts" / "export_statistics.py"
     if not export_script.exists():
         print(f"[export] skip: script not found: {export_script}")
         return
@@ -406,12 +403,12 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--no-auto-export",
         action="store_true",
-        help="Disable automatic execution of scripts/export_wandb_payload_local.py after compression finishes.",
+        help="Disable automatic execution of scripts/export_statistics.py after compression finishes.",
     )
     parser.add_argument(
         "--export-out-dir",
         default=None,
-        help="Optional output directory for exported tables. Defaults to <run-dir>/wandb_payload_export.",
+        help="Optional output directory for exported tables. Defaults to <run-dir>/statistics.",
     )
     parser.add_argument("--export-project", default="", help="Optional project metadata for exported run_metadata.json.")
     parser.add_argument("--export-entity", default="", help="Optional entity metadata for exported run_metadata.json.")
