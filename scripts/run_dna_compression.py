@@ -33,7 +33,7 @@ Modes:
 Complete examples:
 
     python scripts/run_dna_compression.py \
-      --run-dir outputs/dna_megabyte_large_all_finished \
+      --run-dir outputs/dna_megabyte_large_conv_all \
       --checkpoint-tag best \
       --split train val test \
       --eval-batch-size 10 \

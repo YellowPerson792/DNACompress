@@ -1,0 +1,7 @@
+metric,value
+compression_compare.arithmetic.effective_uniform_mass,0.007466793060302734
+compression_compare.arithmetic.frequency_total,2097152
+compression_compare.arithmetic.target_uniform_mass,0.01
+compression_compare.arithmetic.vocab_size,15659
+compression_compare.best_val_bpb,
+compression_compare.checkpoint_step,

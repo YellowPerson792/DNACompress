@@ -8,8 +8,7 @@ python scripts/run_dnagpt_experiment.py \
         --config configs/dna_dnagpt_quick.json \
         --mode all \
         --variant dna_gpt0.1b_m \
-        --pretrained-weight-path third_party/DNAGPT/checkpoints/dna_gpt0.1b_m.pth \
-        --init-from pretrained \
+        --init-from scratch \
         --dtype bfloat16 \
         --epochs 1 \
         --batch-size 32 \
@@ -32,7 +31,9 @@ python scripts/run_dnagpt_experiment.py \
         --grad-clip-norm 1.0 \
         --num-workers 4 \
         --train-sampling-strategy proportional 
-            
+        
+        --pretrained-weight-path third_party/DNAGPT/checkpoints/dna_gpt0.1b_m.pth \
+        --init-from pretrained \
         --gpu-ids 1 3 \
         --wandb-project dna-compress \
         --wandb-name dnagpt-realtime \
