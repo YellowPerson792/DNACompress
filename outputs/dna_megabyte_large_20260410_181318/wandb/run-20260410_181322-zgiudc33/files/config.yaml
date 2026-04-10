@@ -1,0 +1,121 @@
+_wandb:
+    value:
+        cli_version: 0.19.10
+        m: []
+        python_version: 3.12.11
+        t:
+            "1":
+                - 1
+                - 55
+                - 105
+            "2":
+                - 1
+                - 55
+                - 105
+            "3":
+                - 2
+                - 13
+                - 16
+                - 23
+                - 55
+                - 61
+                - 62
+            "4": 3.12.11
+            "5": 0.19.10
+            "8":
+                - 5
+            "10":
+                - 20
+            "12": 0.19.10
+            "13": linux-x86_64
+arithmetic:
+    value:
+        coding_mode: model_symbol
+        frequency_total: null
+        merge_size: 1
+        target_uniform_mass: 0.01
+data:
+    value:
+        compression_sample_bytes: 100000
+        dataset_dir: datasets/DNACorpus
+        max_test_bytes_per_species: null
+        max_train_bytes_per_species: null
+        max_val_bytes_per_species: null
+        species:
+            - OrSa
+            - HoSa
+            - DaRe
+            - ScPo
+            - EsCo
+            - YeMi
+            - BuEb
+            - AgPh
+            - GaGa
+            - DrMe
+            - EnIn
+            - PlFa
+            - HePy
+            - AeCa
+            - HaHi
+            - AnCa
+            - WaMe
+        test_ratio: 0.2
+        token_merge_alphabet: ACGTN
+        token_merge_size: 6
+        train_ratio: 0.6
+        train_samples_per_epoch: 600000
+        train_sampling_strategy: proportional
+        val_ratio: 0.2
+model:
+    value:
+        attn_dropout: 0
+        eos_id: 15626
+        ff_dropout: 0
+        global_dim: 32
+        global_heads: 16
+        global_layers: 24
+        implementation: megabyte_in_action
+        initializer_range: 0.02
+        input_causal_conv_kernel_size: 1
+        local_dim: 768
+        local_heads: 12
+        local_layers: 12
+        pad_id: 15625
+        patch_size: 4
+        pretrained_weight_path: null
+        seq_length: 512
+        variant: dna_gpt0.1b_m
+        vocab_size: 15627
+output:
+    value:
+        output_dir: outputs/dna_megabyte_large_20260410_181318
+        run_name: dna_megabyte_large
+        wandb_enabled: true
+        wandb_entity: ""
+        wandb_group: ""
+        wandb_mode: online
+        wandb_name: dna_megabyte_large_l512_k6_all
+        wandb_project: dna-compress
+        wandb_tags: []
+train:
+    value:
+        batch_size: 32
+        device: auto
+        dtype: bfloat16
+        epochs: 1
+        eval_batch_size: 32
+        eval_interval: 500
+        gpu_ids: null
+        grad_clip_norm: 1
+        init_from: scratch
+        learning_rate: 0.0003
+        log_interval: 25
+        lr_min_ratio: 0.1
+        lr_scheduler: cosine
+        lr_warmup_steps: 0
+        num_workers: 4
+        persistent_workers: true
+        pin_memory: true
+        prefetch_factor: 2
+        seed: 42
+        weight_decay: 0.01

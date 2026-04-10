@@ -32,7 +32,7 @@ datasets are appended at the end.
 Complete example (train + eval + compression, with common overrides):
 
     python scripts/run_dna_experiment.py \
-        --config configs/dna_megabyte_quick.json \
+        --config configs/dna_megabyte_large.json \
         --mode all \
         --dtype bfloat16 \
         --epochs 1 \
@@ -43,9 +43,9 @@ Complete example (train + eval + compression, with common overrides):
         --train-samples-per-epoch 600000 \
         --compression-sample-bytes 100000 \
         --print-config \
-        --seq-length 1024 \
+        --seq-length 512 \
         --patch-size 4 \
-        --token-merge-size 3 \
+        --token-merge-size 6 \
         --weight-decay 0.01 \
         --log-interval 25 \
         --eval-interval 500 \
@@ -57,11 +57,13 @@ Complete example (train + eval + compression, with common overrides):
         --lr-min-ratio 0.1 \
         --grad-clip-norm 1.0 \
         --num-workers 4 \
-        --train-sampling-strategy proportional 
+        --train-sampling-strategy proportional \
+        --wandb-project dna-compress \
+        --wandb-name dna_megabyte_large_l512_k6_all
             
         --gpu-ids 0 3 \
         --wandb-project dna-compress \
-        --wandb-name megabyte-realtime \
+        --wandb-name dna_megabyte_large_all \
         --input-causal-conv-kernel-size 7 
  
 Multi-GPU DDP example (2 GPUs):
