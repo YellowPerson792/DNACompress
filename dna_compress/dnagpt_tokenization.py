@@ -11,6 +11,7 @@ class TokenizedDNASource:
     prefix_ids: list[int]
     dna_token_ids: list[int]
     dna_token_base_lengths: list[int]
+    tail_sequence: str
     total_bases: int
 
 
@@ -41,6 +42,7 @@ def tokenize_dna_source(
     tokenizer,
     kmer_size: int,
     species_prefix_map: dict[str, str] | None = None,
+    drop_tail_to_full_kmer: bool = False,
 ) -> TokenizedDNASource:
     prefix_token = resolve_species_prefix_token(species, species_prefix_map)
     prefix_ids: list[int] = []
@@ -55,6 +57,10 @@ def tokenize_dna_source(
 
     sequence = _normalize_sequence(source)
     pieces = _chunk_sequence(sequence, kmer_size)
+    tail_sequence = ""
+    if drop_tail_to_full_kmer and pieces and len(pieces[-1]) < kmer_size:
+        tail_sequence = pieces[-1]
+        pieces = pieces[:-1]
     dna_token_ids = [int(tokenizer.piece_to_id(piece)) for piece in pieces if piece]
     dna_token_base_lengths = [len(piece) for piece in pieces if piece]
     return TokenizedDNASource(
@@ -63,6 +69,7 @@ def tokenize_dna_source(
         prefix_ids=prefix_ids,
         dna_token_ids=dna_token_ids,
         dna_token_base_lengths=dna_token_base_lengths,
+        tail_sequence=tail_sequence,
         total_bases=len(sequence),
     )
 
@@ -74,6 +81,7 @@ def tokenize_dna_sources(
     tokenizer,
     kmer_size: int,
     species_prefix_map: dict[str, str] | None = None,
+    drop_tail_to_full_kmer: bool = False,
 ) -> list[TokenizedDNASource]:
     return [
         tokenize_dna_source(
@@ -82,6 +90,7 @@ def tokenize_dna_sources(
             tokenizer=tokenizer,
             kmer_size=kmer_size,
             species_prefix_map=species_prefix_map,
+            drop_tail_to_full_kmer=drop_tail_to_full_kmer,
         )
         for species, source in zip(species_names, sources)
     ]

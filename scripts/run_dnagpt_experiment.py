@@ -60,6 +60,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from dna_compress.config import load_experiment_config
+from dna_compress.dnagpt_compression import DNAGPT_ARITHMETIC_CODING_MODES
 from dna_compress.dnagpt_experiment import run_dnagpt_experiment, validate_dnagpt_config
 
 
@@ -131,6 +132,8 @@ def _apply_overrides(config: Any, args: argparse.Namespace) -> None:
     _apply_if_not_none(config, "data.train_sampling_strategy", args.train_sampling_strategy)
     _apply_if_not_none(config, "data.species_prefix_map", args.species_prefix_map)
     _apply_if_not_none(config, "data.compression_sample_bytes", args.compression_sample_bytes)
+    _apply_if_not_none(config, "arithmetic.coding_mode", args.arithmetic_coding_mode)
+    _apply_if_not_none(config, "arithmetic.merge_size", args.arithmetic_merge_size)
 
     _apply_if_not_none(config, "train.seed", args.seed)
     _apply_if_not_none(config, "train.device", args.device)
@@ -214,6 +217,10 @@ def _build_parser() -> argparse.ArgumentParser:
     data_group.add_argument("--train-samples-per-epoch", type=int)
     data_group.add_argument("--train-sampling-strategy", choices=["proportional", "uniform", "sqrt"])
     data_group.add_argument("--compression-sample-bytes", type=int)
+
+    arithmetic_group = parser.add_argument_group("arithmetic overrides")
+    arithmetic_group.add_argument("--arithmetic-coding-mode", choices=list(DNAGPT_ARITHMETIC_CODING_MODES))
+    arithmetic_group.add_argument("--arithmetic-merge-size", type=int)
 
     train_group = parser.add_argument_group("train overrides")
     train_group.add_argument("--seed", type=int)

@@ -87,6 +87,8 @@ class OutputConfig:
 class ArithmeticCodingConfig:
     frequency_total: int | None = None
     target_uniform_mass: float = 0.01
+    coding_mode: str = "model_symbol"
+    merge_size: int = 1
 
 
 @dataclass

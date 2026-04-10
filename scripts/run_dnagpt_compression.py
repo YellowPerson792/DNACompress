@@ -15,18 +15,22 @@ Example: evaluate official DNAGPT 0.1B multi-organism weights on HoSa test split
       --val-ratio 0.2 \
       --test-ratio 0.2 \
       --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe \
+      --arithmetic-coding-mode base_prefix_exact_gpu_cpu \
+      --arithmetic-merge-size 3 \
       --output-dir outputs/dna_dnagpt_0p1bh_all \
       --output-json outputs/dna_dnagpt_0p1bh_all/compression_compare.json \
-      --export-out-dir outputs/dna_dnagpt_0p1bh_all/statistics
+      --export-out-dir outputs/dna_dnagpt_0p1bh_all/statistics 
       
       --device cuda:2 \
       
     python scripts/run_dnagpt_compression.py \
       --split train val test \
       --eval-batch-size 10 \
-      --run-dir outputs/dna_dnagpt_0p1bm_all_scratch \
+      --run-dir outputs/dna_dnagpt_0p1bm_all_finetune \
       --compression-modes train_windows_nonoverlap \
       --compression-sample-bytes 60000 \
+      --arithmetic-coding-mode base_prefix_exact_gpu_cpu \
+      --arithmetic-merge-size 2 \
       --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe 
 
 """
@@ -48,7 +52,11 @@ if str(REPO_ROOT) not in sys.path:
 from dna_compress.compression_eval import NON_OVERLAP_MODE, SLIDING_TOKEN_MODE, summarize_per_source
 from dna_compress.config import ExperimentConfig, load_experiment_config
 from dna_compress.data import load_splits
-from dna_compress.dnagpt_compression import SUPPORTED_DNAGPT_COMPRESSION_MODES, compress_dnagpt_source
+from dna_compress.dnagpt_compression import (
+    DNAGPT_ARITHMETIC_CODING_MODES,
+    SUPPORTED_DNAGPT_COMPRESSION_MODES,
+    compress_dnagpt_source,
+)
 from dna_compress.dnagpt_experiment import validate_dnagpt_config
 from dna_compress.dnagpt_loader import (
     build_dnagpt_components,
@@ -56,6 +64,7 @@ from dna_compress.dnagpt_loader import (
     get_variant_spec,
     load_dnagpt_checkpoint,
 )
+from dna_compress.dnagpt_prefix_coding import build_dnagpt_prefix_trie
 from dna_compress.experiment import resolve_device
 
 
@@ -130,6 +139,8 @@ def _apply_overrides(config: ExperimentConfig, args: argparse.Namespace) -> None
     _apply_if_not_none(config, "train.dtype", args.dtype)
     _apply_if_not_none(config, "train.eval_batch_size", args.eval_batch_size)
     _apply_if_not_none(config, "output.output_dir", args.output_dir)
+    _apply_if_not_none(config, "arithmetic.coding_mode", args.arithmetic_coding_mode)
+    _apply_if_not_none(config, "arithmetic.merge_size", args.arithmetic_merge_size)
 
     for item in args.override:
         if "=" not in item:
@@ -189,6 +200,7 @@ def _run_split(
     *,
     model: torch.nn.Module,
     tokenizer,
+    prefix_trie,
     config: ExperimentConfig,
     spec,
     split_name: str,
@@ -229,6 +241,7 @@ def _run_split(
                 source=source,
                 tokenizer=tokenizer,
                 kmer_size=spec.kmer_size,
+                dynamic_kmer=spec.dynamic_kmer,
                 species_prefix_map=config.data.species_prefix_map,
                 seq_length=config.model.seq_length,
                 pad_id=tokenizer.pad_id,
@@ -239,6 +252,9 @@ def _run_split(
                 mode=mode,
                 arithmetic_frequency_total=config.arithmetic.frequency_total,
                 arithmetic_target_uniform_mass=config.arithmetic.target_uniform_mass,
+                arithmetic_coding_mode=config.arithmetic.coding_mode,
+                arithmetic_merge_size=config.arithmetic.merge_size,
+                prefix_trie=prefix_trie,
                 progress_callback=_on_progress,
             )
             print()
@@ -328,6 +344,8 @@ def _build_parser() -> argparse.ArgumentParser:
     runtime_group.add_argument("--dtype", choices=["float32", "float16", "bfloat16"])
     runtime_group.add_argument("--eval-batch-size", type=int)
     runtime_group.add_argument("--output-dir")
+    runtime_group.add_argument("--arithmetic-coding-mode", choices=list(DNAGPT_ARITHMETIC_CODING_MODES))
+    runtime_group.add_argument("--arithmetic-merge-size", type=int)
 
     return parser
 
@@ -350,6 +368,9 @@ def main() -> None:
     model.load_state_dict(model_state, strict=False)
     model = model.to(device)
     model.eval()
+    prefix_trie = None
+    if config.arithmetic.coding_mode == "base_prefix_exact_gpu_cpu":
+        prefix_trie = build_dnagpt_prefix_trie(tokenizer).to(device)
 
     splits = load_splits(config.data)
     requested_splits = _normalize_splits(args.split)
@@ -370,6 +391,8 @@ def main() -> None:
             "unk_id": tokenizer.unk_id,
             "seq_length_tokens": config.model.seq_length,
             "max_len_tokens": spec.max_len,
+            "arithmetic_coding_mode": config.arithmetic.coding_mode,
+            "arithmetic_merge_size": config.arithmetic.merge_size,
         },
         "results": {},
     }
@@ -379,6 +402,7 @@ def main() -> None:
         metrics["results"][split_name] = _run_split(
             model=model,
             tokenizer=tokenizer,
+            prefix_trie=prefix_trie,
             config=config,
             spec=spec,
             split_name=split_name,
@@ -401,6 +425,7 @@ def main() -> None:
                             "vocab_size": aggregate.get("arithmetic_vocab_size"),
                             "target_uniform_mass": aggregate.get("arithmetic_target_uniform_mass"),
                             "effective_uniform_mass": aggregate.get("arithmetic_effective_uniform_mass"),
+                            "merge_size": aggregate.get("arithmetic_merge_size"),
                         }
                         break
 

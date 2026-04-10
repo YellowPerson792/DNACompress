@@ -39,8 +39,10 @@ Complete examples:
       --eval-batch-size 10 \
       --compression-modes train_windows_nonoverlap \
       --compression-sample-bytes 60000 \
-      --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe 
-          
+      --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe \
+      --arithmetic-coding-mode base_prefix_exact_gpu_cpu \
+      --arithmetic-merge-size 3
+      
       --device cuda:2 
       --parallel-window-arithmetic \
       --arithmetic-workers 0
@@ -78,6 +80,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from dna_compress import load_experiment_config
 from dna_compress.compression_eval import (
+    MEGABYTE_ARITHMETIC_CODING_MODES,
     NON_OVERLAP_MODE,
     OVERLAP_MODE,
     SLIDING_TOKEN_MODE,
@@ -88,6 +91,7 @@ from dna_compress.compression_eval import (
 )
 from dna_compress.config import ExperimentConfig
 from dna_compress.data import load_splits
+from dna_compress.fixed_token_factorization import build_fixed_token_arithmetic_factorizer
 from dna_compress.megabyte_loader import build_model
 from dna_compress.tokenization import apply_token_merge_to_model_config, normalize_alphabet
 
@@ -157,6 +161,8 @@ def _apply_overrides(config: ExperimentConfig, args: argparse.Namespace) -> None
     _apply_if_not_none(config, "data.token_merge_size", args.token_merge_size)
     _apply_if_not_none(config, "data.token_merge_alphabet", args.token_merge_alphabet)
     _apply_if_not_none(config, "data.compression_sample_bytes", args.compression_sample_bytes)
+    _apply_if_not_none(config, "arithmetic.coding_mode", args.arithmetic_coding_mode)
+    _apply_if_not_none(config, "arithmetic.merge_size", args.arithmetic_merge_size)
     _apply_if_not_none(config, "train.device", args.device)
     _apply_if_not_none(config, "train.dtype", args.dtype)
     _apply_if_not_none(config, "train.eval_batch_size", args.eval_batch_size)
@@ -251,6 +257,16 @@ def _validate_args(config: ExperimentConfig, args: argparse.Namespace) -> None:
         raise ValueError("arithmetic.frequency_total must be > 0 when provided")
     if not (0.0 < config.arithmetic.target_uniform_mass <= 1.0):
         raise ValueError("arithmetic.target_uniform_mass must be in (0.0, 1.0]")
+    if config.arithmetic.coding_mode not in MEGABYTE_ARITHMETIC_CODING_MODES:
+        raise ValueError(
+            "arithmetic.coding_mode must be one of: "
+            + ", ".join(MEGABYTE_ARITHMETIC_CODING_MODES)
+        )
+    if config.arithmetic.coding_mode == "base_prefix_exact_gpu_cpu":
+        if config.arithmetic.merge_size <= 0:
+            raise ValueError("arithmetic.merge_size must be >= 1")
+        if config.arithmetic.merge_size > config.data.token_merge_size:
+            raise ValueError("arithmetic.merge_size must be <= data.token_merge_size")
 
 
 def _resolve_overlap_stride(config: ExperimentConfig, args: argparse.Namespace) -> int:
@@ -270,6 +286,7 @@ def _run_split(
     modes: list[str],
     overlap_stride: int,
     device: torch.device,
+    factorizer,
 ) -> dict[str, object]:
     sources = _sources_for_split(splits, split_name)
     species_names = _species_names(splits)
@@ -306,6 +323,9 @@ def _run_split(
                 token_merge_alphabet=config.data.token_merge_alphabet,
                 arithmetic_frequency_total=config.arithmetic.frequency_total,
                 arithmetic_target_uniform_mass=config.arithmetic.target_uniform_mass,
+                arithmetic_coding_mode=config.arithmetic.coding_mode,
+                arithmetic_merge_size=config.arithmetic.merge_size,
+                factorizer=factorizer,
                 progress_callback=_on_progress,
             )
             print()
@@ -439,6 +459,12 @@ def _build_parser() -> argparse.ArgumentParser:
     runtime_group.add_argument("--dtype", choices=["float32", "float16", "bfloat16"])
     runtime_group.add_argument("--eval-batch-size", type=int)
     runtime_group.add_argument("--output-dir")
+    runtime_group.add_argument(
+        "--arithmetic-coding-mode",
+        choices=list(MEGABYTE_ARITHMETIC_CODING_MODES),
+        help="Arithmetic coding path for Megabyte compression.",
+    )
+    runtime_group.add_argument("--arithmetic-merge-size", type=int)
 
     return parser
 
@@ -461,6 +487,15 @@ def main() -> None:
     device = resolve_device(config.train.device)
     checkpoint_path = _checkpoint_path(args, config)
     model, checkpoint = _load_model(config, checkpoint_path, device)
+    factorizer = None
+    if config.arithmetic.coding_mode == "base_prefix_exact_gpu_cpu":
+        factorizer = build_fixed_token_arithmetic_factorizer(
+            vocab_size=config.model.vocab_size,
+            special_token_ids=[config.model.pad_id, config.model.eos_id],
+            model_merge_size=config.data.token_merge_size,
+            arithmetic_merge_size=config.arithmetic.merge_size,
+            alphabet=normalize_alphabet(config.data.token_merge_alphabet),
+        ).to(device)
     splits = load_splits(config.data)
     requested_splits = _normalize_splits(args.split)
     overlap_stride = _resolve_overlap_stride(config, args)
@@ -487,6 +522,7 @@ def main() -> None:
             modes=args.compression_modes,
             overlap_stride=overlap_stride,
             device=device,
+            factorizer=factorizer,
         )
         if "arithmetic" not in metrics:
             split_result = metrics["results"][split_name]
@@ -503,6 +539,8 @@ def main() -> None:
                             "vocab_size": aggregate.get("arithmetic_vocab_size"),
                             "target_uniform_mass": aggregate.get("arithmetic_target_uniform_mass"),
                             "effective_uniform_mass": aggregate.get("arithmetic_effective_uniform_mass"),
+                            "coding_mode": aggregate.get("arithmetic_coding_mode"),
+                            "merge_size": aggregate.get("arithmetic_merge_size"),
                         }
                         break
 

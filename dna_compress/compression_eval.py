@@ -14,6 +14,10 @@ from .compression import (
     probabilities_to_cumulative_batch,
     resolve_arithmetic_coding_metadata,
 )
+from .fixed_token_factorization import (
+    FixedTokenArithmeticFactorizer,
+    factorize_fixed_token_log_probs,
+)
 from .tokenization import tokenize_source_bytes
 
 
@@ -26,6 +30,10 @@ SUPPORTED_COMPRESSION_MODES = (
     SLIDING_TOKEN_MODE,
     NON_OVERLAP_MODE,
     OVERLAP_MODE,
+)
+MEGABYTE_ARITHMETIC_CODING_MODES = (
+    "model_symbol",
+    "base_prefix_exact_gpu_cpu",
 )
 
 
@@ -80,6 +88,11 @@ def _finalize_metrics(
     data_transfer_seconds: float,
     arithmetic_encode_seconds: float,
     arithmetic_metadata: dict[str, object],
+    arithmetic_coding_mode: str = "model_symbol",
+    arithmetic_merge_size: int = 1,
+    gpu_prefix_aggregate_seconds: float = 0.0,
+    cpu_small_alphabet_quantize_seconds: float = 0.0,
+    emitted_arithmetic_symbol_count: int | None = None,
     mode_details: dict[str, object] | None = None,
 ) -> dict[str, object]:
     sample_bytes = len(payload)
@@ -88,6 +101,8 @@ def _finalize_metrics(
     compression_process_seconds = (
         model_forward_seconds + softmax_seconds + data_transfer_seconds + arithmetic_encode_seconds
     )
+    if emitted_arithmetic_symbol_count is None:
+        emitted_arithmetic_symbol_count = len(symbols)
     return {
         "mode": mode,
         "sample_bytes": sample_bytes,
@@ -103,14 +118,118 @@ def _finalize_metrics(
         "probability_compute_seconds": model_forward_softmax_seconds,
         "data_transfer_seconds": data_transfer_seconds,
         "arithmetic_encode_seconds": arithmetic_encode_seconds,
+        "gpu_prefix_aggregate_seconds": gpu_prefix_aggregate_seconds,
+        "cpu_small_alphabet_quantize_seconds": cpu_small_alphabet_quantize_seconds,
         "compression_process_seconds": compression_process_seconds,
         "compression_bytes_per_second": sample_bytes / max(compression_process_seconds, 1e-12),
         "compression_bases_per_second": sample_bases / max(compression_process_seconds, 1e-12),
-        "compression_symbols_per_second": len(symbols) / max(compression_process_seconds, 1e-12),
+        "compression_symbols_per_second": emitted_arithmetic_symbol_count / max(compression_process_seconds, 1e-12),
+        "arithmetic_coding_mode": arithmetic_coding_mode,
+        "arithmetic_merge_size": arithmetic_merge_size,
+        "emitted_arithmetic_symbol_count": emitted_arithmetic_symbol_count,
         **arithmetic_metadata,
         **baseline_sizes(payload),
         **(mode_details or {}),
     }
+
+
+def _resolve_megabyte_arithmetic_metadata(
+    *,
+    vocab_size: int,
+    arithmetic_frequency_total: int | None,
+    arithmetic_target_uniform_mass: float,
+    arithmetic_coding_mode: str,
+    factorizer: FixedTokenArithmeticFactorizer | None,
+) -> dict[str, object]:
+    if arithmetic_coding_mode == "model_symbol":
+        metadata_vocab_size = vocab_size
+    elif arithmetic_coding_mode == "base_prefix_exact_gpu_cpu":
+        if factorizer is None:
+            raise ValueError("factorizer is required for base_prefix_exact_gpu_cpu mode.")
+        metadata_vocab_size = factorizer.max_emitted_vocab_size
+    else:
+        raise ValueError(f"Unsupported Megabyte arithmetic coding mode '{arithmetic_coding_mode}'.")
+    return resolve_arithmetic_coding_metadata(
+        vocab_size=metadata_vocab_size,
+        requested_total=arithmetic_frequency_total,
+        target_uniform_mass=arithmetic_target_uniform_mass,
+    )
+
+
+def _encode_model_symbol_probabilities(
+    *,
+    probability_rows: np.ndarray,
+    target_symbols: np.ndarray,
+    total: int,
+    encoder: ArithmeticEncoder,
+) -> tuple[float, int]:
+    quantize_started = perf_counter()
+    cumulative_batch = probabilities_to_cumulative_batch(probability_rows, total=total)
+    quantize_seconds = perf_counter() - quantize_started
+    for cumulative, target in zip(cumulative_batch, target_symbols):
+        encoder.update(cumulative, int(target))
+    return quantize_seconds, len(target_symbols)
+
+
+def _encode_factorized_probabilities(
+    *,
+    log_prob_rows: torch.Tensor,
+    target_symbols: torch.Tensor,
+    factorizer: FixedTokenArithmeticFactorizer,
+    total: int,
+    encoder: ArithmeticEncoder,
+) -> tuple[float, float, float, int, float]:
+    aggregate_started = perf_counter()
+    factorized = factorize_fixed_token_log_probs(
+        log_probs=log_prob_rows,
+        target_token_ids=target_symbols,
+        factorizer=factorizer,
+    )
+    gpu_prefix_aggregate_seconds = perf_counter() - aggregate_started
+
+    transfer_started = perf_counter()
+    root_probabilities = factorized.root_probabilities.cpu().numpy()
+    root_symbols = factorized.root_symbols.cpu().numpy()
+    regular_step_probabilities = tuple(step.cpu().numpy() for step in factorized.regular_step_probabilities)
+    regular_step_symbols = tuple(step.cpu().numpy() for step in factorized.regular_step_symbols)
+    regular_row_positions = factorized.regular_row_positions.cpu().numpy()
+    special_step_probabilities = factorized.special_step_probabilities.cpu().numpy()
+    special_step_symbols = factorized.special_step_symbols.cpu().numpy()
+    special_row_positions = factorized.special_row_positions.cpu().numpy()
+    data_transfer_seconds = perf_counter() - transfer_started
+
+    quantize_started = perf_counter()
+    root_cumulative = probabilities_to_cumulative_batch(root_probabilities, total=total)
+    regular_step_cumulative = tuple(
+        probabilities_to_cumulative_batch(step, total=total)
+        for step in regular_step_probabilities
+    )
+    if special_step_probabilities.shape[0] > 0:
+        special_step_cumulative = probabilities_to_cumulative_batch(special_step_probabilities, total=total)
+    else:
+        special_step_cumulative = np.zeros((0, 1), dtype=np.int64)
+    cpu_small_alphabet_quantize_seconds = perf_counter() - quantize_started
+
+    for row_index in range(root_symbols.shape[0]):
+        encoder.update(root_cumulative[row_index], int(root_symbols[row_index]))
+        regular_position = int(regular_row_positions[row_index])
+        if regular_position >= 0:
+            for cumulative_batch, symbol_batch in zip(regular_step_cumulative, regular_step_symbols):
+                encoder.update(cumulative_batch[regular_position], int(symbol_batch[regular_position]))
+            continue
+
+        special_position = int(special_row_positions[row_index])
+        if special_position >= 0:
+            encoder.update(special_step_cumulative[special_position], int(special_step_symbols[special_position]))
+
+    total_bits = float((-factorized.target_log_probs / math.log(2)).sum().item())
+    return (
+        total_bits,
+        data_transfer_seconds,
+        gpu_prefix_aggregate_seconds,
+        factorized.emitted_symbol_count,
+        cpu_small_alphabet_quantize_seconds,
+    )
 
 
 def compress_sequence_sliding_token(
@@ -127,6 +246,9 @@ def compress_sequence_sliding_token(
     token_merge_alphabet: str,
     arithmetic_frequency_total: int | None,
     arithmetic_target_uniform_mass: float,
+    arithmetic_coding_mode: str = "model_symbol",
+    arithmetic_merge_size: int = 1,
+    factorizer: FixedTokenArithmeticFactorizer | None = None,
     progress_callback: Callable[[int, int], None] | None = None,
 ) -> dict[str, object]:
     symbols = _symbols_with_optional_eos(payload, eos_id, token_merge_size, token_merge_alphabet)
@@ -144,7 +266,16 @@ def compress_sequence_sliding_token(
     softmax_seconds = 0.0
     data_transfer_seconds = 0.0
     arithmetic_encode_seconds = 0.0
-    arithmetic_metadata: dict[str, object] | None = None
+    gpu_prefix_aggregate_seconds = 0.0
+    cpu_small_alphabet_quantize_seconds = 0.0
+    emitted_arithmetic_symbol_count = 0
+    arithmetic_metadata = _resolve_megabyte_arithmetic_metadata(
+        vocab_size=model.vocab_size if hasattr(model, "vocab_size") else int(max(symbols, default=pad_id) + 1),
+        arithmetic_frequency_total=arithmetic_frequency_total,
+        arithmetic_target_uniform_mass=arithmetic_target_uniform_mass,
+        arithmetic_coding_mode=arithmetic_coding_mode,
+        factorizer=factorizer,
+    )
 
     model.eval()
     with torch.no_grad():
@@ -165,28 +296,46 @@ def compress_sequence_sliding_token(
 
                 softmax_started = perf_counter()
                 log_probs = torch.log_softmax(output.lm_logits[:, -1, :], dim=-1)
-                probs = log_probs.float().exp()
-                target_log_probs = log_probs.gather(1, targets_device.unsqueeze(1)).squeeze(1)
-                total_bits += float((-target_log_probs / math.log(2)).sum().item())
                 softmax_seconds += perf_counter() - softmax_started
 
-            transfer_started = perf_counter()
-            probs_np = probs.cpu().numpy()
-            data_transfer_seconds += perf_counter() - transfer_started
-
             encode_started = perf_counter()
-            if arithmetic_metadata is None:
-                arithmetic_metadata = resolve_arithmetic_coding_metadata(
-                    vocab_size=int(probs_np.shape[1]),
-                    requested_total=arithmetic_frequency_total,
-                    target_uniform_mass=arithmetic_target_uniform_mass,
+            if arithmetic_coding_mode == "model_symbol":
+                target_log_probs = log_probs.gather(1, targets_device.unsqueeze(1)).squeeze(1)
+                total_bits += float((-target_log_probs / math.log(2)).sum().item())
+                transfer_started = perf_counter()
+                probs_np = log_probs.float().exp().cpu().numpy()
+                data_transfer_seconds += perf_counter() - transfer_started
+                quantize_seconds, emitted_count = _encode_model_symbol_probabilities(
+                    probability_rows=probs_np,
+                    target_symbols=targets_np,
+                    total=int(arithmetic_metadata["arithmetic_frequency_total"]),
+                    encoder=encoder,
                 )
-            cumulative_batch = probabilities_to_cumulative_batch(
-                probs_np,
-                total=int(arithmetic_metadata["arithmetic_frequency_total"]),
-            )
-            for cumulative, target in zip(cumulative_batch, targets_np):
-                encoder.update(cumulative, int(target))
+                cpu_small_alphabet_quantize_seconds += quantize_seconds
+                emitted_arithmetic_symbol_count += emitted_count
+            elif arithmetic_coding_mode == "base_prefix_exact_gpu_cpu":
+                if factorizer is None:
+                    raise ValueError("factorizer is required for base_prefix_exact_gpu_cpu mode.")
+                (
+                    batch_bits,
+                    batch_transfer_seconds,
+                    batch_gpu_aggregate_seconds,
+                    emitted_count,
+                    batch_quantize_seconds,
+                ) = _encode_factorized_probabilities(
+                    log_prob_rows=log_probs,
+                    target_symbols=targets_device,
+                    factorizer=factorizer,
+                    total=int(arithmetic_metadata["arithmetic_frequency_total"]),
+                    encoder=encoder,
+                )
+                total_bits += batch_bits
+                data_transfer_seconds += batch_transfer_seconds
+                gpu_prefix_aggregate_seconds += batch_gpu_aggregate_seconds
+                cpu_small_alphabet_quantize_seconds += batch_quantize_seconds
+                emitted_arithmetic_symbol_count += emitted_count
+            else:
+                raise ValueError(f"Unsupported Megabyte arithmetic coding mode '{arithmetic_coding_mode}'.")
             arithmetic_encode_seconds += perf_counter() - encode_started
 
             processed_batches += 1
@@ -194,8 +343,6 @@ def compress_sequence_sliding_token(
                 progress_callback(processed_batches, total_batches)
 
     encoded = encoder.finish()
-    if arithmetic_metadata is None:
-        raise RuntimeError("Failed to resolve arithmetic coding metadata for sliding-token compression.")
 
     return _finalize_metrics(
         payload=payload,
@@ -210,6 +357,11 @@ def compress_sequence_sliding_token(
         data_transfer_seconds=data_transfer_seconds,
         arithmetic_encode_seconds=arithmetic_encode_seconds,
         arithmetic_metadata=arithmetic_metadata,
+        arithmetic_coding_mode=arithmetic_coding_mode,
+        arithmetic_merge_size=arithmetic_merge_size,
+        gpu_prefix_aggregate_seconds=gpu_prefix_aggregate_seconds,
+        cpu_small_alphabet_quantize_seconds=cpu_small_alphabet_quantize_seconds,
+        emitted_arithmetic_symbol_count=emitted_arithmetic_symbol_count,
         mode_details={
             "window_stride": 1,
             "window_policy": "right_aligned_sliding_context",
@@ -244,6 +396,9 @@ def compress_sequence_train_windows(
     token_merge_alphabet: str,
     arithmetic_frequency_total: int | None,
     arithmetic_target_uniform_mass: float,
+    arithmetic_coding_mode: str = "model_symbol",
+    arithmetic_merge_size: int = 1,
+    factorizer: FixedTokenArithmeticFactorizer | None = None,
     progress_callback: Callable[[int, int], None] | None = None,
 ) -> dict[str, object]:
     symbols = _symbols_with_optional_eos(payload, eos_id, token_merge_size, token_merge_alphabet)
@@ -265,7 +420,16 @@ def compress_sequence_train_windows(
     softmax_seconds = 0.0
     data_transfer_seconds = 0.0
     arithmetic_encode_seconds = 0.0
-    arithmetic_metadata: dict[str, object] | None = None
+    gpu_prefix_aggregate_seconds = 0.0
+    cpu_small_alphabet_quantize_seconds = 0.0
+    emitted_arithmetic_symbol_count = 0
+    arithmetic_metadata = _resolve_megabyte_arithmetic_metadata(
+        vocab_size=model.vocab_size if hasattr(model, "vocab_size") else (max(pad_id, eos_id) + 1),
+        arithmetic_frequency_total=arithmetic_frequency_total,
+        arithmetic_target_uniform_mass=arithmetic_target_uniform_mass,
+        arithmetic_coding_mode=arithmetic_coding_mode,
+        factorizer=factorizer,
+    )
 
     model.eval()
     with torch.no_grad():
@@ -290,13 +454,7 @@ def compress_sequence_train_windows(
 
                 softmax_started = perf_counter()
                 log_probs = torch.log_softmax(output.lm_logits, dim=-1)
-                probs = log_probs.float().exp()
                 softmax_seconds += perf_counter() - softmax_started
-
-            transfer_started = perf_counter()
-            rows_cpu = log_probs.float().cpu().numpy()
-            probs_cpu = probs.cpu().numpy()
-            data_transfer_seconds += perf_counter() - transfer_started
 
             encode_started = perf_counter()
             for row_index, (start, chunk_length) in enumerate(zip(starts, lengths)):
@@ -307,26 +465,52 @@ def compress_sequence_train_windows(
                 if overlap_stride is not None and start > 0:
                     local_start = min(seq_length - overlap_stride, chunk_length)
 
-                row_log_probs = rows_cpu[row_index, local_start:chunk_length, :]
-                probs_np = probs_cpu[row_index, local_start:chunk_length, :]
-                if probs_np.shape[0] == 0:
+                row_log_probs = log_probs[row_index, local_start:chunk_length, :]
+                if row_log_probs.shape[0] == 0:
                     continue
 
-                targets_np = np.asarray(symbols[start + local_start : start + chunk_length], dtype=np.int64)
-                total_bits += float((-row_log_probs[np.arange(row_log_probs.shape[0]), targets_np] / math.log(2)).sum())
-
-                if arithmetic_metadata is None:
-                    arithmetic_metadata = resolve_arithmetic_coding_metadata(
-                        vocab_size=int(probs_np.shape[1]),
-                        requested_total=arithmetic_frequency_total,
-                        target_uniform_mass=arithmetic_target_uniform_mass,
-                    )
-                cumulative_batch = probabilities_to_cumulative_batch(
-                    probs_np,
-                    total=int(arithmetic_metadata["arithmetic_frequency_total"]),
+                targets_device = torch.tensor(
+                    symbols[start + local_start : start + chunk_length],
+                    dtype=torch.long,
+                    device=device,
                 )
-                for cumulative, target in zip(cumulative_batch, targets_np):
-                    encoder.update(cumulative, int(target))
+                if arithmetic_coding_mode == "model_symbol":
+                    target_log_probs = row_log_probs.gather(1, targets_device.unsqueeze(1)).squeeze(1)
+                    total_bits += float((-target_log_probs / math.log(2)).sum().item())
+                    transfer_started = perf_counter()
+                    probs_np = row_log_probs.float().exp().cpu().numpy()
+                    data_transfer_seconds += perf_counter() - transfer_started
+                    quantize_seconds, emitted_count = _encode_model_symbol_probabilities(
+                        probability_rows=probs_np,
+                        target_symbols=targets_device.cpu().numpy(),
+                        total=int(arithmetic_metadata["arithmetic_frequency_total"]),
+                        encoder=encoder,
+                    )
+                    cpu_small_alphabet_quantize_seconds += quantize_seconds
+                    emitted_arithmetic_symbol_count += emitted_count
+                elif arithmetic_coding_mode == "base_prefix_exact_gpu_cpu":
+                    if factorizer is None:
+                        raise ValueError("factorizer is required for base_prefix_exact_gpu_cpu mode.")
+                    (
+                        batch_bits,
+                        batch_transfer_seconds,
+                        batch_gpu_aggregate_seconds,
+                        emitted_count,
+                        batch_quantize_seconds,
+                    ) = _encode_factorized_probabilities(
+                        log_prob_rows=row_log_probs,
+                        target_symbols=targets_device,
+                        factorizer=factorizer,
+                        total=int(arithmetic_metadata["arithmetic_frequency_total"]),
+                        encoder=encoder,
+                    )
+                    total_bits += batch_bits
+                    data_transfer_seconds += batch_transfer_seconds
+                    gpu_prefix_aggregate_seconds += batch_gpu_aggregate_seconds
+                    cpu_small_alphabet_quantize_seconds += batch_quantize_seconds
+                    emitted_arithmetic_symbol_count += emitted_count
+                else:
+                    raise ValueError(f"Unsupported Megabyte arithmetic coding mode '{arithmetic_coding_mode}'.")
 
             arithmetic_encode_seconds += perf_counter() - encode_started
 
@@ -335,8 +519,6 @@ def compress_sequence_train_windows(
                 progress_callback(processed_batches, total_batches)
 
     encoded = encoder.finish()
-    if arithmetic_metadata is None:
-        raise RuntimeError("Failed to resolve arithmetic coding metadata for train-window compression.")
 
     mode_details: dict[str, object] = {
         "window_policy": "contiguous_train_style",
@@ -368,6 +550,11 @@ def compress_sequence_train_windows(
         data_transfer_seconds=data_transfer_seconds,
         arithmetic_encode_seconds=arithmetic_encode_seconds,
         arithmetic_metadata=arithmetic_metadata,
+        arithmetic_coding_mode=arithmetic_coding_mode,
+        arithmetic_merge_size=arithmetic_merge_size,
+        gpu_prefix_aggregate_seconds=gpu_prefix_aggregate_seconds,
+        cpu_small_alphabet_quantize_seconds=cpu_small_alphabet_quantize_seconds,
+        emitted_arithmetic_symbol_count=emitted_arithmetic_symbol_count,
         mode_details=mode_details,
     )
 
@@ -389,6 +576,9 @@ def compress_source(
     token_merge_alphabet: str = "ACGTN",
     arithmetic_frequency_total: int | None = None,
     arithmetic_target_uniform_mass: float = 0.01,
+    arithmetic_coding_mode: str = "model_symbol",
+    arithmetic_merge_size: int = 1,
+    factorizer: FixedTokenArithmeticFactorizer | None = None,
     progress_callback: Callable[[int, int], None] | None = None,
 ) -> dict[str, object]:
     payload = sample_payload(source, requested_bytes)
@@ -406,6 +596,9 @@ def compress_source(
             token_merge_alphabet=token_merge_alphabet,
             arithmetic_frequency_total=arithmetic_frequency_total,
             arithmetic_target_uniform_mass=arithmetic_target_uniform_mass,
+            arithmetic_coding_mode=arithmetic_coding_mode,
+            arithmetic_merge_size=arithmetic_merge_size,
+            factorizer=factorizer,
             progress_callback=progress_callback,
         )
     if mode == NON_OVERLAP_MODE:
@@ -423,6 +616,9 @@ def compress_source(
             token_merge_alphabet=token_merge_alphabet,
             arithmetic_frequency_total=arithmetic_frequency_total,
             arithmetic_target_uniform_mass=arithmetic_target_uniform_mass,
+            arithmetic_coding_mode=arithmetic_coding_mode,
+            arithmetic_merge_size=arithmetic_merge_size,
+            factorizer=factorizer,
             progress_callback=progress_callback,
         )
     if mode == OVERLAP_MODE:
@@ -440,6 +636,9 @@ def compress_source(
             token_merge_alphabet=token_merge_alphabet,
             arithmetic_frequency_total=arithmetic_frequency_total,
             arithmetic_target_uniform_mass=arithmetic_target_uniform_mass,
+            arithmetic_coding_mode=arithmetic_coding_mode,
+            arithmetic_merge_size=arithmetic_merge_size,
+            factorizer=factorizer,
             progress_callback=progress_callback,
         )
     raise ValueError(f"Unsupported compression mode '{mode}'")
@@ -465,7 +664,15 @@ def summarize_per_source(
     total_softmax_seconds = sum(float(row.get("softmax_seconds", 0.0)) for row in rows)
     total_data_transfer_seconds = sum(float(row.get("data_transfer_seconds", 0.0)) for row in rows)
     total_arithmetic_encode_seconds = sum(float(row.get("arithmetic_encode_seconds", 0.0)) for row in rows)
+    total_gpu_prefix_aggregate_seconds = sum(float(row.get("gpu_prefix_aggregate_seconds", 0.0)) for row in rows)
+    total_cpu_small_alphabet_quantize_seconds = sum(
+        float(row.get("cpu_small_alphabet_quantize_seconds", 0.0)) for row in rows
+    )
     total_compression_process_seconds = sum(float(row.get("compression_process_seconds", 0.0)) for row in rows)
+    total_emitted_arithmetic_symbol_count = sum(int(row.get("emitted_arithmetic_symbol_count", 0) or 0) for row in rows)
+    total_core_model_theoretical_bits = sum(float(row.get("core_model_theoretical_bits", row.get("theoretical_bits", 0.0))) for row in rows)
+    total_tail_base_count = sum(int(row.get("tail_base_count", 0) or 0) for row in rows)
+    total_tail_side_info_bits = sum(int(row.get("tail_side_info_bits", 0) or 0) for row in rows)
 
     summary = {
         "source_count": len(rows),
@@ -484,15 +691,27 @@ def summarize_per_source(
         "total_softmax_seconds": total_softmax_seconds,
         "total_data_transfer_seconds": total_data_transfer_seconds,
         "total_arithmetic_encode_seconds": total_arithmetic_encode_seconds,
+        "total_gpu_prefix_aggregate_seconds": total_gpu_prefix_aggregate_seconds,
+        "total_cpu_small_alphabet_quantize_seconds": total_cpu_small_alphabet_quantize_seconds,
         "total_compression_process_seconds": total_compression_process_seconds,
         "total_compression_bytes_per_second": total_sample_bytes / max(total_compression_process_seconds, 1e-12),
         "total_compression_bases_per_second": total_sample_bases / max(total_compression_process_seconds, 1e-12),
+        "total_emitted_arithmetic_symbol_count": total_emitted_arithmetic_symbol_count,
+        "total_core_model_theoretical_bits": total_core_model_theoretical_bits,
+        "total_tail_base_count": total_tail_base_count,
+        "total_tail_side_info_bits": total_tail_side_info_bits,
     }
+    if total_compression_process_seconds > 0:
+        summary["total_compression_symbols_per_second"] = (
+            total_emitted_arithmetic_symbol_count / total_compression_process_seconds
+        )
     for key in (
         "arithmetic_frequency_total",
         "arithmetic_vocab_size",
         "arithmetic_target_uniform_mass",
         "arithmetic_effective_uniform_mass",
+        "arithmetic_coding_mode",
+        "arithmetic_merge_size",
     ):
         if rows and all(row.get(key) == rows[0].get(key) for row in rows):
             summary[key] = rows[0].get(key)

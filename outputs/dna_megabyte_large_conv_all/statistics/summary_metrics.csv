@@ -1,4 +1,10 @@
 metric,value
+compression_compare.arithmetic.coding_mode,base_prefix_exact_gpu_cpu
+compression_compare.arithmetic.effective_uniform_mass,0.00384521484375
+compression_compare.arithmetic.frequency_total,32768
+compression_compare.arithmetic.merge_size,3
+compression_compare.arithmetic.target_uniform_mass,0.01
+compression_compare.arithmetic.vocab_size,126
 compression_compare.best_val_bpb,1.8044021428683084
 compression_compare.checkpoint_step,9000
 compression_compare.overlap_stride_patches,1

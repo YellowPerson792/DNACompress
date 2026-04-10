@@ -1,9 +1,10 @@
 metric,value
 best_val_bits_per_base,1.8209613297470657
-compression_compare.arithmetic.effective_uniform_mass,0.009328842163085938
-compression_compare.arithmetic.frequency_total,2097152
+compression_compare.arithmetic.effective_uniform_mass,0.00536346435546875
+compression_compare.arithmetic.frequency_total,262144
+compression_compare.arithmetic.merge_size,4
 compression_compare.arithmetic.target_uniform_mass,0.01
-compression_compare.arithmetic.vocab_size,19564
+compression_compare.arithmetic.vocab_size,1406
 compression_compare.best_val_bpb,1.8209613297470657
 compression_compare.checkpoint_step,18500
 config.arithmetic.frequency_total,

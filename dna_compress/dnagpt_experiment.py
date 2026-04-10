@@ -17,6 +17,7 @@ from torch.utils.data.distributed import DistributedSampler
 from .config import ExperimentConfig, save_experiment_config
 from .data import load_splits
 from .dnagpt_data import IGNORE_INDEX, RandomDNAGPTWindowDataset, SequentialDNAGPTWindowDataset
+from .dnagpt_compression import DNAGPT_ARITHMETIC_CODING_MODES
 from .dnagpt_loader import (
     build_dnagpt_components,
     default_pretrained_weight_path,
@@ -85,6 +86,20 @@ def validate_dnagpt_config(config: ExperimentConfig) -> None:
         raise ValueError("arithmetic.frequency_total must be > 0 when provided")
     if not (0.0 < config.arithmetic.target_uniform_mass <= 1.0):
         raise ValueError("arithmetic.target_uniform_mass must be in (0.0, 1.0]")
+    if config.arithmetic.coding_mode not in DNAGPT_ARITHMETIC_CODING_MODES:
+        raise ValueError(
+            "arithmetic.coding_mode must be one of: "
+            + ", ".join(DNAGPT_ARITHMETIC_CODING_MODES)
+        )
+    if config.arithmetic.merge_size < 1 or config.arithmetic.merge_size > spec.kmer_size:
+        raise ValueError(
+            f"arithmetic.merge_size must be in [1, {spec.kmer_size}] for {config.model.variant}."
+        )
+    if config.arithmetic.coding_mode != "base_prefix_exact_gpu_cpu" and config.arithmetic.merge_size != 1:
+        raise ValueError(
+            "DNAGPT arithmetic.merge_size>1 is only supported with "
+            "arithmetic.coding_mode='base_prefix_exact_gpu_cpu'."
+        )
 
 
 def _species_names(splits) -> list[str]:
@@ -357,6 +372,8 @@ def run_dnagpt_experiment(config: ExperimentConfig, mode: str = "all") -> dict[s
                 "unk_id": tokenizer.unk_id,
                 "seq_length_tokens": config.model.seq_length,
                 "max_len_tokens": spec.max_len,
+                "arithmetic_coding_mode": config.arithmetic.coding_mode,
+                "arithmetic_merge_size": config.arithmetic.merge_size,
                 "requested_init_from": config.train.init_from,
                 "loaded_checkpoint_path": str(checkpoint_path) if checkpoint_path is not None else None,
                 "tokenized_train": _dataset_token_summary(tokenized_splits["train"]),

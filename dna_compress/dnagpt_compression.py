@@ -9,12 +9,21 @@ import torch
 
 from .compression import (
     ArithmeticEncoder,
+    BitOutputStream,
     baseline_sizes,
     probabilities_to_cumulative_batch,
     resolve_arithmetic_coding_metadata,
 )
 from .compression_eval import NON_OVERLAP_MODE, SLIDING_TOKEN_MODE
 from .dnagpt_data import max_target_tokens
+from .dnagpt_prefix_coding import (
+    DNAGPT_PREFIX_ALPHABET_SIZE,
+    DNAGPT_PREFIX_BASE_ORDER,
+    DNAGPTPrefixTrie,
+    factorize_dnagpt_log_probs_to_base_prefix_stream,
+    factorize_dnagpt_log_probs_to_grouped_prefix_stream,
+    grouped_prefix_vocab_size,
+)
 from .dnagpt_tokenization import TokenizedDNASource, tokenize_dna_source
 from .experiment import autocast_context
 
@@ -22,6 +31,10 @@ from .experiment import autocast_context
 SUPPORTED_DNAGPT_COMPRESSION_MODES = (
     SLIDING_TOKEN_MODE,
     NON_OVERLAP_MODE,
+)
+DNAGPT_ARITHMETIC_CODING_MODES = (
+    "model_symbol",
+    "base_prefix_exact_gpu_cpu",
 )
 
 
@@ -42,7 +55,15 @@ def _finalize_metrics(
     softmax_seconds: float,
     data_transfer_seconds: float,
     arithmetic_encode_seconds: float,
+    gpu_prefix_aggregate_seconds: float,
+    cpu_small_alphabet_quantize_seconds: float,
     arithmetic_metadata: dict[str, object],
+    arithmetic_coding_mode: str,
+    arithmetic_merge_size: int,
+    emitted_arithmetic_symbol_count: int,
+    core_model_theoretical_bits: float,
+    tail_base_count: int,
+    tail_side_info_bits: int,
     mode_details: dict[str, object] | None = None,
 ) -> dict[str, object]:
     sample_bytes = len(payload)
@@ -60,6 +81,9 @@ def _finalize_metrics(
         "prefix_token_count": len(tokenized_source.prefix_ids),
         "theoretical_bits": total_bits,
         "theoretical_bits_per_base": total_bits / max(sample_bases, 1),
+        "core_model_theoretical_bits": core_model_theoretical_bits,
+        "tail_base_count": tail_base_count,
+        "tail_side_info_bits": tail_side_info_bits,
         "arithmetic_coded_bytes": len(encoded),
         "arithmetic_bits_per_base": (len(encoded) * 8) / max(sample_bases, 1),
         "model_forward_seconds": model_forward_seconds,
@@ -68,14 +92,144 @@ def _finalize_metrics(
         "probability_compute_seconds": model_forward_softmax_seconds,
         "data_transfer_seconds": data_transfer_seconds,
         "arithmetic_encode_seconds": arithmetic_encode_seconds,
+        "gpu_prefix_aggregate_seconds": gpu_prefix_aggregate_seconds,
+        "cpu_small_alphabet_quantize_seconds": cpu_small_alphabet_quantize_seconds,
         "compression_process_seconds": compression_process_seconds,
         "compression_bytes_per_second": sample_bytes / max(compression_process_seconds, 1e-12),
         "compression_bases_per_second": sample_bases / max(compression_process_seconds, 1e-12),
-        "compression_symbols_per_second": len(tokenized_source.dna_token_ids) / max(compression_process_seconds, 1e-12),
+        "compression_symbols_per_second": emitted_arithmetic_symbol_count / max(compression_process_seconds, 1e-12),
+        "arithmetic_coding_mode": arithmetic_coding_mode,
+        "arithmetic_merge_size": arithmetic_merge_size,
+        "emitted_arithmetic_symbol_count": emitted_arithmetic_symbol_count,
         **arithmetic_metadata,
         **baseline_sizes(payload),
         **(mode_details or {}),
     }
+
+
+def _encode_model_symbol_probabilities(
+    *,
+    probability_rows: np.ndarray,
+    target_symbols: np.ndarray,
+    total: int,
+    encoder: ArithmeticEncoder,
+) -> tuple[float, int]:
+    quantize_started = perf_counter()
+    cumulative_batch = probabilities_to_cumulative_batch(probability_rows, total=total)
+    quantize_seconds = perf_counter() - quantize_started
+    for cumulative, target in zip(cumulative_batch, target_symbols):
+        encoder.update(cumulative, int(target))
+    return quantize_seconds, len(target_symbols)
+
+
+def _encode_base_prefix_probabilities(
+    *,
+    log_prob_rows: torch.Tensor,
+    target_token_ids: torch.Tensor,
+    trie: DNAGPTPrefixTrie,
+    total: int,
+    encoder: ArithmeticEncoder,
+) -> tuple[float, float, float, int, float]:
+    aggregate_started = perf_counter()
+    factorized = factorize_dnagpt_log_probs_to_base_prefix_stream(
+        log_probs=log_prob_rows,
+        target_token_ids=target_token_ids,
+        trie=trie,
+    )
+    gpu_prefix_aggregate_seconds = perf_counter() - aggregate_started
+
+    transfer_started = perf_counter()
+    flat_probabilities = factorized.emitted_probabilities[factorized.emitted_valid_mask].cpu().numpy()
+    flat_symbols = factorized.emitted_symbols[factorized.emitted_valid_mask].cpu().numpy()
+    data_transfer_seconds = perf_counter() - transfer_started
+
+    quantize_started = perf_counter()
+    cumulative_batch = probabilities_to_cumulative_batch(flat_probabilities, total=total)
+    cpu_small_alphabet_quantize_seconds = perf_counter() - quantize_started
+    for cumulative, symbol in zip(cumulative_batch, flat_symbols):
+        encoder.update(cumulative, int(symbol))
+    total_bits = float((-factorized.target_log_probs / math.log(2)).sum().item())
+    return (
+        total_bits,
+        data_transfer_seconds,
+        gpu_prefix_aggregate_seconds,
+        factorized.emitted_symbol_count,
+        cpu_small_alphabet_quantize_seconds,
+    )
+
+
+def _encode_grouped_prefix_probabilities(
+    *,
+    log_prob_rows: torch.Tensor,
+    target_token_ids: torch.Tensor,
+    trie: DNAGPTPrefixTrie,
+    merge_size: int,
+    total: int,
+    encoder: ArithmeticEncoder,
+) -> tuple[float, float, float, int, float]:
+    aggregate_started = perf_counter()
+    factorized = factorize_dnagpt_log_probs_to_grouped_prefix_stream(
+        log_probs=log_prob_rows,
+        target_token_ids=target_token_ids,
+        trie=trie,
+        merge_size=merge_size,
+    )
+    gpu_prefix_aggregate_seconds = perf_counter() - aggregate_started
+
+    transfer_started = perf_counter()
+    step_probabilities = tuple(step.cpu().numpy() for step in factorized.step_probabilities)
+    step_symbols = tuple(step.cpu().numpy() for step in factorized.step_symbols)
+    step_row_positions = tuple(step.cpu().numpy() for step in factorized.step_row_positions)
+    data_transfer_seconds = perf_counter() - transfer_started
+
+    quantize_started = perf_counter()
+    step_cumulative = tuple(
+        probabilities_to_cumulative_batch(step, total=total)
+        for step in step_probabilities
+    )
+    cpu_small_alphabet_quantize_seconds = perf_counter() - quantize_started
+
+    for row_index in range(target_token_ids.shape[0]):
+        for cumulative_batch, symbol_batch, row_positions in zip(
+            step_cumulative,
+            step_symbols,
+            step_row_positions,
+        ):
+            position = int(row_positions[row_index])
+            if position < 0:
+                continue
+            encoder.update(cumulative_batch[position], int(symbol_batch[position]))
+
+    total_bits = float((-factorized.target_log_probs / math.log(2)).sum().item())
+    return (
+        total_bits,
+        data_transfer_seconds,
+        gpu_prefix_aggregate_seconds,
+        factorized.emitted_symbol_count,
+        cpu_small_alphabet_quantize_seconds,
+    )
+
+
+def _tail_side_info_bytes(tail_sequence: str) -> bytes:
+    if not tail_sequence:
+        stream = BitOutputStream()
+        for shift in range(2, -1, -1):
+            stream.write((0 >> shift) & 1)
+        return stream.finish()
+
+    base_to_value = {base: index for index, base in enumerate(DNAGPT_PREFIX_BASE_ORDER)}
+    stream = BitOutputStream()
+    tail_length = len(tail_sequence)
+    for shift in range(2, -1, -1):
+        stream.write((tail_length >> shift) & 1)
+    for base in tail_sequence:
+        try:
+            value = base_to_value[base]
+        except KeyError as error:
+            raise ValueError(f"Unexpected tail base '{base}' outside {DNAGPT_PREFIX_BASE_ORDER}.") from error
+        for shift in range(2, -1, -1):
+            stream.write((value >> shift) & 1)
+    return stream.finish()
 
 
 def compress_dnagpt_sequence_sliding(
@@ -89,6 +243,9 @@ def compress_dnagpt_sequence_sliding(
     dtype_name: str,
     batch_size: int,
     arithmetic_metadata: dict[str, object],
+    arithmetic_coding_mode: str,
+    arithmetic_merge_size: int,
+    prefix_trie: DNAGPTPrefixTrie | None,
     progress_callback: Callable[[int, int], None] | None = None,
 ) -> dict[str, object]:
     dna_tokens = tokenized_source.dna_token_ids
@@ -101,6 +258,9 @@ def compress_dnagpt_sequence_sliding(
     softmax_seconds = 0.0
     data_transfer_seconds = 0.0
     arithmetic_encode_seconds = 0.0
+    gpu_prefix_aggregate_seconds = 0.0
+    cpu_small_alphabet_quantize_seconds = 0.0
+    emitted_arithmetic_symbol_count = 0
     total_batches = max(1, math.ceil(len(dna_tokens) / batch_size))
     processed_batches = 0
 
@@ -137,23 +297,63 @@ def compress_dnagpt_sequence_sliding(
                 row_index = torch.arange(len(batch_targets), device=device)
                 next_token_logits = logits[row_index, gather_index, :]
                 next_token_log_probs = torch.log_softmax(next_token_logits, dim=-1)
-                next_token_probs = next_token_log_probs.float().exp()
+                softmax_seconds += perf_counter() - softmax_started
+
+            encode_started = perf_counter()
+            if arithmetic_coding_mode == "model_symbol":
                 targets_device = torch.tensor(batch_targets, dtype=torch.long, device=device)
                 target_log_probs = next_token_log_probs.gather(1, targets_device.unsqueeze(1)).squeeze(1)
                 total_bits += float((-target_log_probs / math.log(2)).sum().item())
-                softmax_seconds += perf_counter() - softmax_started
-
-            transfer_started = perf_counter()
-            probs_np = next_token_probs.cpu().numpy()
-            data_transfer_seconds += perf_counter() - transfer_started
-
-            encode_started = perf_counter()
-            cumulative_batch = probabilities_to_cumulative_batch(
-                probs_np,
-                total=int(arithmetic_metadata["arithmetic_frequency_total"]),
-            )
-            for cumulative, target in zip(cumulative_batch, batch_targets):
-                encoder.update(cumulative, int(target))
+                transfer_started = perf_counter()
+                probs_np = next_token_log_probs.float().exp().cpu().numpy()
+                data_transfer_seconds += perf_counter() - transfer_started
+                quantize_seconds, emitted_count = _encode_model_symbol_probabilities(
+                    probability_rows=probs_np,
+                    target_symbols=np.asarray(batch_targets, dtype=np.int64),
+                    total=int(arithmetic_metadata["arithmetic_frequency_total"]),
+                    encoder=encoder,
+                )
+                cpu_small_alphabet_quantize_seconds += quantize_seconds
+                emitted_arithmetic_symbol_count += emitted_count
+            elif arithmetic_coding_mode == "base_prefix_exact_gpu_cpu":
+                if prefix_trie is None:
+                    raise ValueError("prefix_trie is required for DNAGPT base-prefix arithmetic coding.")
+                if arithmetic_merge_size == 1:
+                    (
+                        batch_bits,
+                        batch_transfer_seconds,
+                        batch_gpu_aggregate_seconds,
+                        emitted_count,
+                        batch_quantize_seconds,
+                    ) = _encode_base_prefix_probabilities(
+                        log_prob_rows=next_token_log_probs,
+                        target_token_ids=torch.tensor(batch_targets, dtype=torch.long, device=device),
+                        trie=prefix_trie,
+                        total=int(arithmetic_metadata["arithmetic_frequency_total"]),
+                        encoder=encoder,
+                    )
+                else:
+                    (
+                        batch_bits,
+                        batch_transfer_seconds,
+                        batch_gpu_aggregate_seconds,
+                        emitted_count,
+                        batch_quantize_seconds,
+                    ) = _encode_grouped_prefix_probabilities(
+                        log_prob_rows=next_token_log_probs,
+                        target_token_ids=torch.tensor(batch_targets, dtype=torch.long, device=device),
+                        trie=prefix_trie,
+                        merge_size=arithmetic_merge_size,
+                        total=int(arithmetic_metadata["arithmetic_frequency_total"]),
+                        encoder=encoder,
+                    )
+                total_bits += batch_bits
+                data_transfer_seconds += batch_transfer_seconds
+                gpu_prefix_aggregate_seconds += batch_gpu_aggregate_seconds
+                cpu_small_alphabet_quantize_seconds += batch_quantize_seconds
+                emitted_arithmetic_symbol_count += emitted_count
+            else:
+                raise ValueError(f"Unsupported DNAGPT arithmetic coding mode '{arithmetic_coding_mode}'.")
             arithmetic_encode_seconds += perf_counter() - encode_started
 
             processed_batches += 1
@@ -171,7 +371,15 @@ def compress_dnagpt_sequence_sliding(
         softmax_seconds=softmax_seconds,
         data_transfer_seconds=data_transfer_seconds,
         arithmetic_encode_seconds=arithmetic_encode_seconds,
+        gpu_prefix_aggregate_seconds=gpu_prefix_aggregate_seconds,
+        cpu_small_alphabet_quantize_seconds=cpu_small_alphabet_quantize_seconds,
         arithmetic_metadata=arithmetic_metadata,
+        arithmetic_coding_mode=arithmetic_coding_mode,
+        arithmetic_merge_size=arithmetic_merge_size,
+        emitted_arithmetic_symbol_count=emitted_arithmetic_symbol_count,
+        core_model_theoretical_bits=total_bits,
+        tail_base_count=len(tokenized_source.tail_sequence),
+        tail_side_info_bits=0,
         mode_details={
             "window_stride": 1,
             "window_policy": "left_context_sliding",
@@ -191,6 +399,9 @@ def compress_dnagpt_sequence_train_windows(
     dtype_name: str,
     batch_size: int,
     arithmetic_metadata: dict[str, object],
+    arithmetic_coding_mode: str,
+    arithmetic_merge_size: int,
+    prefix_trie: DNAGPTPrefixTrie | None,
     progress_callback: Callable[[int, int], None] | None = None,
 ) -> dict[str, object]:
     dna_tokens = tokenized_source.dna_token_ids
@@ -206,6 +417,9 @@ def compress_dnagpt_sequence_train_windows(
     softmax_seconds = 0.0
     data_transfer_seconds = 0.0
     arithmetic_encode_seconds = 0.0
+    gpu_prefix_aggregate_seconds = 0.0
+    cpu_small_alphabet_quantize_seconds = 0.0
+    emitted_arithmetic_symbol_count = 0
     total_batches = max(1, math.ceil(len(starts) / batch_size))
     processed_batches = 0
 
@@ -237,30 +451,79 @@ def compress_dnagpt_sequence_train_windows(
 
                 softmax_started = perf_counter()
                 log_probs = torch.log_softmax(logits, dim=-1)
-                probs = log_probs.float().exp()
                 softmax_seconds += perf_counter() - softmax_started
 
-            transfer_started = perf_counter()
-            rows_cpu = log_probs.float().cpu().numpy()
-            probs_cpu = probs.cpu().numpy()
-            data_transfer_seconds += perf_counter() - transfer_started
-
             encode_started = perf_counter()
-            for row_index, (chunk, chunk_length) in enumerate(zip(chunk_targets, chunk_lengths)):
-                if chunk_length <= 0:
-                    continue
-                row_log_probs = rows_cpu[row_index, prefix_length : prefix_length + chunk_length, :]
-                if row_log_probs.shape[0] == 0:
-                    continue
-                targets_np = np.asarray(chunk, dtype=np.int64)
-                total_bits += float((-row_log_probs[np.arange(row_log_probs.shape[0]), targets_np] / math.log(2)).sum())
-                probs_np = probs_cpu[row_index, prefix_length : prefix_length + chunk_length, :]
-                cumulative_batch = probabilities_to_cumulative_batch(
-                    probs_np,
-                    total=int(arithmetic_metadata["arithmetic_frequency_total"]),
-                )
-                for cumulative, target in zip(cumulative_batch, chunk):
-                    encoder.update(cumulative, int(target))
+            if arithmetic_coding_mode == "model_symbol":
+                transfer_started = perf_counter()
+                rows_cpu = log_probs.float().cpu().numpy()
+                probs_cpu = log_probs.float().exp().cpu().numpy()
+                data_transfer_seconds += perf_counter() - transfer_started
+
+                for row_index, (chunk, chunk_length) in enumerate(zip(chunk_targets, chunk_lengths)):
+                    if chunk_length <= 0:
+                        continue
+                    row_log_probs = rows_cpu[row_index, prefix_length : prefix_length + chunk_length, :]
+                    if row_log_probs.shape[0] == 0:
+                        continue
+                    targets_np = np.asarray(chunk, dtype=np.int64)
+                    total_bits += float((-row_log_probs[np.arange(row_log_probs.shape[0]), targets_np] / math.log(2)).sum())
+                    probs_np = probs_cpu[row_index, prefix_length : prefix_length + chunk_length, :]
+                    quantize_seconds, emitted_count = _encode_model_symbol_probabilities(
+                        probability_rows=probs_np,
+                        target_symbols=targets_np,
+                        total=int(arithmetic_metadata["arithmetic_frequency_total"]),
+                        encoder=encoder,
+                    )
+                    cpu_small_alphabet_quantize_seconds += quantize_seconds
+                    emitted_arithmetic_symbol_count += emitted_count
+            elif arithmetic_coding_mode == "base_prefix_exact_gpu_cpu":
+                if prefix_trie is None:
+                    raise ValueError("prefix_trie is required for DNAGPT base-prefix arithmetic coding.")
+                flat_log_prob_rows: list[torch.Tensor] = []
+                flat_target_ids: list[torch.Tensor] = []
+                for row_index, (chunk, chunk_length) in enumerate(zip(chunk_targets, chunk_lengths)):
+                    if chunk_length <= 0:
+                        continue
+                    flat_log_prob_rows.append(log_probs[row_index, prefix_length : prefix_length + chunk_length, :])
+                    flat_target_ids.append(torch.tensor(chunk, dtype=torch.long, device=device))
+                if flat_log_prob_rows:
+                    if arithmetic_merge_size == 1:
+                        (
+                            batch_bits,
+                            batch_transfer_seconds,
+                            batch_gpu_aggregate_seconds,
+                            emitted_count,
+                            batch_quantize_seconds,
+                        ) = _encode_base_prefix_probabilities(
+                            log_prob_rows=torch.cat(flat_log_prob_rows, dim=0),
+                            target_token_ids=torch.cat(flat_target_ids, dim=0),
+                            trie=prefix_trie,
+                            total=int(arithmetic_metadata["arithmetic_frequency_total"]),
+                            encoder=encoder,
+                        )
+                    else:
+                        (
+                            batch_bits,
+                            batch_transfer_seconds,
+                            batch_gpu_aggregate_seconds,
+                            emitted_count,
+                            batch_quantize_seconds,
+                        ) = _encode_grouped_prefix_probabilities(
+                            log_prob_rows=torch.cat(flat_log_prob_rows, dim=0),
+                            target_token_ids=torch.cat(flat_target_ids, dim=0),
+                            trie=prefix_trie,
+                            merge_size=arithmetic_merge_size,
+                            total=int(arithmetic_metadata["arithmetic_frequency_total"]),
+                            encoder=encoder,
+                        )
+                    total_bits += batch_bits
+                    data_transfer_seconds += batch_transfer_seconds
+                    gpu_prefix_aggregate_seconds += batch_gpu_aggregate_seconds
+                    cpu_small_alphabet_quantize_seconds += batch_quantize_seconds
+                    emitted_arithmetic_symbol_count += emitted_count
+            else:
+                raise ValueError(f"Unsupported DNAGPT arithmetic coding mode '{arithmetic_coding_mode}'.")
             arithmetic_encode_seconds += perf_counter() - encode_started
 
             processed_batches += 1
@@ -278,7 +541,15 @@ def compress_dnagpt_sequence_train_windows(
         softmax_seconds=softmax_seconds,
         data_transfer_seconds=data_transfer_seconds,
         arithmetic_encode_seconds=arithmetic_encode_seconds,
+        gpu_prefix_aggregate_seconds=gpu_prefix_aggregate_seconds,
+        cpu_small_alphabet_quantize_seconds=cpu_small_alphabet_quantize_seconds,
         arithmetic_metadata=arithmetic_metadata,
+        arithmetic_coding_mode=arithmetic_coding_mode,
+        arithmetic_merge_size=arithmetic_merge_size,
+        emitted_arithmetic_symbol_count=emitted_arithmetic_symbol_count,
+        core_model_theoretical_bits=total_bits,
+        tail_base_count=len(tokenized_source.tail_sequence),
+        tail_side_info_bits=0,
         mode_details={
             "window_stride": target_capacity,
             "window_policy": "contiguous_train_style",
@@ -294,6 +565,7 @@ def compress_dnagpt_source(
     source: bytes,
     tokenizer,
     kmer_size: int,
+    dynamic_kmer: bool,
     species_prefix_map: dict[str, str] | None,
     seq_length: int,
     pad_id: int,
@@ -304,18 +576,39 @@ def compress_dnagpt_source(
     mode: str,
     arithmetic_frequency_total: int | None,
     arithmetic_target_uniform_mass: float,
+    arithmetic_coding_mode: str,
+    arithmetic_merge_size: int,
+    prefix_trie: DNAGPTPrefixTrie | None = None,
     progress_callback: Callable[[int, int], None] | None = None,
 ) -> dict[str, object]:
     payload = sample_payload(source, requested_bytes)
+    use_tail_side_info = (
+        arithmetic_coding_mode == "base_prefix_exact_gpu_cpu"
+        and arithmetic_merge_size > 1
+        and dynamic_kmer
+    )
     tokenized_source = tokenize_dna_source(
         species=species,
         source=payload,
         tokenizer=tokenizer,
         kmer_size=kmer_size,
         species_prefix_map=species_prefix_map,
+        drop_tail_to_full_kmer=use_tail_side_info,
+    )
+    arithmetic_vocab_size = (
+        len(tokenizer)
+        if arithmetic_coding_mode == "model_symbol"
+        else (
+            DNAGPT_PREFIX_ALPHABET_SIZE
+            if arithmetic_merge_size == 1
+            else grouped_prefix_vocab_size(
+                merge_size=arithmetic_merge_size,
+                max_token_length=kmer_size,
+            )
+        )
     )
     arithmetic_metadata = resolve_arithmetic_coding_metadata(
-        vocab_size=len(tokenizer),
+        vocab_size=arithmetic_vocab_size,
         requested_total=arithmetic_frequency_total,
         target_uniform_mass=arithmetic_target_uniform_mass,
     )
@@ -330,6 +623,9 @@ def compress_dnagpt_source(
             dtype_name=dtype_name,
             batch_size=batch_size,
             arithmetic_metadata=arithmetic_metadata,
+            arithmetic_coding_mode=arithmetic_coding_mode,
+            arithmetic_merge_size=arithmetic_merge_size,
+            prefix_trie=prefix_trie,
             progress_callback=progress_callback,
         )
     elif mode == NON_OVERLAP_MODE:
@@ -343,11 +639,23 @@ def compress_dnagpt_source(
             dtype_name=dtype_name,
             batch_size=batch_size,
             arithmetic_metadata=arithmetic_metadata,
+            arithmetic_coding_mode=arithmetic_coding_mode,
+            arithmetic_merge_size=arithmetic_merge_size,
+            prefix_trie=prefix_trie,
             progress_callback=progress_callback,
         )
     else:
         raise ValueError(f"Unsupported DNAGPT compression mode '{mode}'.")
 
+    tail_side_info = _tail_side_info_bytes(tokenized_source.tail_sequence) if use_tail_side_info else b""
+    tail_side_info_bits = (3 + 3 * len(tokenized_source.tail_sequence)) if use_tail_side_info else 0
     metrics["sample_bytes"] = len(payload)
     metrics["sample_bases"] = len(payload)
+    metrics["core_model_theoretical_bits"] = float(metrics.get("core_model_theoretical_bits", metrics["theoretical_bits"]))
+    metrics["tail_base_count"] = len(tokenized_source.tail_sequence)
+    metrics["tail_side_info_bits"] = tail_side_info_bits
+    metrics["theoretical_bits"] = float(metrics["core_model_theoretical_bits"]) + float(tail_side_info_bits)
+    metrics["theoretical_bits_per_base"] = float(metrics["theoretical_bits"]) / max(int(metrics["sample_bases"]), 1)
+    metrics["arithmetic_coded_bytes"] = int(metrics["arithmetic_coded_bytes"]) + len(tail_side_info)
+    metrics["arithmetic_bits_per_base"] = (int(metrics["arithmetic_coded_bytes"]) * 8) / max(int(metrics["sample_bases"]), 1)
     return metrics
