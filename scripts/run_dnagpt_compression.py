@@ -372,7 +372,7 @@ def main() -> None:
     if config.arithmetic.coding_mode == "base_prefix_exact_gpu_cpu":
         prefix_trie = build_dnagpt_prefix_trie(tokenizer).to(device)
 
-    splits = load_splits(config.data)
+    splits = load_splits(config.data, seq_length=config.model.seq_length)
     requested_splits = _normalize_splits(args.split)
     metrics = {
         "device": str(device),

@@ -33,6 +33,11 @@ class DataConfig:
     dataset_dir: str = "datasets/DNACorpus"
     species: list[str] = field(default_factory=lambda: ["HoSa"])
     species_prefix_map: dict[str, str] = field(default_factory=dict)
+    sequence_source_mode: str = "auto"
+    multi_sequence_mode: str = "separate"
+    sequence_include_map: dict[str, list[str]] = field(default_factory=dict)
+    clean_cache_enabled: bool = True
+    clean_cache_dir: str | None = None
     train_ratio: float = 0.9
     val_ratio: float = 0.05
     test_ratio: float = 0.05

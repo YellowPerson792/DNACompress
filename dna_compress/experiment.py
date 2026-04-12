@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import random
 import time
+import gc
 from typing import Any, Callable, TextIO
 
 import numpy as np
@@ -359,7 +360,7 @@ def evaluate_compression(
 def evaluate_compression_per_source(
     model: torch.nn.Module,
     test_sources: list[bytes],
-    species_names: list[str],
+    source_entries: list[dict[str, object]],
     requested_bytes: int,
     seq_length: int,
     pad_id: int,
@@ -379,7 +380,7 @@ def evaluate_compression_per_source(
     total_arithmetic_bytes = 0
 
     def _print_compression_progress(
-        species_name: str,
+        source_name: str,
         source_index: int,
         source_total: int,
         batch_done: int,
@@ -387,7 +388,7 @@ def evaluate_compression_per_source(
     ) -> None:
         ratio = 100.0 * batch_done / max(batch_total, 1)
         message = (
-            f"\r[compress] source {source_index}/{source_total} ({species_name}) "
+            f"\r[compress] source {source_index}/{source_total} ({source_name}) "
             f"batch {batch_done}/{batch_total} ({ratio:5.1f}%)"
         )
         print(message, end="", flush=True)
@@ -396,7 +397,9 @@ def evaluate_compression_per_source(
     if source_total == 0:
         print("[compress] no test sources found.")
 
-    for source_index, (source, species_name) in enumerate(zip(test_sources, species_names), start=1):
+    for source_index, (source, entry) in enumerate(zip(test_sources, source_entries), start=1):
+        species_name = str(entry["species"])
+        source_name = str(entry.get("source_name", species_name))
         payload = source[:requested_bytes] if len(source) >= requested_bytes else source
         metrics = evaluate_compression(
             model=model,
@@ -411,7 +414,7 @@ def evaluate_compression_per_source(
             token_merge_alphabet=token_merge_alphabet,
             arithmetic_frequency_total=arithmetic_frequency_total,
             arithmetic_target_uniform_mass=arithmetic_target_uniform_mass,
-            progress_callback=lambda batch_done, batch_total, si=source_index, sn=species_name: _print_compression_progress(
+            progress_callback=lambda batch_done, batch_total, si=source_index, sn=source_name: _print_compression_progress(
                 sn,
                 si,
                 source_total,
@@ -420,7 +423,7 @@ def evaluate_compression_per_source(
             ),
         )
         print()
-        per_source.append({"species": species_name, **metrics})
+        per_source.append({"species": species_name, "source_name": source_name, **metrics})
         total_sample_bytes += int(metrics["sample_bytes"])
         total_sample_bases += int(metrics["sample_bases"])
         total_theoretical_bits += float(metrics["theoretical_bits"])
@@ -497,7 +500,39 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
             training_log_path, train_log_handle = open_training_log_file(output_dir)
             wandb_run = init_wandb_run(config, output_dir)
 
-        splits = load_splits(config.data)
+        if ddp.is_main_process:
+            print("[stage] loading data splits...", flush=True)
+        split_started = time.time()
+        splits = load_splits(config.data, seq_length=config.model.seq_length)
+        if ddp.is_main_process:
+            split_entries = splits.summary["species"]
+            total_train_bytes = int(sum(int(item["train_bytes"]) for item in split_entries))
+            total_val_bytes = int(sum(int(item["val_bytes"]) for item in split_entries))
+            total_test_bytes = int(sum(int(item["test_bytes"]) for item in split_entries))
+            clean_cache_summary = splits.summary.get("clean_cache", {})
+            print(
+                "[stage] data splits loaded: "
+                f"sources={len(split_entries)} "
+                f"train_bytes={total_train_bytes} "
+                f"val_bytes={total_val_bytes} "
+                f"test_bytes={total_test_bytes} "
+                f"elapsed={time.time() - split_started:.1f}s",
+                flush=True,
+            )
+            if isinstance(clean_cache_summary, dict) and int(clean_cache_summary.get("applicable_sources", 0)) > 0:
+                print(
+                    "[cache] clean "
+                    f"enabled={bool(clean_cache_summary.get('enabled'))} "
+                    f"dir={clean_cache_summary.get('cache_dir')} "
+                    f"hits={int(clean_cache_summary.get('hits', 0))} "
+                    f"created={int(clean_cache_summary.get('created', 0))} "
+                    f"rebuilt={int(clean_cache_summary.get('rebuilt', 0))} "
+                    f"disabled={int(clean_cache_summary.get('disabled', 0))}",
+                    flush=True,
+                )
+
+        if ddp.is_main_process:
+            print("[stage] building training dataset...", flush=True)
         train_dataset = RandomWindowDataset(
             sources=splits.train_sources,
             seq_length=config.model.seq_length,
@@ -507,6 +542,17 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
             token_merge_size=config.data.token_merge_size,
             token_merge_alphabet=config.data.token_merge_alphabet,
         )
+        splits.train_sources = []
+        gc.collect()
+        if ddp.is_main_process:
+            print(
+                f"[stage] training dataset ready: tokenized_sources={len(train_dataset.sources)} "
+                f"samples_per_epoch={len(train_dataset)}",
+                flush=True,
+            )
+
+        if ddp.is_main_process:
+            print("[stage] building validation dataset...", flush=True)
         val_dataset = SequentialWindowDataset(
             sources=splits.val_sources,
             seq_length=config.model.seq_length,
@@ -514,6 +560,17 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
             token_merge_size=config.data.token_merge_size,
             token_merge_alphabet=config.data.token_merge_alphabet,
         )
+        splits.val_sources = []
+        gc.collect()
+        if ddp.is_main_process:
+            print(
+                f"[stage] validation dataset ready: tokenized_sources={len(val_dataset.sources)} "
+                f"windows={len(val_dataset)}",
+                flush=True,
+            )
+
+        if ddp.is_main_process:
+            print("[stage] building test dataset...", flush=True)
         test_dataset = SequentialWindowDataset(
             sources=splits.test_sources,
             seq_length=config.model.seq_length,
@@ -521,6 +578,15 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
             token_merge_size=config.data.token_merge_size,
             token_merge_alphabet=config.data.token_merge_alphabet,
         )
+        compression_test_sources = splits.test_sources if mode in {"eval", "all", "compress"} else []
+        splits.test_sources = []
+        gc.collect()
+        if ddp.is_main_process:
+            print(
+                f"[stage] test dataset ready: tokenized_sources={len(test_dataset.sources)} "
+                f"windows={len(test_dataset)}",
+                flush=True,
+            )
         train_sampler = (
             DistributedSampler(train_dataset, num_replicas=ddp.world_size, rank=ddp.rank, shuffle=True)
             if ddp.is_distributed
@@ -607,6 +673,8 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
         global_step = 0
 
         if mode in {"train", "all"}:
+            if ddp.is_main_process:
+                print("[stage] starting training...", flush=True)
             model.train()
             optimizer.zero_grad(set_to_none=True)
             started = time.time()
@@ -828,15 +896,15 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
                     },
                     step=global_step,
                 )
-                species_names = [str(item["species"]) for item in splits.summary["species"]]
+                source_entries = [dict(item) for item in splits.summary["species"]]
                 # Compression runs only on rank 0. Use the underlying module directly so
                 # rank-local forward passes do not depend on other DDP ranks staying active.
                 print("[stage] starting compression on rank 0...", flush=True)
                 compression_model = unwrap_model(model)
                 compression_metrics = evaluate_compression_per_source(
                     model=compression_model,
-                    test_sources=splits.test_sources,
-                    species_names=species_names,
+                    test_sources=compression_test_sources,
+                    source_entries=source_entries,
                     requested_bytes=config.data.compression_sample_bytes,
                     seq_length=config.model.seq_length,
                     pad_id=config.model.pad_id,

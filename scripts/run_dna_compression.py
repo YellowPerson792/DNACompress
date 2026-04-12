@@ -35,11 +35,16 @@ Complete examples:
     python scripts/run_dna_compression.py \
       --run-dir outputs/dna_megabyte_large_conv_all \
       --checkpoint-tag best \
+      --dataset-dir datasets/ensembl_raw \
+      --sequence-source-mode fasta_dir \
+      --multi-sequence-mode separate \
       --split train val test \
       --eval-batch-size 10 \
       --compression-modes train_windows_nonoverlap \
       --compression-sample-bytes 60000 \
-      --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe \
+      --species homo_sapiens mus_musculus bos_taurus danio_rerio \
+                drosophila_melanogaster caenorhabditis_elegans \
+                saccharomyces_cerevisiae arabidopsis_thaliana \
       --arithmetic-coding-mode base_prefix_exact_gpu_cpu \
       --arithmetic-merge-size 3
       
@@ -49,10 +54,15 @@ Complete examples:
 
     python scripts/run_dna_compression.py \
       --run-dir outputs\\dna_megabyte_quick_l1024_p3 \
+      --dataset-dir datasets/ensembl_raw \
+      --sequence-source-mode fasta_dir \
+      --multi-sequence-mode separate \
       --split train val test \
       --compression-modes train_windows_overlap \
       --overlap-patches 128 \
-      --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh \
+      --species homo_sapiens mus_musculus bos_taurus danio_rerio \
+                drosophila_melanogaster caenorhabditis_elegans \
+                saccharomyces_cerevisiae arabidopsis_thaliana \
       --output-json outputs/dna_megabyte_quick_l1024_p3/compression_compare.json \
       --export-out-dir outputs/dna_megabyte_quick_l1024_p3/statistics
 
@@ -69,6 +79,7 @@ import json
 from pathlib import Path
 import subprocess
 import sys
+import time
 from typing import Any
 
 import torch
@@ -121,6 +132,25 @@ def _parse_scalar(value: str) -> Any:
     return value
 
 
+def _parse_sequence_include(values: list[str] | None) -> dict[str, list[str]] | None:
+    if values is None:
+        return None
+    parsed: dict[str, list[str]] = {}
+    for item in values:
+        if "=" not in item:
+            raise ValueError(f"Invalid sequence include '{item}'. Expected species=key1,key2,...")
+        species, raw_keys = item.split("=", 1)
+        species_name = species.strip()
+        keys = [key.strip() for key in raw_keys.split(",") if key.strip()]
+        if not species_name or not keys:
+            raise ValueError(f"Invalid sequence include '{item}'. Expected species=key1,key2,...")
+        parsed.setdefault(species_name, [])
+        for key in keys:
+            if key not in parsed[species_name]:
+                parsed[species_name].append(key)
+    return parsed
+
+
 def _set_nested_attr(config: Any, dotted_key: str, value: Any) -> None:
     parts = dotted_key.split(".")
     if len(parts) < 2:
@@ -152,6 +182,12 @@ def _apply_overrides(config: ExperimentConfig, args: argparse.Namespace) -> None
     _apply_if_not_none(config, "model.seq_length", args.seq_length)
     _apply_if_not_none(config, "model.input_causal_conv_kernel_size", args.input_causal_conv_kernel_size)
     _apply_if_not_none(config, "data.dataset_dir", args.dataset_dir)
+    _apply_if_not_none(config, "data.sequence_source_mode", args.sequence_source_mode)
+    _apply_if_not_none(config, "data.multi_sequence_mode", args.multi_sequence_mode)
+    _apply_if_not_none(config, "data.clean_cache_enabled", args.clean_cache_enabled)
+    _apply_if_not_none(config, "data.clean_cache_dir", args.clean_cache_dir)
+    if args.sequence_include is not None:
+        config.data.sequence_include_map = _parse_sequence_include(args.sequence_include)
     _apply_if_not_none(config, "data.train_ratio", args.train_ratio)
     _apply_if_not_none(config, "data.val_ratio", args.val_ratio)
     _apply_if_not_none(config, "data.test_ratio", args.test_ratio)
@@ -220,6 +256,10 @@ def _species_names(splits) -> list[str]:
     return [str(item["species"]) for item in splits.summary["species"]]
 
 
+def _source_entries(splits) -> list[dict[str, object]]:
+    return [dict(item) for item in splits.summary["species"]]
+
+
 def _validate_args(config: ExperimentConfig, args: argparse.Namespace) -> None:
     if config.model.implementation not in {
         "megabyte",
@@ -253,6 +293,12 @@ def _validate_args(config: ExperimentConfig, args: argparse.Namespace) -> None:
     if config.data.token_merge_size <= 0:
         raise ValueError("data.token_merge_size must be >= 1")
     normalize_alphabet(config.data.token_merge_alphabet)
+    if config.data.sequence_source_mode not in {"auto", "flat_file", "fasta_dir"}:
+        raise ValueError("data.sequence_source_mode must be one of: auto, flat_file, fasta_dir")
+    if config.data.multi_sequence_mode not in {"separate", "concat"}:
+        raise ValueError("data.multi_sequence_mode must be one of: separate, concat")
+    if not isinstance(config.data.sequence_include_map, dict):
+        raise ValueError("data.sequence_include_map must be a dict[str, list[str]]")
     if config.arithmetic.frequency_total is not None and config.arithmetic.frequency_total <= 0:
         raise ValueError("arithmetic.frequency_total must be > 0 when provided")
     if not (0.0 < config.arithmetic.target_uniform_mass <= 1.0):
@@ -289,14 +335,17 @@ def _run_split(
     factorizer,
 ) -> dict[str, object]:
     sources = _sources_for_split(splits, split_name)
-    species_names = _species_names(splits)
+    source_entries = _source_entries(splits)
     split_result: dict[str, object] = {}
 
     for mode in modes:
         per_source: list[dict[str, object]] = []
         source_total = len(sources)
-        for source_index, (species_name, source) in enumerate(zip(species_names, sources), start=1):
-            def _on_progress(batch_done: int, batch_total: int, *, si: int = source_index, sn: str = species_name) -> None:
+        for source_index, (entry, source) in enumerate(zip(source_entries, sources), start=1):
+            species_name = str(entry["species"])
+            source_name = str(entry.get("source_name", species_name))
+
+            def _on_progress(batch_done: int, batch_total: int, *, si: int = source_index, sn: str = source_name) -> None:
                 ratio = 100.0 * batch_done / max(batch_total, 1)
                 print(
                     (
@@ -329,7 +378,7 @@ def _run_split(
                 progress_callback=_on_progress,
             )
             print()
-            per_source.append({"species": species_name, **metrics})
+            per_source.append({"species": species_name, "source_name": source_name, **metrics})
 
         split_result[mode] = {
             "aggregate": summarize_per_source(per_source),
@@ -444,6 +493,16 @@ def _build_parser() -> argparse.ArgumentParser:
     model_group.add_argument("--input-causal-conv-kernel-size", type=int)
     model_group.add_argument("--dataset-dir")
     model_group.add_argument("--species", nargs="+")
+    model_group.add_argument("--sequence-source-mode", choices=["auto", "flat_file", "fasta_dir"])
+    model_group.add_argument("--multi-sequence-mode", choices=["separate", "concat"])
+    model_group.add_argument("--clean-cache-enabled", dest="clean_cache_enabled", action="store_true", default=None)
+    model_group.add_argument("--no-clean-cache", dest="clean_cache_enabled", action="store_false")
+    model_group.add_argument("--clean-cache-dir")
+    model_group.add_argument(
+        "--sequence-include",
+        action="append",
+        help="Repeatable sequence selector in form species=key1,key2,...",
+    )
     model_group.add_argument("--train-ratio", type=float)
     model_group.add_argument("--val-ratio", type=float)
     model_group.add_argument("--test-ratio", type=float)
@@ -496,7 +555,26 @@ def main() -> None:
             arithmetic_merge_size=config.arithmetic.merge_size,
             alphabet=normalize_alphabet(config.data.token_merge_alphabet),
         ).to(device)
-    splits = load_splits(config.data)
+    print("[compress] loading data splits...", flush=True)
+    split_started = time.time()
+    splits = load_splits(config.data, seq_length=config.model.seq_length)
+    split_entries = splits.summary["species"]
+    clean_cache_summary = splits.summary.get("clean_cache", {})
+    print(
+        f"[compress] data splits loaded: sources={len(split_entries)} elapsed={time.time() - split_started:.1f}s",
+        flush=True,
+    )
+    if isinstance(clean_cache_summary, dict) and int(clean_cache_summary.get("applicable_sources", 0)) > 0:
+        print(
+            "[cache] clean "
+            f"enabled={bool(clean_cache_summary.get('enabled'))} "
+            f"dir={clean_cache_summary.get('cache_dir')} "
+            f"hits={int(clean_cache_summary.get('hits', 0))} "
+            f"created={int(clean_cache_summary.get('created', 0))} "
+            f"rebuilt={int(clean_cache_summary.get('rebuilt', 0))} "
+            f"disabled={int(clean_cache_summary.get('disabled', 0))}",
+            flush=True,
+        )
     requested_splits = _normalize_splits(args.split)
     overlap_stride = _resolve_overlap_stride(config, args)
     metrics = {

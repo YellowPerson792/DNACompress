@@ -269,7 +269,7 @@ def run_dnagpt_experiment(config: ExperimentConfig, mode: str = "all") -> dict[s
             if isinstance(optimizer_state, dict):
                 optimizer.load_state_dict(optimizer_state)
 
-        splits = load_splits(config.data)
+        splits = load_splits(config.data, seq_length=config.model.seq_length)
         tokenized_splits = _build_tokenized_split_sources(config, splits, tokenizer, spec)
 
         train_dataset = RandomDNAGPTWindowDataset(

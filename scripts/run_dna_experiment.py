@@ -34,24 +34,28 @@ Complete example (train + eval + compression, with common overrides):
     python scripts/run_dna_experiment.py \
         --config configs/dna_megabyte_large.json \
         --mode all \
+        --dataset-dir datasets/ensembl_raw \
+        --sequence-source-mode fasta_dir \
+        --multi-sequence-mode separate \
         --dtype bfloat16 \
         --epochs 1 \
         --batch-size 32 \
         --eval-batch-size 32 \
         --learning-rate 3e-4 \
-        --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe \
-        --train-samples-per-epoch 600000 \
+        --species homo_sapiens mus_musculus bos_taurus danio_rerio \
+                  drosophila_melanogaster caenorhabditis_elegans \
+                  saccharomyces_cerevisiae arabidopsis_thaliana \
+        --train-samples-per-epoch 5000000 \
         --compression-sample-bytes 100000 \
         --print-config \
-        --seq-length 512 \
-        --patch-size 4 \
-        --token-merge-size 6 \
+        --seq-length 1024 \
+        --token-merge-size 3 \
         --weight-decay 0.01 \
         --log-interval 25 \
-        --eval-interval 500 \
-        --train-ratio 0.6 \
-        --val-ratio 0.2 \
-        --test-ratio 0.2 \
+        --eval-interval 10000 \
+        --train-ratio 0.98 \
+        --val-ratio 0.01 \
+        --test-ratio 0.01 \
         --lr-scheduler cosine \
         --lr-warmup-steps 0 \
         --lr-min-ratio 0.1 \
@@ -59,18 +63,22 @@ Complete example (train + eval + compression, with common overrides):
         --num-workers 4 \
         --train-sampling-strategy proportional \
         --wandb-project dna-compress \
-        --wandb-name dna_megabyte_large_l512_k6_all
+        --wandb-name dna_megabyte_large_ensembl_all 
             
         --gpu-ids 0 3 \
-        --wandb-project dna-compress \
-        --wandb-name dna_megabyte_large_all \
-        --input-causal-conv-kernel-size 7 
- 
+        --input-causal-conv-kernel-size 7
+
 Multi-GPU DDP example (2 GPUs):
 
     torchrun --nproc_per_node=2 scripts/run_dna_experiment.py \
         --config configs/dna_megabyte_quick.json \
         --mode train \
+        --dataset-dir datasets/ensembl_raw \
+        --sequence-source-mode fasta_dir \
+        --multi-sequence-mode separate \
+        --species homo_sapiens mus_musculus bos_taurus danio_rerio \
+                  drosophila_melanogaster caenorhabditis_elegans \
+                  saccharomyces_cerevisiae arabidopsis_thaliana \
         --device cuda \
         --num-workers 8 \
         --prefetch-factor 4 \
@@ -153,6 +161,25 @@ def _parse_gpu_ids(values: list[str]) -> list[int]:
     return deduplicated_gpu_ids
 
 
+def _parse_sequence_include(values: list[str] | None) -> dict[str, list[str]] | None:
+    if values is None:
+        return None
+    parsed: dict[str, list[str]] = {}
+    for item in values:
+        if "=" not in item:
+            raise ValueError(f"Invalid sequence include '{item}'. Expected species=key1,key2,...")
+        species, raw_keys = item.split("=", 1)
+        species_name = species.strip()
+        keys = [key.strip() for key in raw_keys.split(",") if key.strip()]
+        if not species_name or not keys:
+            raise ValueError(f"Invalid sequence include '{item}'. Expected species=key1,key2,...")
+        parsed.setdefault(species_name, [])
+        for key in keys:
+            if key not in parsed[species_name]:
+                parsed[species_name].append(key)
+    return parsed
+
+
 def _set_nested_attr(config: Any, dotted_key: str, value: Any) -> None:
     parts = dotted_key.split(".")
     if len(parts) < 2:
@@ -195,6 +222,12 @@ def _apply_overrides(config: Any, args: argparse.Namespace) -> None:
     _apply_if_not_none(config, "model.input_causal_conv_kernel_size", args.input_causal_conv_kernel_size)
 
     _apply_if_not_none(config, "data.dataset_dir", args.dataset_dir)
+    _apply_if_not_none(config, "data.sequence_source_mode", args.sequence_source_mode)
+    _apply_if_not_none(config, "data.multi_sequence_mode", args.multi_sequence_mode)
+    _apply_if_not_none(config, "data.clean_cache_enabled", args.clean_cache_enabled)
+    _apply_if_not_none(config, "data.clean_cache_dir", args.clean_cache_dir)
+    if args.sequence_include is not None:
+        config.data.sequence_include_map = _parse_sequence_include(args.sequence_include)
     _apply_if_not_none(config, "data.train_ratio", args.train_ratio)
     _apply_if_not_none(config, "data.val_ratio", args.val_ratio)
     _apply_if_not_none(config, "data.test_ratio", args.test_ratio)
@@ -299,6 +332,17 @@ def _validate_config_for_megabyte(config: Any) -> None:
         raise ValueError("data.token_merge_size must be >= 1")
 
     normalize_alphabet(config.data.token_merge_alphabet)
+    if config.data.sequence_source_mode not in {"auto", "flat_file", "fasta_dir"}:
+        raise ValueError("data.sequence_source_mode must be one of: auto, flat_file, fasta_dir")
+    if config.data.multi_sequence_mode not in {"separate", "concat"}:
+        raise ValueError("data.multi_sequence_mode must be one of: separate, concat")
+    if not isinstance(config.data.sequence_include_map, dict):
+        raise ValueError("data.sequence_include_map must be a dict[str, list[str]]")
+    for species_name, keys in config.data.sequence_include_map.items():
+        if not isinstance(species_name, str) or not species_name:
+            raise ValueError("data.sequence_include_map keys must be non-empty strings")
+        if not isinstance(keys, list) or not keys or any((not isinstance(key, str) or not key.strip()) for key in keys):
+            raise ValueError(f"data.sequence_include_map[{species_name!r}] must be a non-empty list of strings")
 
     if config.train.lr_scheduler not in {"none", "linear", "cosine"}:
         raise ValueError("train.lr_scheduler must be one of: none, linear, cosine")
@@ -399,6 +443,16 @@ def _build_parser() -> argparse.ArgumentParser:
     data_group = parser.add_argument_group("data overrides")
     data_group.add_argument("--dataset-dir")
     data_group.add_argument("--species", nargs="+", help="Species list, e.g. --species HoSa YeMi")
+    data_group.add_argument("--sequence-source-mode", choices=["auto", "flat_file", "fasta_dir"])
+    data_group.add_argument("--multi-sequence-mode", choices=["separate", "concat"])
+    data_group.add_argument("--clean-cache-enabled", dest="clean_cache_enabled", action="store_true", default=None)
+    data_group.add_argument("--no-clean-cache", dest="clean_cache_enabled", action="store_false")
+    data_group.add_argument("--clean-cache-dir")
+    data_group.add_argument(
+        "--sequence-include",
+        action="append",
+        help="Repeatable sequence selector in form species=key1,key2,...",
+    )
     data_group.add_argument("--train-ratio", type=float)
     data_group.add_argument("--val-ratio", type=float)
     data_group.add_argument("--test-ratio", type=float)
