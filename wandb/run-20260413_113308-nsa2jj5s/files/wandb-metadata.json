@@ -1,0 +1,67 @@
+{
+  "os":  "Linux-6.8.0-90-generic-x86_64-with-glibc2.35",
+  "python":  "CPython 3.12.12",
+  "startedAt":  "2026-04-13T03:33:08.895551Z",
+  "args":  [
+    "--run-dir",
+    "outputs/dna_megabyte_large_b128_ensembl_all",
+    "--project",
+    "dna-compress"
+  ],
+  "program":  "/home/Liang_junnan/DNACompress/scripts/upload_training_log_to_wandb.py",
+  "codePath":  "scripts/upload_training_log_to_wandb.py",
+  "codePathLocal":  "scripts/upload_training_log_to_wandb.py",
+  "git":  {
+    "remote":  "https://github.com/YellowPerson792/DNACompress",
+    "commit":  "359e3198461d21734b75640cdcb3d8ea962a857d"
+  },
+  "email":  "yellow_person@outlook.com",
+  "root":  "/home/Liang_junnan/DNACompress",
+  "host":  "root123-Super-Server",
+  "executable":  "/home/Liang_junnan/miniconda3/bin/python",
+  "cpu_count":  64,
+  "cpu_count_logical":  128,
+  "gpu":  "NVIDIA GeForce RTX 4090",
+  "gpu_count":  4,
+  "disk":  {
+    "/":  {
+      "total":  "1967317549056",
+      "used":  "1390000381952"
+    }
+  },
+  "memory":  {
+    "total":  "134862876672"
+  },
+  "gpu_nvidia":  [
+    {
+      "name":  "NVIDIA GeForce RTX 4090",
+      "memoryTotal":  "51527024640",
+      "cudaCores":  16384,
+      "architecture":  "Ada",
+      "uuid":  "GPU-9faae66c-4076-f1e2-b195-c1d2bdf2de9f"
+    },
+    {
+      "name":  "NVIDIA GeForce RTX 4090",
+      "memoryTotal":  "51527024640",
+      "cudaCores":  16384,
+      "architecture":  "Ada",
+      "uuid":  "GPU-041c767b-56f6-488d-0fa3-0dd5bd737f2b"
+    },
+    {
+      "name":  "NVIDIA GeForce RTX 4090",
+      "memoryTotal":  "51527024640",
+      "cudaCores":  16384,
+      "architecture":  "Ada",
+      "uuid":  "GPU-a341f8c6-70a6-4f58-a803-029b4ef47929"
+    },
+    {
+      "name":  "NVIDIA GeForce RTX 4090",
+      "memoryTotal":  "51527024640",
+      "cudaCores":  16384,
+      "architecture":  "Ada",
+      "uuid":  "GPU-e3f5a203-4a43-97d6-1649-f34c6ac6da3f"
+    }
+  ],
+  "cudaVersion":  "13.0",
+  "writerId":  "bi2lp6c0lt51cd2erqvz1dpk04xp8efd"
+}

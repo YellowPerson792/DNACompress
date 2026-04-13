@@ -31,16 +31,16 @@ datasets are appended at the end.
 
 Complete example (train + eval + compression, with common overrides):
 
-    python scripts/run_dna_experiment.py \
+    torchrun --nproc_per_node=2 scripts/run_dna_experiment.py \
         --config configs/dna_megabyte_large.json \
         --mode all \
         --dataset-dir datasets/ensembl_raw \
-        --sequence-source-mode fasta_dir \
+        --sequence-source-mode auto \
         --multi-sequence-mode separate \
         --dtype bfloat16 \
         --epochs 1 \
-        --batch-size 32 \
-        --eval-batch-size 32 \
+        --batch-size 64 \
+        --eval-batch-size 64 \
         --learning-rate 3e-4 \
         --species homo_sapiens mus_musculus bos_taurus danio_rerio \
                   drosophila_melanogaster caenorhabditis_elegans \
@@ -52,20 +52,20 @@ Complete example (train + eval + compression, with common overrides):
         --token-merge-size 3 \
         --weight-decay 0.01 \
         --log-interval 25 \
-        --eval-interval 10000 \
+        --eval-interval 1250 \
         --train-ratio 0.98 \
         --val-ratio 0.01 \
         --test-ratio 0.01 \
         --lr-scheduler cosine \
-        --lr-warmup-steps 0 \
+        --lr-warmup-steps 1000 \
         --lr-min-ratio 0.1 \
         --grad-clip-norm 1.0 \
         --num-workers 4 \
         --train-sampling-strategy proportional \
         --wandb-project dna-compress \
-        --wandb-name dna_megabyte_large_ensembl_all 
-            
-        --gpu-ids 0 3 \
+        --wandb-name dna_megabyte_large_ensembl_all \
+        --gpu-ids 1 3 
+        
         --input-causal-conv-kernel-size 7
 
 Multi-GPU DDP example (2 GPUs):
@@ -74,7 +74,7 @@ Multi-GPU DDP example (2 GPUs):
         --config configs/dna_megabyte_quick.json \
         --mode train \
         --dataset-dir datasets/ensembl_raw \
-        --sequence-source-mode fasta_dir \
+        --sequence-source-mode auto \
         --multi-sequence-mode separate \
         --species homo_sapiens mus_musculus bos_taurus danio_rerio \
                   drosophila_melanogaster caenorhabditis_elegans \

@@ -33,29 +33,37 @@ Modes:
 Complete examples:
 
     python scripts/run_dna_compression.py \
-      --run-dir outputs/dna_megabyte_large_conv_all \
+      --run-dir outputs/dna_megabyte_large_b128_ensembl_all \
       --checkpoint-tag best \
-      --dataset-dir datasets/ensembl_raw \
-      --sequence-source-mode fasta_dir \
+      --dataset-dir datasets/DNACorpus \
+      --sequence-source-mode auto \
       --multi-sequence-mode separate \
       --split train val test \
+      --train-ratio 0.6 \
+        --val-ratio 0.2 \
+        --test-ratio 0.2 \
       --eval-batch-size 10 \
       --compression-modes train_windows_nonoverlap \
       --compression-sample-bytes 60000 \
+      --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe \
+      --arithmetic-coding-mode model_symbol \
+      --arithmetic-merge-size 3 \
+      --device cuda:3 \
+      --output-json outputs/dna_megabyte_large_b128_ensembl_all/statistics/compression_compare.json \
+      --export-out-dir outputs/dna_megabyte_large_b128_ensembl_all/statistics
+      
+      --device cuda:2 \
       --species homo_sapiens mus_musculus bos_taurus danio_rerio \
                 drosophila_melanogaster caenorhabditis_elegans \
                 saccharomyces_cerevisiae arabidopsis_thaliana \
-      --arithmetic-coding-mode base_prefix_exact_gpu_cpu \
-      --arithmetic-merge-size 3
-      
-      --device cuda:2 
+      --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe \
       --parallel-window-arithmetic \
       --arithmetic-workers 0
 
     python scripts/run_dna_compression.py \
       --run-dir outputs\\dna_megabyte_quick_l1024_p3 \
       --dataset-dir datasets/ensembl_raw \
-      --sequence-source-mode fasta_dir \
+      --sequence-source-mode auto \
       --multi-sequence-mode separate \
       --split train val test \
       --compression-modes train_windows_overlap \
@@ -63,7 +71,7 @@ Complete examples:
       --species homo_sapiens mus_musculus bos_taurus danio_rerio \
                 drosophila_melanogaster caenorhabditis_elegans \
                 saccharomyces_cerevisiae arabidopsis_thaliana \
-      --output-json outputs/dna_megabyte_quick_l1024_p3/compression_compare.json \
+      --output-json outputs/dna_megabyte_quick_l1024_p3/statistics\compression_compare.json \
       --export-out-dir outputs/dna_megabyte_quick_l1024_p3/statistics
 
 Compatibility (explicit paths still supported):
