@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from pathlib import Path
 import sys
+from typing import Any
+
+import torch
 
 from .config import ModelConfig
 
@@ -47,3 +50,38 @@ def build_model(model_config: ModelConfig):
         config_kwargs["input_causal_conv_kernel_size"] = model_config.input_causal_conv_kernel_size
     native_config = MegabyteConfig(**config_kwargs)
     return Megabyte(native_config)
+
+
+def _extract_model_state(state: Any) -> tuple[dict[str, torch.Tensor], dict[str, Any], dict[str, Any] | None]:
+    if not isinstance(state, dict):
+        raise ValueError("Megabyte checkpoint must deserialize to a dict-like object.")
+
+    metadata: dict[str, Any] = {}
+    raw_checkpoint: dict[str, Any] | None = None
+    if "model_state" in state:
+        metadata = {
+            key: value
+            for key, value in state.items()
+            if key not in {"model_state", "optimizer_state"}
+        }
+        raw_checkpoint = state
+        return state["model_state"], metadata, raw_checkpoint
+
+    tensor_values = [value for value in state.values() if isinstance(value, torch.Tensor)]
+    if tensor_values and len(tensor_values) == len(state):
+        return state, metadata, None
+
+    raise ValueError("Unable to locate model weights in Megabyte checkpoint.")
+
+
+def load_megabyte_checkpoint(
+    checkpoint_path: str | Path,
+    *,
+    map_location: str | torch.device = "cpu",
+) -> tuple[dict[str, torch.Tensor], dict[str, Any], dict[str, Any] | None]:
+    path = Path(checkpoint_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Megabyte checkpoint not found: {path}")
+
+    state = torch.load(path, map_location=map_location)
+    return _extract_model_state(state)

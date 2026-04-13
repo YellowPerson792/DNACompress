@@ -31,7 +31,7 @@ from .data import (
     SequentialWindowDataset,
     load_splits,
 )
-from .megabyte_loader import build_model
+from .megabyte_loader import build_model, load_megabyte_checkpoint
 from .tokenization import apply_token_merge_to_model_config, tokenize_source_bytes
 
 
@@ -230,6 +230,39 @@ def save_checkpoint(path: Path, model: torch.nn.Module, optimizer: AdamW, step: 
         },
         path,
     )
+
+
+def _resolve_initial_checkpoint_path(config: ExperimentConfig, mode: str, output_dir: Path) -> Path | None:
+    init_from = config.train.init_from
+    explicit = Path(config.model.pretrained_weight_path) if config.model.pretrained_weight_path else None
+
+    if init_from == "scratch":
+        if mode in {"eval", "compress"}:
+            default_eval_path = output_dir / "best.pt"
+            if default_eval_path.exists():
+                return default_eval_path
+            if explicit is not None:
+                return explicit
+        return None
+
+    if init_from == "resume":
+        if explicit is not None:
+            return explicit
+        default_resume_path = output_dir / "last.pt"
+        if default_resume_path.exists():
+            return default_resume_path
+        raise FileNotFoundError(
+            "train.init_from='resume' but no checkpoint path was provided and output_dir/last.pt does not exist."
+        )
+
+    if init_from == "pretrained":
+        if explicit is not None:
+            return explicit
+        raise FileNotFoundError(
+            "train.init_from='pretrained' requires model.pretrained_weight_path to be set for Megabyte."
+        )
+
+    raise ValueError(f"Unsupported train.init_from value: {init_from}")
 
 
 def evaluate_loss(
@@ -500,6 +533,13 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
             training_log_path, train_log_handle = open_training_log_file(output_dir)
             wandb_run = init_wandb_run(config, output_dir)
 
+        checkpoint_path = _resolve_initial_checkpoint_path(config, mode, output_dir)
+        resume_metadata: dict[str, object] = {}
+        raw_checkpoint: dict[str, object] | None = None
+        optimizer_state_restored = False
+        missing_keys: list[str] = []
+        unexpected_keys: list[str] = []
+
         if ddp.is_main_process:
             print("[stage] loading data splits...", flush=True)
         split_started = time.time()
@@ -635,7 +675,21 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
             **dataloader_common_kwargs,
         )
 
-        base_model = build_model(config.model).to(device)
+        base_model = build_model(config.model)
+        if checkpoint_path is not None:
+            model_state, resume_metadata, raw_checkpoint = load_megabyte_checkpoint(
+                checkpoint_path,
+                map_location="cpu",
+            )
+            load_result = base_model.load_state_dict(
+                model_state,
+                strict=config.train.init_from == "resume",
+            )
+            if config.train.init_from == "pretrained":
+                missing_keys = list(load_result.missing_keys)
+                unexpected_keys = list(load_result.unexpected_keys)
+
+        base_model = base_model.to(device)
         model: torch.nn.Module = base_model
         if ddp.is_distributed:
             model = DistributedDataParallel(base_model, device_ids=[device.index], output_device=device.index)
@@ -654,6 +708,12 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
         )
         scaler = torch.cuda.amp.GradScaler(enabled=device.type == "cuda" and config.train.dtype == "float16")
 
+        if config.train.init_from == "resume" and isinstance(raw_checkpoint, dict):
+            optimizer_state = raw_checkpoint.get("optimizer_state")
+            if isinstance(optimizer_state, dict):
+                optimizer.load_state_dict(optimizer_state)
+                optimizer_state_restored = True
+
         run_summary: dict[str, object] = {
             "device": str(device),
             "gpu_ids": gpu_ids,
@@ -665,12 +725,33 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
             "pin_memory": dataloader_pin_memory,
             "model_parameters": int(sum(parameter.numel() for parameter in base_model.parameters())),
             "dataset": splits.summary,
+            "megabyte": {
+                "implementation": config.model.implementation,
+                "requested_init_from": config.train.init_from,
+                "loaded_checkpoint_path": str(checkpoint_path) if checkpoint_path is not None else None,
+                "optimizer_state_restored": optimizer_state_restored,
+                "pretrained_load_missing_keys": missing_keys,
+                "pretrained_load_unexpected_keys": unexpected_keys,
+            },
         }
         if ddp.is_main_process and train_log_handle is not None:
             run_summary["training_log_jsonl"] = str(training_log_path)
 
-        best_val_bpb = float("inf")
-        global_step = 0
+        best_val_bpb = float(resume_metadata.get("best_val_bpb", float("inf")))
+        global_step = int(resume_metadata.get("step", 0))
+
+        if ddp.is_main_process and checkpoint_path is not None:
+            print(
+                f"[startup] loaded checkpoint={checkpoint_path} init_from={config.train.init_from} "
+                f"optimizer_restored={optimizer_state_restored}",
+                flush=True,
+            )
+            if config.train.init_from == "pretrained" and (missing_keys or unexpected_keys):
+                print(
+                    f"[startup] pretrained weight load strict=False "
+                    f"missing_keys={len(missing_keys)} unexpected_keys={len(unexpected_keys)}",
+                    flush=True,
+                )
 
         if mode in {"train", "all"}:
             if ddp.is_main_process:
@@ -824,10 +905,10 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
         if ddp.is_distributed:
             dist.barrier()
 
-        checkpoint_path = output_dir / "best.pt"
-        if checkpoint_path.exists():
-            checkpoint = torch.load(checkpoint_path, map_location=device)
-            unwrap_model(model).load_state_dict(checkpoint["model_state"])
+        best_checkpoint_path = output_dir / "best.pt"
+        if mode in {"train", "all"} and best_checkpoint_path.exists():
+            model_state, _, _ = load_megabyte_checkpoint(best_checkpoint_path, map_location=device)
+            unwrap_model(model).load_state_dict(model_state)
 
         if mode in {"eval", "all", "compress"}:
             if ddp.is_main_process:

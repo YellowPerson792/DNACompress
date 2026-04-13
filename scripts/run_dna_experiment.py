@@ -34,37 +34,40 @@ Complete example (train + eval + compression, with common overrides):
     torchrun --nproc_per_node=2 scripts/run_dna_experiment.py \
         --config configs/dna_megabyte_large.json \
         --mode all \
-        --dataset-dir datasets/ensembl_raw \
+        --init-from pretrained \
+        --pretrained-weight-path outputs/dna_megabyte_large_b128_ensembl_all
+        --dataset-dir datasets/DNACorpus \
         --sequence-source-mode auto \
         --multi-sequence-mode separate \
         --dtype bfloat16 \
         --epochs 1 \
-        --batch-size 64 \
-        --eval-batch-size 64 \
+        --batch-size 32 \
+        --eval-batch-size 32 \
         --learning-rate 3e-4 \
-        --species homo_sapiens mus_musculus bos_taurus danio_rerio \
-                  drosophila_melanogaster caenorhabditis_elegans \
-                  saccharomyces_cerevisiae arabidopsis_thaliana \
-        --train-samples-per-epoch 5000000 \
+        --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe \
+        --train-samples-per-epoch 600000 \
         --compression-sample-bytes 100000 \
         --print-config \
         --seq-length 1024 \
         --token-merge-size 3 \
         --weight-decay 0.01 \
         --log-interval 25 \
-        --eval-interval 1250 \
-        --train-ratio 0.98 \
-        --val-ratio 0.01 \
-        --test-ratio 0.01 \
+        --eval-interval 500 \
+        --train-ratio 0.6 \
+        --val-ratio 0.2 \
+        --test-ratio 0.2 \
         --lr-scheduler cosine \
-        --lr-warmup-steps 1000 \
+        --lr-warmup-steps 0 \
         --lr-min-ratio 0.1 \
         --grad-clip-norm 1.0 \
         --num-workers 4 \
         --train-sampling-strategy proportional \
         --wandb-project dna-compress \
-        --wandb-name dna_megabyte_large_ensembl_all 
+        --wandb-name dna_megabyte_large_all_finetune 
         
+        --species homo_sapiens mus_musculus bos_taurus danio_rerio \
+                  drosophila_melanogaster caenorhabditis_elegans \
+                  saccharomyces_cerevisiae arabidopsis_thaliana \
         --gpu-ids 0 3 \
         --input-causal-conv-kernel-size 7
 
@@ -209,6 +212,7 @@ def _apply_overrides(config: Any, args: argparse.Namespace) -> None:
         config.data.species = args.species
 
     _apply_if_not_none(config, "model.implementation", args.implementation)
+    _apply_if_not_none(config, "model.pretrained_weight_path", args.pretrained_weight_path)
     _apply_if_not_none(config, "model.patch_size", args.patch_size)
     _apply_if_not_none(config, "model.seq_length", args.seq_length)
     _apply_if_not_none(config, "model.global_dim", args.global_dim)
@@ -243,6 +247,7 @@ def _apply_overrides(config: Any, args: argparse.Namespace) -> None:
     _apply_if_not_none(config, "train.seed", args.seed)
     _apply_if_not_none(config, "train.device", args.device)
     _apply_if_not_none(config, "train.dtype", args.dtype)
+    _apply_if_not_none(config, "train.init_from", args.init_from)
     _apply_if_not_none(config, "train.epochs", args.epochs)
     _apply_if_not_none(config, "train.batch_size", args.batch_size)
     _apply_if_not_none(config, "train.eval_batch_size", args.eval_batch_size)
@@ -322,6 +327,9 @@ def _validate_config_for_megabyte(config: Any) -> None:
     if config.train.dtype not in {"float32", "float16", "bfloat16"}:
         raise ValueError("train.dtype must be one of: float32, float16, bfloat16")
 
+    if config.train.init_from not in {"scratch", "pretrained", "resume"}:
+        raise ValueError("train.init_from must be one of: scratch, pretrained, resume")
+
     if config.train.batch_size <= 0 or config.train.eval_batch_size <= 0:
         raise ValueError("train.batch_size and train.eval_batch_size must be > 0")
 
@@ -372,6 +380,8 @@ def _validate_config_for_megabyte(config: Any) -> None:
 
 def _apply_timestamp_to_output_dir(config: Any, args: argparse.Namespace) -> None:
     if not args.timestamp_output:
+        return
+    if config.train.init_from == "resume" and not config.model.pretrained_weight_path:
         return
     timestamp = datetime.now().strftime(args.timestamp_format)
     config.output.output_dir = f"{config.output.output_dir}_{timestamp}"
@@ -424,6 +434,7 @@ def _build_parser() -> argparse.ArgumentParser:
         "--implementation",
         choices=["megabyte", "megabyte_in_action", "megabyte_in_action_causal_conv", "megabyte_relative"],
     )
+    model_group.add_argument("--pretrained-weight-path")
     model_group.add_argument("--patch-size", type=int)
     model_group.add_argument("--seq-length", type=int)
     model_group.add_argument("--global-dim", type=int)
@@ -469,6 +480,7 @@ def _build_parser() -> argparse.ArgumentParser:
     train_group.add_argument("--seed", type=int)
     train_group.add_argument("--device", help="auto/cpu/cuda/cuda:0 ...")
     train_group.add_argument("--dtype", choices=["float32", "float16", "bfloat16"])
+    train_group.add_argument("--init-from", choices=["scratch", "pretrained", "resume"])
     train_group.add_argument("--epochs", type=int)
     train_group.add_argument("--batch-size", type=int)
     train_group.add_argument("--eval-batch-size", type=int)
