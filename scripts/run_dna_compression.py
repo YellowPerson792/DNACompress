@@ -33,7 +33,8 @@ Modes:
 Complete examples:
 
     python scripts/run_dna_compression.py \
-      --run-dir outputs/dna_megabyte_large_ensembl_all \
+      --run-dir outputs/dna_megabyte_large_b128_ensembl_all_finetune \
+      --output-json outputs/dna_megabyte_large_b128_ensembl_all_finetune/statistics/compression_compare.json \
       --checkpoint-tag best \
       --dataset-dir datasets/DNACorpus \
       --sequence-source-mode auto \
@@ -48,9 +49,7 @@ Complete examples:
       --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe \
       --arithmetic-coding-mode model_symbol \
       --arithmetic-merge-size 3 \
-      --device cuda:3 \
-      --output-json outputs/dna_megabyte_large_b128_ensembl_all/statistics/compression_compare.json \
-      --export-out-dir outputs/dna_megabyte_large_b128_ensembl_all/statistics
+      --device cuda:1 
       
       --device cuda:2 \
       --species homo_sapiens mus_musculus bos_taurus danio_rerio \
@@ -71,7 +70,7 @@ Complete examples:
       --species homo_sapiens mus_musculus bos_taurus danio_rerio \
                 drosophila_melanogaster caenorhabditis_elegans \
                 saccharomyces_cerevisiae arabidopsis_thaliana \
-      --output-json outputs/dna_megabyte_quick_l1024_p3/statistics\compression_compare.json \
+    --output-json outputs/dna_megabyte_quick_l1024_p3/statistics/compression_compare.json \
       --export-out-dir outputs/dna_megabyte_quick_l1024_p3/statistics
 
 Compatibility (explicit paths still supported):
@@ -399,8 +398,8 @@ def _run_split(
 def _run_local_payload_export(
     *,
     run_dir: Path,
-    compression_json_name: str,
-    export_out_dir: str | None,
+    compression_json_path: Path,
+    export_out_dir: Path | None,
     export_project: str,
     export_entity: str,
     export_name: str | None,
@@ -416,11 +415,11 @@ def _run_local_payload_export(
         "--run-dir",
         str(run_dir),
         "--compression-json",
-        compression_json_name,
+        _compression_json_argument(run_dir=run_dir, compression_json_path=compression_json_path),
     ]
 
     if export_out_dir:
-        command.extend(["--out-dir", export_out_dir])
+        command.extend(["--out-dir", str(export_out_dir)])
     if export_project:
         command.extend(["--project", export_project])
     if export_entity:
@@ -436,6 +435,28 @@ def _run_local_payload_export(
         if completed.stderr.strip():
             print(completed.stderr.strip())
         print(f"[export] warning: export script failed with exit code {completed.returncode}")
+
+
+def _compression_json_argument(*, run_dir: Path, compression_json_path: Path) -> str:
+    run_dir_abs = run_dir.resolve(strict=False)
+    compression_abs = compression_json_path.resolve(strict=False)
+    try:
+        relative_path = compression_abs.relative_to(run_dir_abs)
+        return relative_path.as_posix()
+    except ValueError:
+        return str(compression_json_path)
+
+
+def _resolve_output_paths(args: argparse.Namespace, config: ExperimentConfig) -> tuple[Path, Path | None]:
+    if args.output_json:
+        output_json = Path(args.output_json)
+    elif args.run_dir is not None:
+        output_json = Path(args.run_dir) / "compression_compare.json"
+    else:
+        output_json = Path(config.output.output_dir) / "compression_compare.json"
+
+    export_out_dir = Path(args.export_out_dir) if args.export_out_dir else output_json.parent
+    return output_json, export_out_dir
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -485,7 +506,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--export-out-dir",
         default=None,
-        help="Optional output directory for exported tables. Defaults to <run-dir>/statistics.",
+        help="Optional output directory for exported tables. Defaults to the parent directory of --output-json.",
     )
     parser.add_argument("--export-project", default="", help="Optional project metadata for exported run_metadata.json.")
     parser.add_argument("--export-entity", default="", help="Optional entity metadata for exported run_metadata.json.")
@@ -630,12 +651,7 @@ def main() -> None:
                         }
                         break
 
-    if args.output_json:
-        output_json = Path(args.output_json)
-    elif args.run_dir is not None:
-        output_json = Path(args.run_dir) / "compression_compare.json"
-    else:
-        output_json = Path(config.output.output_dir) / "compression_compare.json"
+    output_json, export_out_dir = _resolve_output_paths(args, config)
     output_json.parent.mkdir(parents=True, exist_ok=True)
     output_json.write_text(json.dumps(metrics, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"Saved compression metrics to {output_json}")
@@ -644,8 +660,8 @@ def main() -> None:
         export_run_dir = Path(args.run_dir) if args.run_dir is not None else output_json.parent
         _run_local_payload_export(
             run_dir=export_run_dir,
-            compression_json_name=output_json.name,
-            export_out_dir=args.export_out_dir,
+            compression_json_path=output_json,
+            export_out_dir=export_out_dir,
             export_project=args.export_project,
             export_entity=args.export_entity,
             export_name=args.export_name,

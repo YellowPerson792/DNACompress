@@ -349,8 +349,14 @@ def run_dnagpt_experiment(config: ExperimentConfig, mode: str = "all") -> dict[s
         )
         scaler = torch.cuda.amp.GradScaler(enabled=device.type == "cuda" and config.train.dtype == "float16")
 
-        best_val_bpb = float(resume_metadata.get("best_val_bpb", float("inf")))
-        global_step = int(resume_metadata.get("step", 0))
+        # Only resume mode should inherit optimizer progress/step counters.
+        # Pretrained initialization should load model weights but restart training stats.
+        if config.train.init_from == "resume":
+            best_val_bpb = float(resume_metadata.get("best_val_bpb", float("inf")))
+            global_step = int(resume_metadata.get("step", 0))
+        else:
+            best_val_bpb = float("inf")
+            global_step = 0
 
         run_summary: dict[str, object] = {
             "device": str(device),

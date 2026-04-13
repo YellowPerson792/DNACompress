@@ -1,0 +1,706 @@
+{
+  "device": "cuda:3",
+  "gpu_ids": [
+    3
+  ],
+  "distributed_data_parallel": false,
+  "world_size": 1,
+  "num_workers": 4,
+  "prefetch_factor": 2,
+  "persistent_workers": true,
+  "pin_memory": true,
+  "model_parameters": 327219039,
+  "dataset": {
+    "species": [
+      {
+        "species": "OrSa",
+        "source_name": "OrSa",
+        "source_mode": "flat_file",
+        "sequence_keys": [
+          "OrSa"
+        ],
+        "sequence_files": [
+          "OrSa"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 43262523,
+        "train_bytes": 25957513,
+        "val_bytes": 8652504,
+        "test_bytes": 8652506,
+        "clean_cache_status": "not_applicable"
+      },
+      {
+        "species": "HoSa",
+        "source_name": "HoSa",
+        "source_mode": "flat_file",
+        "sequence_keys": [
+          "HoSa"
+        ],
+        "sequence_files": [
+          "HoSa"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 189752667,
+        "train_bytes": 113851600,
+        "val_bytes": 37950533,
+        "test_bytes": 37950534,
+        "clean_cache_status": "not_applicable"
+      },
+      {
+        "species": "DaRe",
+        "source_name": "DaRe",
+        "source_mode": "flat_file",
+        "sequence_keys": [
+          "DaRe"
+        ],
+        "sequence_files": [
+          "DaRe"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 62565020,
+        "train_bytes": 37539012,
+        "val_bytes": 12513004,
+        "test_bytes": 12513004,
+        "clean_cache_status": "not_applicable"
+      },
+      {
+        "species": "ScPo",
+        "source_name": "ScPo",
+        "source_mode": "flat_file",
+        "sequence_keys": [
+          "ScPo"
+        ],
+        "sequence_files": [
+          "ScPo"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 10652155,
+        "train_bytes": 6391293,
+        "val_bytes": 2130431,
+        "test_bytes": 2130431,
+        "clean_cache_status": "not_applicable"
+      },
+      {
+        "species": "EsCo",
+        "source_name": "EsCo",
+        "source_mode": "flat_file",
+        "sequence_keys": [
+          "EsCo"
+        ],
+        "sequence_files": [
+          "EsCo"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 4641652,
+        "train_bytes": 2784991,
+        "val_bytes": 928330,
+        "test_bytes": 928331,
+        "clean_cache_status": "not_applicable"
+      },
+      {
+        "species": "YeMi",
+        "source_name": "YeMi",
+        "source_mode": "flat_file",
+        "sequence_keys": [
+          "YeMi"
+        ],
+        "sequence_files": [
+          "YeMi"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 73689,
+        "train_bytes": 44213,
+        "val_bytes": 14737,
+        "test_bytes": 14739,
+        "clean_cache_status": "not_applicable"
+      },
+      {
+        "species": "BuEb",
+        "source_name": "BuEb",
+        "source_mode": "flat_file",
+        "sequence_keys": [
+          "BuEb"
+        ],
+        "sequence_files": [
+          "BuEb"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 18940,
+        "train_bytes": 11364,
+        "val_bytes": 3788,
+        "test_bytes": 3788,
+        "clean_cache_status": "not_applicable"
+      },
+      {
+        "species": "AgPh",
+        "source_name": "AgPh",
+        "source_mode": "flat_file",
+        "sequence_keys": [
+          "AgPh"
+        ],
+        "sequence_files": [
+          "AgPh"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 43970,
+        "train_bytes": 26382,
+        "val_bytes": 8794,
+        "test_bytes": 8794,
+        "clean_cache_status": "not_applicable"
+      },
+      {
+        "species": "GaGa",
+        "source_name": "GaGa",
+        "source_mode": "flat_file",
+        "sequence_keys": [
+          "GaGa"
+        ],
+        "sequence_files": [
+          "GaGa"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 148532294,
+        "train_bytes": 89119376,
+        "val_bytes": 29706458,
+        "test_bytes": 29706460,
+        "clean_cache_status": "not_applicable"
+      },
+      {
+        "species": "DrMe",
+        "source_name": "DrMe",
+        "source_mode": "flat_file",
+        "sequence_keys": [
+          "DrMe"
+        ],
+        "sequence_files": [
+          "DrMe"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 32181429,
+        "train_bytes": 19308857,
+        "val_bytes": 6436285,
+        "test_bytes": 6436287,
+        "clean_cache_status": "not_applicable"
+      },
+      {
+        "species": "EnIn",
+        "source_name": "EnIn",
+        "source_mode": "flat_file",
+        "sequence_keys": [
+          "EnIn"
+        ],
+        "sequence_files": [
+          "EnIn"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 26403087,
+        "train_bytes": 15841852,
+        "val_bytes": 5280617,
+        "test_bytes": 5280618,
+        "clean_cache_status": "not_applicable"
+      },
+      {
+        "species": "PlFa",
+        "source_name": "PlFa",
+        "source_mode": "flat_file",
+        "sequence_keys": [
+          "PlFa"
+        ],
+        "sequence_files": [
+          "PlFa"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 8986712,
+        "train_bytes": 5392027,
+        "val_bytes": 1797342,
+        "test_bytes": 1797343,
+        "clean_cache_status": "not_applicable"
+      },
+      {
+        "species": "HePy",
+        "source_name": "HePy",
+        "source_mode": "flat_file",
+        "sequence_keys": [
+          "HePy"
+        ],
+        "sequence_files": [
+          "HePy"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 1667825,
+        "train_bytes": 1000695,
+        "val_bytes": 333565,
+        "test_bytes": 333565,
+        "clean_cache_status": "not_applicable"
+      },
+      {
+        "species": "AeCa",
+        "source_name": "AeCa",
+        "source_mode": "flat_file",
+        "sequence_keys": [
+          "AeCa"
+        ],
+        "sequence_files": [
+          "AeCa"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 1591049,
+        "train_bytes": 954629,
+        "val_bytes": 318209,
+        "test_bytes": 318211,
+        "clean_cache_status": "not_applicable"
+      },
+      {
+        "species": "HaHi",
+        "source_name": "HaHi",
+        "source_mode": "flat_file",
+        "sequence_keys": [
+          "HaHi"
+        ],
+        "sequence_files": [
+          "HaHi"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 3890005,
+        "train_bytes": 2334003,
+        "val_bytes": 778001,
+        "test_bytes": 778001,
+        "clean_cache_status": "not_applicable"
+      },
+      {
+        "species": "AnCa",
+        "source_name": "AnCa",
+        "source_mode": "flat_file",
+        "sequence_keys": [
+          "AnCa"
+        ],
+        "sequence_files": [
+          "AnCa"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 142189675,
+        "train_bytes": 85313805,
+        "val_bytes": 28437935,
+        "test_bytes": 28437935,
+        "clean_cache_status": "not_applicable"
+      },
+      {
+        "species": "WaMe",
+        "source_name": "WaMe",
+        "source_mode": "flat_file",
+        "sequence_keys": [
+          "WaMe"
+        ],
+        "sequence_files": [
+          "WaMe"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 9144432,
+        "train_bytes": 5486659,
+        "val_bytes": 1828886,
+        "test_bytes": 1828887,
+        "clean_cache_status": "not_applicable"
+      }
+    ],
+    "alphabet_bytes": [
+      65,
+      67,
+      71,
+      84
+    ],
+    "clean_cache": {
+      "enabled": true,
+      "cache_dir": "datasets/DNACorpus/.dna_cache/clean",
+      "applicable_sources": 0,
+      "hits": 0,
+      "created": 0,
+      "rebuilt": 0,
+      "disabled": 0
+    }
+  },
+  "megabyte": {
+    "implementation": "megabyte_in_action",
+    "requested_init_from": "pretrained",
+    "loaded_checkpoint_path": "outputs/dna_megabyte_large_b128_ensembl_all/best.pt",
+    "optimizer_state_restored": false,
+    "pretrained_load_missing_keys": [],
+    "pretrained_load_unexpected_keys": []
+  },
+  "training_log_jsonl": "outputs/dna_megabyte_large_20260413_125114/training_metrics.jsonl",
+  "best_val_bits_per_base": 1.7117047662569878,
+  "validation": {
+    "loss_nats_per_token": 3.5593899980461536,
+    "loss_nats_per_base": 1.1864633326820513,
+    "bits_per_token": 5.135114298770963,
+    "bits_per_base": 1.7117047662569878,
+    "tokens": 45706465,
+    "bases": 137119395,
+    "elapsed_seconds": 119.91715455055237
+  },
+  "test": {
+    "loss_nats_per_token": 3.560017219829576,
+    "loss_nats_per_base": 1.1866724066098586,
+    "bits_per_token": 5.136019188527444,
+    "bits_per_base": 1.7120063961758147,
+    "tokens": 45706472,
+    "bases": 137119416,
+    "elapsed_seconds": 121.339599609375
+  },
+  "compression": {
+    "aggregate": {
+      "source_count": 17,
+      "total_sample_bytes": 1427321,
+      "total_sample_bases": 1427304,
+      "total_theoretical_bits": 2599545.6236155033,
+      "total_theoretical_bits_per_base": 1.8212977919318543,
+      "total_arithmetic_coded_bytes": 325041,
+      "total_arithmetic_bits_per_base": 1.8218459417194934,
+      "arithmetic_frequency_total": 32768,
+      "arithmetic_vocab_size": 127,
+      "arithmetic_target_uniform_mass": 0.01,
+      "arithmetic_effective_uniform_mass": 0.003875732421875
+    },
+    "per_source": [
+      {
+        "species": "OrSa",
+        "source_name": "OrSa",
+        "sample_bytes": 100000,
+        "sample_bases": 99999,
+        "sample_symbols_with_eos": 33334,
+        "theoretical_bits": 187667.9774875641,
+        "theoretical_bits_per_base": 1.8766985418610596,
+        "arithmetic_coded_bytes": 23466,
+        "arithmetic_bits_per_base": 1.87729877298773,
+        "arithmetic_frequency_total": 32768,
+        "arithmetic_vocab_size": 127,
+        "arithmetic_target_uniform_mass": 0.01,
+        "arithmetic_effective_uniform_mass": 0.003875732421875,
+        "ascii_bytes": 100000,
+        "two_bit_pack_bytes": 25000,
+        "gzip_bytes": 29064,
+        "bz2_bytes": 27383,
+        "lzma_bytes": 27280
+      },
+      {
+        "species": "HoSa",
+        "source_name": "HoSa",
+        "sample_bytes": 100000,
+        "sample_bases": 99999,
+        "sample_symbols_with_eos": 33334,
+        "theoretical_bits": 172238.32143974304,
+        "theoretical_bits_per_base": 1.7224004384018143,
+        "arithmetic_coded_bytes": 21537,
+        "arithmetic_bits_per_base": 1.7229772297722976,
+        "arithmetic_frequency_total": 32768,
+        "arithmetic_vocab_size": 127,
+        "arithmetic_target_uniform_mass": 0.01,
+        "arithmetic_effective_uniform_mass": 0.003875732421875,
+        "ascii_bytes": 100000,
+        "two_bit_pack_bytes": 25000,
+        "gzip_bytes": 28409,
+        "bz2_bytes": 26828,
+        "lzma_bytes": 26684
+      },
+      {
+        "species": "DaRe",
+        "source_name": "DaRe",
+        "sample_bytes": 100000,
+        "sample_bases": 99999,
+        "sample_symbols_with_eos": 33334,
+        "theoretical_bits": 156576.33442735672,
+        "theoretical_bits_per_base": 1.5657790020635878,
+        "arithmetic_coded_bytes": 19571,
+        "arithmetic_bits_per_base": 1.5656956569565696,
+        "arithmetic_frequency_total": 32768,
+        "arithmetic_vocab_size": 127,
+        "arithmetic_target_uniform_mass": 0.01,
+        "arithmetic_effective_uniform_mass": 0.003875732421875,
+        "ascii_bytes": 100000,
+        "two_bit_pack_bytes": 25000,
+        "gzip_bytes": 28364,
+        "bz2_bytes": 26792,
+        "lzma_bytes": 26380
+      },
+      {
+        "species": "ScPo",
+        "source_name": "ScPo",
+        "sample_bytes": 100000,
+        "sample_bases": 99999,
+        "sample_symbols_with_eos": 33334,
+        "theoretical_bits": 193418.63568878174,
+        "theoretical_bits_per_base": 1.9342056989448069,
+        "arithmetic_coded_bytes": 24185,
+        "arithmetic_bits_per_base": 1.934819348193482,
+        "arithmetic_frequency_total": 32768,
+        "arithmetic_vocab_size": 127,
+        "arithmetic_target_uniform_mass": 0.01,
+        "arithmetic_effective_uniform_mass": 0.003875732421875,
+        "ascii_bytes": 100000,
+        "two_bit_pack_bytes": 25000,
+        "gzip_bytes": 25995,
+        "bz2_bytes": 26652,
+        "lzma_bytes": 24348
+      },
+      {
+        "species": "EsCo",
+        "source_name": "EsCo",
+        "sample_bytes": 100000,
+        "sample_bases": 99999,
+        "sample_symbols_with_eos": 33334,
+        "theoretical_bits": 188581.64695739746,
+        "theoretical_bits_per_base": 1.885835327927254,
+        "arithmetic_coded_bytes": 23581,
+        "arithmetic_bits_per_base": 1.8864988649886498,
+        "arithmetic_frequency_total": 32768,
+        "arithmetic_vocab_size": 127,
+        "arithmetic_target_uniform_mass": 0.01,
+        "arithmetic_effective_uniform_mass": 0.003875732421875,
+        "ascii_bytes": 100000,
+        "two_bit_pack_bytes": 25000,
+        "gzip_bytes": 28961,
+        "bz2_bytes": 27126,
+        "lzma_bytes": 27268
+      },
+      {
+        "species": "YeMi",
+        "source_name": "YeMi",
+        "sample_bytes": 14739,
+        "sample_bases": 14739,
+        "sample_symbols_with_eos": 4914,
+        "theoretical_bits": 26849.80393218994,
+        "theoretical_bits_per_base": 1.8216842344928381,
+        "arithmetic_coded_bytes": 3355,
+        "arithmetic_bits_per_base": 1.8210190650654725,
+        "arithmetic_frequency_total": 32768,
+        "arithmetic_vocab_size": 127,
+        "arithmetic_target_uniform_mass": 0.01,
+        "arithmetic_effective_uniform_mass": 0.003875732421875,
+        "ascii_bytes": 14739,
+        "two_bit_pack_bytes": 3685,
+        "gzip_bytes": 4285,
+        "bz2_bytes": 3974,
+        "lzma_bytes": 4104
+      },
+      {
+        "species": "BuEb",
+        "source_name": "BuEb",
+        "sample_bytes": 3788,
+        "sample_bases": 3786,
+        "sample_symbols_with_eos": 1263,
+        "theoretical_bits": 7481.312927246094,
+        "theoretical_bits_per_base": 1.976046731972027,
+        "arithmetic_coded_bytes": 934,
+        "arithmetic_bits_per_base": 1.9735868991019545,
+        "arithmetic_frequency_total": 32768,
+        "arithmetic_vocab_size": 127,
+        "arithmetic_target_uniform_mass": 0.01,
+        "arithmetic_effective_uniform_mass": 0.003875732421875,
+        "ascii_bytes": 3788,
+        "two_bit_pack_bytes": 947,
+        "gzip_bytes": 1244,
+        "bz2_bytes": 1114,
+        "lzma_bytes": 1300
+      },
+      {
+        "species": "AgPh",
+        "source_name": "AgPh",
+        "sample_bytes": 8794,
+        "sample_bases": 8793,
+        "sample_symbols_with_eos": 2932,
+        "theoretical_bits": 17130.952224731445,
+        "theoretical_bits_per_base": 1.9482488598580059,
+        "arithmetic_coded_bytes": 2140,
+        "arithmetic_bits_per_base": 1.9470032980780165,
+        "arithmetic_frequency_total": 32768,
+        "arithmetic_vocab_size": 127,
+        "arithmetic_target_uniform_mass": 0.01,
+        "arithmetic_effective_uniform_mass": 0.003875732421875,
+        "ascii_bytes": 8794,
+        "two_bit_pack_bytes": 2199,
+        "gzip_bytes": 2758,
+        "bz2_bytes": 2486,
+        "lzma_bytes": 2684
+      },
+      {
+        "species": "GaGa",
+        "source_name": "GaGa",
+        "sample_bytes": 100000,
+        "sample_bases": 99999,
+        "sample_symbols_with_eos": 33334,
+        "theoretical_bits": 181983.9224472046,
+        "theoretical_bits_per_base": 1.8198574230462763,
+        "arithmetic_coded_bytes": 22756,
+        "arithmetic_bits_per_base": 1.8204982049820497,
+        "arithmetic_frequency_total": 32768,
+        "arithmetic_vocab_size": 127,
+        "arithmetic_target_uniform_mass": 0.01,
+        "arithmetic_effective_uniform_mass": 0.003875732421875,
+        "ascii_bytes": 100000,
+        "two_bit_pack_bytes": 25000,
+        "gzip_bytes": 28422,
+        "bz2_bytes": 26895,
+        "lzma_bytes": 26800
+      },
+      {
+        "species": "DrMe",
+        "source_name": "DrMe",
+        "sample_bytes": 100000,
+        "sample_bases": 99999,
+        "sample_symbols_with_eos": 33334,
+        "theoretical_bits": 187245.51370239258,
+        "theoretical_bits_per_base": 1.8724738617625434,
+        "arithmetic_coded_bytes": 23414,
+        "arithmetic_bits_per_base": 1.8731387313873138,
+        "arithmetic_frequency_total": 32768,
+        "arithmetic_vocab_size": 127,
+        "arithmetic_target_uniform_mass": 0.01,
+        "arithmetic_effective_uniform_mass": 0.003875732421875,
+        "ascii_bytes": 100000,
+        "two_bit_pack_bytes": 25000,
+        "gzip_bytes": 28667,
+        "bz2_bytes": 27152,
+        "lzma_bytes": 26728
+      },
+      {
+        "species": "EnIn",
+        "source_name": "EnIn",
+        "sample_bytes": 100000,
+        "sample_bases": 99999,
+        "sample_symbols_with_eos": 33334,
+        "theoretical_bits": 186600.04066467285,
+        "theoretical_bits_per_base": 1.8660190668373968,
+        "arithmetic_coded_bytes": 23332,
+        "arithmetic_bits_per_base": 1.8665786657866579,
+        "arithmetic_frequency_total": 32768,
+        "arithmetic_vocab_size": 127,
+        "arithmetic_target_uniform_mass": 0.01,
+        "arithmetic_effective_uniform_mass": 0.003875732421875,
+        "ascii_bytes": 100000,
+        "two_bit_pack_bytes": 25000,
+        "gzip_bytes": 28651,
+        "bz2_bytes": 27161,
+        "lzma_bytes": 26864
+      },
+      {
+        "species": "PlFa",
+        "source_name": "PlFa",
+        "sample_bytes": 100000,
+        "sample_bases": 99999,
+        "sample_symbols_with_eos": 33334,
+        "theoretical_bits": 179022.7984161377,
+        "theoretical_bits_per_base": 1.790245886620243,
+        "arithmetic_coded_bytes": 22386,
+        "arithmetic_bits_per_base": 1.7908979089790897,
+        "arithmetic_frequency_total": 32768,
+        "arithmetic_vocab_size": 127,
+        "arithmetic_target_uniform_mass": 0.01,
+        "arithmetic_effective_uniform_mass": 0.003875732421875,
+        "ascii_bytes": 100000,
+        "two_bit_pack_bytes": 25000,
+        "gzip_bytes": 27534,
+        "bz2_bytes": 26576,
+        "lzma_bytes": 25948
+      },
+      {
+        "species": "HePy",
+        "source_name": "HePy",
+        "sample_bytes": 100000,
+        "sample_bases": 99999,
+        "sample_symbols_with_eos": 33334,
+        "theoretical_bits": 179741.65245056152,
+        "theoretical_bits_per_base": 1.7974344988506037,
+        "arithmetic_coded_bytes": 22476,
+        "arithmetic_bits_per_base": 1.7980979809798099,
+        "arithmetic_frequency_total": 32768,
+        "arithmetic_vocab_size": 127,
+        "arithmetic_target_uniform_mass": 0.01,
+        "arithmetic_effective_uniform_mass": 0.003875732421875,
+        "ascii_bytes": 100000,
+        "two_bit_pack_bytes": 25000,
+        "gzip_bytes": 28072,
+        "bz2_bytes": 26762,
+        "lzma_bytes": 26408
+      },
+      {
+        "species": "AeCa",
+        "source_name": "AeCa",
+        "sample_bytes": 100000,
+        "sample_bases": 99999,
+        "sample_symbols_with_eos": 33334,
+        "theoretical_bits": 187053.63046264648,
+        "theoretical_bits_per_base": 1.8705550101765667,
+        "arithmetic_coded_bytes": 23390,
+        "arithmetic_bits_per_base": 1.8712187121871218,
+        "arithmetic_frequency_total": 32768,
+        "arithmetic_vocab_size": 127,
+        "arithmetic_target_uniform_mass": 0.01,
+        "arithmetic_effective_uniform_mass": 0.003875732421875,
+        "ascii_bytes": 100000,
+        "two_bit_pack_bytes": 25000,
+        "gzip_bytes": 28952,
+        "bz2_bytes": 27179,
+        "lzma_bytes": 27368
+      },
+      {
+        "species": "HaHi",
+        "source_name": "HaHi",
+        "sample_bytes": 100000,
+        "sample_bases": 99999,
+        "sample_symbols_with_eos": 33334,
+        "theoretical_bits": 192794.18969726562,
+        "theoretical_bits_per_base": 1.927961176584422,
+        "arithmetic_coded_bytes": 24108,
+        "arithmetic_bits_per_base": 1.928659286592866,
+        "arithmetic_frequency_total": 32768,
+        "arithmetic_vocab_size": 127,
+        "arithmetic_target_uniform_mass": 0.01,
+        "arithmetic_effective_uniform_mass": 0.003875732421875,
+        "ascii_bytes": 100000,
+        "two_bit_pack_bytes": 25000,
+        "gzip_bytes": 29089,
+        "bz2_bytes": 27064,
+        "lzma_bytes": 27476
+      },
+      {
+        "species": "AnCa",
+        "source_name": "AnCa",
+        "sample_bytes": 100000,
+        "sample_bases": 99999,
+        "sample_symbols_with_eos": 33334,
+        "theoretical_bits": 161843.8454167843,
+        "theoretical_bits_per_base": 1.61845463871423,
+        "arithmetic_coded_bytes": 20237,
+        "arithmetic_bits_per_base": 1.6189761897618977,
+        "arithmetic_frequency_total": 32768,
+        "arithmetic_vocab_size": 127,
+        "arithmetic_target_uniform_mass": 0.01,
+        "arithmetic_effective_uniform_mass": 0.003875732421875,
+        "ascii_bytes": 100000,
+        "two_bit_pack_bytes": 25000,
+        "gzip_bytes": 27659,
+        "bz2_bytes": 26863,
+        "lzma_bytes": 25828
+      },
+      {
+        "species": "WaMe",
+        "source_name": "WaMe",
+        "sample_bytes": 100000,
+        "sample_bases": 99999,
+        "sample_symbols_with_eos": 33334,
+        "theoretical_bits": 193315.04527282715,
+        "theoretical_bits_per_base": 1.9331697844261158,
+        "arithmetic_coded_bytes": 24173,
+        "arithmetic_bits_per_base": 1.933859338593386,
+        "arithmetic_frequency_total": 32768,
+        "arithmetic_vocab_size": 127,
+        "arithmetic_target_uniform_mass": 0.01,
+        "arithmetic_effective_uniform_mass": 0.003875732421875,
+        "ascii_bytes": 100000,
+        "two_bit_pack_bytes": 25000,
+        "gzip_bytes": 29187,
+        "bz2_bytes": 27236,
+        "lzma_bytes": 27612
+      }
+    ]
+  }
+}

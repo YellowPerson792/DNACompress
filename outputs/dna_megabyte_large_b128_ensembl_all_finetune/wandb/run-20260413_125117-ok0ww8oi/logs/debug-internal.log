@@ -1,0 +1,37 @@
+{"time":"2026-04-13T12:51:17.342076424+08:00","level":"INFO","msg":"stream: starting","core version":"0.25.0"}
+{"time":"2026-04-13T12:51:18.362975838+08:00","level":"INFO","msg":"stream: created new stream","id":"ok0ww8oi"}
+{"time":"2026-04-13T12:51:18.363077051+08:00","level":"INFO","msg":"handler: started","stream_id":"ok0ww8oi"}
+{"time":"2026-04-13T12:51:18.363252326+08:00","level":"INFO","msg":"stream: started","id":"ok0ww8oi"}
+{"time":"2026-04-13T12:51:18.363290887+08:00","level":"INFO","msg":"sender: started","stream_id":"ok0ww8oi"}
+{"time":"2026-04-13T12:51:18.363302328+08:00","level":"INFO","msg":"writer: started","stream_id":"ok0ww8oi"}
+{"time":"2026-04-13T12:51:21.083734276+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/ok0ww8oi/file_stream\": EOF"}
+{"time":"2026-04-13T14:01:38.195070588+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/ok0ww8oi/file_stream\": unexpected EOF"}
+{"time":"2026-04-13T14:01:45.601746326+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/ok0ww8oi/file_stream\": EOF"}
+{"time":"2026-04-13T14:01:55.615850916+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/ok0ww8oi/file_stream\": EOF"}
+{"time":"2026-04-13T14:02:10.634077782+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/ok0ww8oi/file_stream\": EOF"}
+{"time":"2026-04-13T14:02:35.2338363+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/ok0ww8oi/file_stream\": EOF"}
+{"time":"2026-04-13T14:03:22.248391481+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/ok0ww8oi/file_stream\": EOF"}
+{"time":"2026-04-13T14:04:27.295478808+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/ok0ww8oi/file_stream\": EOF"}
+{"time":"2026-04-13T14:05:32.490710965+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/ok0ww8oi/file_stream\": EOF"}
+{"time":"2026-04-13T14:06:37.738942913+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/ok0ww8oi/file_stream\": EOF"}
+{"time":"2026-04-13T14:07:40.098098705+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/ok0ww8oi/file_stream\": EOF"}
+{"time":"2026-04-13T14:08:48.20309119+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/ok0ww8oi/file_stream\": EOF"}
+{"time":"2026-04-13T14:09:55.507084614+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/ok0ww8oi/file_stream\": EOF"}
+{"time":"2026-04-13T14:10:56.16075014+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/ok0ww8oi/file_stream\": EOF"}
+{"time":"2026-04-13T14:12:06.183573899+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/ok0ww8oi/file_stream\": EOF"}
+{"time":"2026-04-13T14:13:16.204579431+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/ok0ww8oi/file_stream\": EOF"}
+{"time":"2026-04-13T14:14:21.665819463+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/ok0ww8oi/file_stream\": EOF"}
+{"time":"2026-04-13T14:15:22.217187775+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/ok0ww8oi/file_stream\": EOF"}
+{"time":"2026-04-13T14:16:23.224008729+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/ok0ww8oi/file_stream\": EOF"}
+{"time":"2026-04-13T14:17:29.363086647+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/ok0ww8oi/file_stream\": EOF"}
+{"time":"2026-04-13T15:21:33.770882548+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/ok0ww8oi/file_stream\": unexpected EOF"}
+{"time":"2026-04-13T15:24:19.435905572+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/ok0ww8oi/file_stream\": EOF"}
+{"time":"2026-04-13T15:24:23.99267933+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/ok0ww8oi/file_stream\": EOF"}
+{"time":"2026-04-13T15:24:28.809101704+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/ok0ww8oi/file_stream\": EOF"}
+{"time":"2026-04-13T15:40:04.755475383+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/ok0ww8oi/file_stream\": EOF"}
+{"time":"2026-04-13T15:53:20.738806542+08:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-04-13T15:53:21.157209101+08:00","level":"INFO","msg":"handler: operation stats","stats":{}}
+{"time":"2026-04-13T15:53:21.161436126+08:00","level":"INFO","msg":"stream: closing","id":"ok0ww8oi"}
+{"time":"2026-04-13T15:53:21.161456126+08:00","level":"INFO","msg":"handler: closed","stream_id":"ok0ww8oi"}
+{"time":"2026-04-13T15:53:21.161519518+08:00","level":"INFO","msg":"sender: closed","stream_id":"ok0ww8oi"}
+{"time":"2026-04-13T15:53:21.161538069+08:00","level":"INFO","msg":"stream: closed","id":"ok0ww8oi"}

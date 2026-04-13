@@ -1,0 +1,250 @@
+_wandb:
+    value:
+        cli_version: 0.25.0
+        e:
+            eytw5xscdx8wezy72syacpi8dd3cmxlg:
+                args:
+                    - --config
+                    - configs/dna_megabyte_large.json
+                    - --mode
+                    - all
+                    - --init-from
+                    - pretrained
+                    - --pretrained-weight-path
+                    - outputs/dna_megabyte_large_b128_ensembl_all/best.pt
+                    - --dataset-dir
+                    - datasets/DNACorpus
+                    - --sequence-source-mode
+                    - auto
+                    - --multi-sequence-mode
+                    - separate
+                    - --dtype
+                    - bfloat16
+                    - --epochs
+                    - "1"
+                    - --batch-size
+                    - "32"
+                    - --eval-batch-size
+                    - "32"
+                    - --learning-rate
+                    - "3e-4"
+                    - --species
+                    - OrSa
+                    - HoSa
+                    - DaRe
+                    - ScPo
+                    - EsCo
+                    - YeMi
+                    - BuEb
+                    - AgPh
+                    - GaGa
+                    - DrMe
+                    - EnIn
+                    - PlFa
+                    - HePy
+                    - AeCa
+                    - HaHi
+                    - AnCa
+                    - WaMe
+                    - --train-samples-per-epoch
+                    - "600000"
+                    - --compression-sample-bytes
+                    - "100000"
+                    - --print-config
+                    - --seq-length
+                    - "1024"
+                    - --token-merge-size
+                    - "3"
+                    - --weight-decay
+                    - "0.01"
+                    - --log-interval
+                    - "25"
+                    - --eval-interval
+                    - "500"
+                    - --train-ratio
+                    - "0.6"
+                    - --val-ratio
+                    - "0.2"
+                    - --test-ratio
+                    - "0.2"
+                    - --lr-scheduler
+                    - cosine
+                    - --lr-warmup-steps
+                    - "0"
+                    - --lr-min-ratio
+                    - "0.1"
+                    - --grad-clip-norm
+                    - "1.0"
+                    - --num-workers
+                    - "4"
+                    - --train-sampling-strategy
+                    - proportional
+                    - --wandb-project
+                    - dna-compress
+                    - --wandb-name
+                    - dna_megabyte_large_all_finetune
+                    - --gpu-ids
+                    - "3"
+                codePath: scripts/run_dna_experiment.py
+                codePathLocal: scripts/run_dna_experiment.py
+                cpu_count: 64
+                cpu_count_logical: 128
+                cudaVersion: "13.0"
+                disk:
+                    /:
+                        total: "1967317549056"
+                        used: "1390141251584"
+                email: yellow_person@outlook.com
+                executable: /home/Liang_junnan/miniconda3/bin/python3.12
+                git:
+                    commit: 90168b1b47fccd3a231388b74f2469075e7c91d2
+                    remote: https://github.com/YellowPerson792/DNACompress
+                gpu: NVIDIA GeForce RTX 4090
+                gpu_count: 4
+                gpu_nvidia:
+                    - architecture: Ada
+                      cudaCores: 16384
+                      memoryTotal: "51527024640"
+                      name: NVIDIA GeForce RTX 4090
+                      uuid: GPU-9faae66c-4076-f1e2-b195-c1d2bdf2de9f
+                    - architecture: Ada
+                      cudaCores: 16384
+                      memoryTotal: "51527024640"
+                      name: NVIDIA GeForce RTX 4090
+                      uuid: GPU-041c767b-56f6-488d-0fa3-0dd5bd737f2b
+                    - architecture: Ada
+                      cudaCores: 16384
+                      memoryTotal: "51527024640"
+                      name: NVIDIA GeForce RTX 4090
+                      uuid: GPU-a341f8c6-70a6-4f58-a803-029b4ef47929
+                    - architecture: Ada
+                      cudaCores: 16384
+                      memoryTotal: "51527024640"
+                      name: NVIDIA GeForce RTX 4090
+                      uuid: GPU-e3f5a203-4a43-97d6-1649-f34c6ac6da3f
+                host: root123-Super-Server
+                memory:
+                    total: "134862876672"
+                os: Linux-6.8.0-90-generic-x86_64-with-glibc2.35
+                program: /home/Liang_junnan/DNACompress/scripts/run_dna_experiment.py
+                python: CPython 3.12.12
+                root: outputs/dna_megabyte_large_20260413_125114
+                startedAt: "2026-04-13T04:51:17.079293Z"
+                writerId: eytw5xscdx8wezy72syacpi8dd3cmxlg
+        m: []
+        python_version: 3.12.12
+        t:
+            "1":
+                - 1
+            "2":
+                - 1
+                - 11
+                - 49
+            "3":
+                - 2
+                - 13
+                - 16
+                - 61
+                - 62
+            "4": 3.12.12
+            "5": 0.25.0
+            "10":
+                - 20
+            "12": 0.25.0
+            "13": linux-x86_64
+arithmetic:
+    value:
+        coding_mode: model_symbol
+        frequency_total: null
+        merge_size: 1
+        target_uniform_mass: 0.01
+data:
+    value:
+        clean_cache_dir: null
+        clean_cache_enabled: true
+        compression_sample_bytes: 100000
+        dataset_dir: datasets/DNACorpus
+        max_test_bytes_per_species: null
+        max_train_bytes_per_species: null
+        max_val_bytes_per_species: null
+        multi_sequence_mode: separate
+        sequence_source_mode: auto
+        species:
+            - OrSa
+            - HoSa
+            - DaRe
+            - ScPo
+            - EsCo
+            - YeMi
+            - BuEb
+            - AgPh
+            - GaGa
+            - DrMe
+            - EnIn
+            - PlFa
+            - HePy
+            - AeCa
+            - HaHi
+            - AnCa
+            - WaMe
+        test_ratio: 0.2
+        token_merge_alphabet: ACGTN
+        token_merge_size: 3
+        train_ratio: 0.6
+        train_samples_per_epoch: 600000
+        train_sampling_strategy: proportional
+        val_ratio: 0.2
+model:
+    value:
+        attn_dropout: 0
+        eos_id: 126
+        ff_dropout: 0
+        global_dim: 32
+        global_heads: 16
+        global_layers: 24
+        implementation: megabyte_in_action
+        initializer_range: 0.02
+        input_causal_conv_kernel_size: 1
+        local_dim: 768
+        local_heads: 12
+        local_layers: 12
+        pad_id: 125
+        patch_size: 32
+        pretrained_weight_path: outputs/dna_megabyte_large_b128_ensembl_all/best.pt
+        seq_length: 1024
+        variant: dna_gpt0.1b_m
+        vocab_size: 127
+output:
+    value:
+        output_dir: outputs/dna_megabyte_large_20260413_125114
+        run_name: dna_megabyte_large
+        wandb_enabled: true
+        wandb_entity: ""
+        wandb_group: ""
+        wandb_mode: online
+        wandb_name: dna_megabyte_large_all_finetune
+        wandb_project: dna-compress
+        wandb_tags: []
+train:
+    value:
+        batch_size: 32
+        device: auto
+        dtype: bfloat16
+        epochs: 1
+        eval_batch_size: 32
+        eval_interval: 500
+        gpu_ids:
+            - 3
+        grad_clip_norm: 1
+        init_from: pretrained
+        learning_rate: 0.0003
+        log_interval: 25
+        lr_min_ratio: 0.1
+        lr_scheduler: cosine
+        lr_warmup_steps: 0
+        num_workers: 4
+        persistent_workers: true
+        pin_memory: true
+        prefetch_factor: 2
+        seed: 42
+        weight_decay: 0.01

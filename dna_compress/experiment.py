@@ -737,8 +737,14 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
         if ddp.is_main_process and train_log_handle is not None:
             run_summary["training_log_jsonl"] = str(training_log_path)
 
-        best_val_bpb = float(resume_metadata.get("best_val_bpb", float("inf")))
-        global_step = int(resume_metadata.get("step", 0))
+        # Only resume mode should inherit optimizer progress/step counters.
+        # Pretrained initialization should load model weights but restart training stats.
+        if config.train.init_from == "resume":
+            best_val_bpb = float(resume_metadata.get("best_val_bpb", float("inf")))
+            global_step = int(resume_metadata.get("step", 0))
+        else:
+            best_val_bpb = float("inf")
+            global_step = 0
 
         if ddp.is_main_process and checkpoint_path is not None:
             print(
