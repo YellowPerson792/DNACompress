@@ -64,7 +64,7 @@ Complete example (train + eval + compression, with common overrides):
         --train-sampling-strategy proportional \
         --wandb-project dna-compress \
         --wandb-name dna_megabyte_large_ensembl_all 
-            
+        
         --gpu-ids 0 3 \
         --input-causal-conv-kernel-size 7
 

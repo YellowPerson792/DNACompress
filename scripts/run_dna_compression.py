@@ -33,7 +33,7 @@ Modes:
 Complete examples:
 
     python scripts/run_dna_compression.py \
-      --run-dir outputs/dna_megabyte_large_conv_all \
+      --run-dir outputs/dna_megabyte_large_ensembl_all \
       --checkpoint-tag best \
       --dataset-dir datasets/ensembl_raw \
       --sequence-source-mode fasta_dir \
@@ -41,14 +41,17 @@ Complete examples:
       --split train val test \
       --eval-batch-size 10 \
       --compression-modes train_windows_nonoverlap \
-      --compression-sample-bytes 60000 \
+      --compression-sample-bytes 100000 \
       --species homo_sapiens mus_musculus bos_taurus danio_rerio \
                 drosophila_melanogaster caenorhabditis_elegans \
                 saccharomyces_cerevisiae arabidopsis_thaliana \
-      --arithmetic-coding-mode base_prefix_exact_gpu_cpu \
-      --arithmetic-merge-size 3
+      --arithmetic-coding-mode model_symbol \
+      --arithmetic-merge-size 3 
       
-      --device cuda:2 
+      --species homo_sapiens mus_musculus bos_taurus danio_rerio \
+                  drosophila_melanogaster caenorhabditis_elegans \
+                  saccharomyces_cerevisiae arabidopsis_thaliana 
+      --device cuda:2 \
       --parallel-window-arithmetic \
       --arithmetic-workers 0
 
