@@ -1,0 +1,2 @@
+split,mode,species,source_name,sample_bytes,sample_bases,arithmetic_bits_per_base,theoretical_bits_per_base,vs_2bit_percent,paper_baseline_percent,paper_baseline_bpb,compression_bases_per_second,compression_mbases_per_second,compression_bytes_per_second,compression_mbytes_per_second
+train,windows_nonoverlap,GaGa,GaGa,100000,99999,1.7824978249782497,1.7817368481302,89.12489124891249,91.0,1.82,72250.37904031592,0.07225037904031592,72251.10155133143,0.07225110155133144

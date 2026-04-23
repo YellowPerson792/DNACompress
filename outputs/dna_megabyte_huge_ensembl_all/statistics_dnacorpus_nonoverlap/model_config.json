@@ -1,0 +1,20 @@
+{
+  "implementation": "megabyte_in_action",
+  "variant": "dna_gpt0.1b_m",
+  "pretrained_weight_path": null,
+  "vocab_size": 127,
+  "patch_size": 8,
+  "global_dim": 256,
+  "local_dim": 1024,
+  "seq_length": 1024,
+  "global_heads": 32,
+  "global_layers": 14,
+  "local_heads": 16,
+  "local_layers": 18,
+  "attn_dropout": 0.0,
+  "ff_dropout": 0.0,
+  "input_causal_conv_kernel_size": 1,
+  "initializer_range": 0.02,
+  "pad_id": 125,
+  "eos_id": 126
+}

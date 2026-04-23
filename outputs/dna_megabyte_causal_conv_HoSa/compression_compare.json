@@ -90,7 +90,7 @@
   },
   "results": {
     "train": {
-      "train_windows_nonoverlap": {
+      "windows_nonoverlap": {
         "aggregate": {
           "source_count": 1,
           "total_sample_bytes": 100000,
@@ -113,7 +113,7 @@
         "per_source": [
           {
             "species": "HoSa",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -140,7 +140,7 @@
       }
     },
     "val": {
-      "train_windows_nonoverlap": {
+      "windows_nonoverlap": {
         "aggregate": {
           "source_count": 1,
           "total_sample_bytes": 100000,
@@ -163,7 +163,7 @@
         "per_source": [
           {
             "species": "HoSa",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -190,7 +190,7 @@
       }
     },
     "test": {
-      "train_windows_nonoverlap": {
+      "windows_nonoverlap": {
         "aggregate": {
           "source_count": 1,
           "total_sample_bytes": 100000,
@@ -213,7 +213,7 @@
         "per_source": [
           {
             "species": "HoSa",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,

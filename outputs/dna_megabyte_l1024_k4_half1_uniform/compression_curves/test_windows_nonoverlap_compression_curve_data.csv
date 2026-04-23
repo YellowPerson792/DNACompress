@@ -1,0 +1,9 @@
+split,mode,species,source_name,sample_bytes,sample_bases,arithmetic_bits_per_base,theoretical_bits_per_base,vs_2bit_percent,paper_baseline_percent,paper_baseline_bpb,compression_bases_per_second,compression_mbases_per_second,compression_bytes_per_second,compression_mbytes_per_second
+test,windows_nonoverlap,OrSa,OrSa,100000,100000,1.93624,1.9326397246142515,96.812,80.0,1.6,,,,
+test,windows_nonoverlap,HoSa,HoSa,100000,100000,1.90408,1.900202093977742,95.204,82.0,1.64,,,,
+test,windows_nonoverlap,DaRe,DaRe,100000,100000,1.88768,1.8837402033449424,94.384,74.0,1.48,,,,
+test,windows_nonoverlap,ScPo,ScPo,100000,100000,1.95376,1.950664407723824,97.688,95.0,1.9,,,,
+test,windows_nonoverlap,EsCo,EsCo,100000,100000,1.966,1.9635238531667276,98.3,95.0,1.9,,,,
+test,windows_nonoverlap,YeMi,YeMi,14739,14736,2.007057546145494,2.0602724310532796,100.3528773072747,94.0,1.88,,,,
+test,windows_nonoverlap,BuEb,BuEb,3788,3788,1.9767687434002112,1.9904605320206192,98.83843717001056,99.0,1.98,,,,
+test,windows_nonoverlap,AgPh,AgPh,8794,8792,1.9645131938125568,1.9611159754010348,98.22565969062784,99.0,1.98,,,,

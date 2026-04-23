@@ -18,14 +18,14 @@ from .fixed_token_factorization import (
     FixedTokenArithmeticFactorizer,
     factorize_fixed_token_log_probs,
 )
-from .tokenization import tokenize_source_bytes
+from .tokenization import normalize_alphabet, tokenize_source_bytes
 
 
 CompressionMode = str
 
 SLIDING_TOKEN_MODE = "sliding_token"
-NON_OVERLAP_MODE = "train_windows_nonoverlap"
-OVERLAP_MODE = "train_windows_overlap"
+NON_OVERLAP_MODE = "windows_nonoverlap"
+OVERLAP_MODE = "windows_overlap"
 SUPPORTED_COMPRESSION_MODES = (
     SLIDING_TOKEN_MODE,
     NON_OVERLAP_MODE,
@@ -74,6 +74,115 @@ def _symbols_with_optional_eos(
     return symbols
 
 
+def _normalized_base_sequence(
+    payload: bytes,
+    token_merge_alphabet: str,
+    token_merge_size: int,
+) -> list[str]:
+    alphabet = normalize_alphabet(token_merge_alphabet)
+    byte_to_base: dict[int, str] = {}
+    for base in alphabet:
+        byte_to_base[ord(base)] = base
+        byte_to_base[ord(base.lower())] = base
+    normalized = [byte_to_base[byte_value] for byte_value in payload if byte_value in byte_to_base]
+    if token_merge_size <= 1:
+        return normalized
+    full_base_count = (len(normalized) // token_merge_size) * token_merge_size
+    return normalized[:full_base_count]
+
+
+class _PositionBitsProfileAccumulator:
+    def __init__(self, *, seq_length: int, token_merge_size: int, alphabet: str) -> None:
+        self.alphabet = normalize_alphabet(alphabet)
+        self.seq_length = seq_length
+        self.token_merge_size = token_merge_size
+        self.window_base_length = seq_length * token_merge_size
+        self._base_to_index = {base: index for index, base in enumerate(self.alphabet)}
+        self._counts = np.zeros((len(self.alphabet), self.window_base_length), dtype=np.int64)
+        self._sum_bits = np.zeros((len(self.alphabet), self.window_base_length), dtype=np.float64)
+        self.total_bits = 0.0
+
+    def add_token(self, *, token_bits: float, window_token_index: int, base_chars: list[str]) -> None:
+        if len(base_chars) != self.token_merge_size:
+            raise ValueError(
+                f"Expected {self.token_merge_size} bases for one merged token, got {len(base_chars)}."
+            )
+        base_bits = token_bits / self.token_merge_size
+        window_base_start = window_token_index * self.token_merge_size
+        for base_offset, base_char in enumerate(base_chars):
+            position = window_base_start + base_offset
+            base_index = self._base_to_index[base_char]
+            self._counts[base_index, position] += 1
+            self._sum_bits[base_index, position] += base_bits
+        self.total_bits += token_bits
+
+    def as_dict(self) -> dict[str, object]:
+        return {
+            "alphabet": self.alphabet,
+            "window_base_length": self.window_base_length,
+            "counts": self._counts.tolist(),
+            "sum_bits_per_base": self._sum_bits.tolist(),
+            "total_bits": self.total_bits,
+            "excludes_eos": True,
+        }
+
+
+def _build_position_bits_profile(
+    *,
+    payload: bytes,
+    seq_length: int,
+    token_merge_size: int,
+    token_merge_alphabet: str,
+    symbol_count_without_eos: int,
+    collect_position_bits_profile: bool,
+) -> tuple[_PositionBitsProfileAccumulator | None, list[str]]:
+    if not collect_position_bits_profile:
+        return None, []
+
+    normalized_bases = _normalized_base_sequence(payload, token_merge_alphabet, token_merge_size)
+    expected_base_count = symbol_count_without_eos * token_merge_size
+    if len(normalized_bases) != expected_base_count:
+        raise RuntimeError(
+            "Normalized base count does not match tokenized sample size: "
+            f"{len(normalized_bases)} != {expected_base_count}"
+        )
+    return (
+        _PositionBitsProfileAccumulator(
+            seq_length=seq_length,
+            token_merge_size=token_merge_size,
+            alphabet=token_merge_alphabet,
+        ),
+        normalized_bases,
+    )
+
+
+def _record_position_bits_profile(
+    *,
+    accumulator: _PositionBitsProfileAccumulator | None,
+    normalized_bases: list[str],
+    target_log_probs: torch.Tensor,
+    global_token_start: int,
+    window_token_start: int,
+    token_merge_size: int,
+    token_count_without_eos: int,
+) -> None:
+    if accumulator is None:
+        return
+
+    token_bits = (-target_log_probs / math.log(2)).detach().cpu().tolist()
+    for offset, token_bit_value in enumerate(token_bits):
+        global_token_index = global_token_start + offset
+        if global_token_index >= token_count_without_eos:
+            continue
+        base_start = global_token_index * token_merge_size
+        base_chars = normalized_bases[base_start : base_start + token_merge_size]
+        accumulator.add_token(
+            token_bits=float(token_bit_value),
+            window_token_index=window_token_start + offset,
+            base_chars=base_chars,
+        )
+
+
 def _finalize_metrics(
     *,
     payload: bytes,
@@ -94,6 +203,7 @@ def _finalize_metrics(
     cpu_small_alphabet_quantize_seconds: float = 0.0,
     emitted_arithmetic_symbol_count: int | None = None,
     mode_details: dict[str, object] | None = None,
+    position_bits_profile: dict[str, object] | None = None,
 ) -> dict[str, object]:
     sample_bytes = len(payload)
     sample_bases = symbol_count_without_eos * token_merge_size
@@ -103,7 +213,7 @@ def _finalize_metrics(
     )
     if emitted_arithmetic_symbol_count is None:
         emitted_arithmetic_symbol_count = len(symbols)
-    return {
+    metrics = {
         "mode": mode,
         "sample_bytes": sample_bytes,
         "sample_bases": sample_bases,
@@ -131,6 +241,11 @@ def _finalize_metrics(
         **baseline_sizes(payload),
         **(mode_details or {}),
     }
+    if position_bits_profile is not None:
+        metrics["position_bits_profile"] = position_bits_profile
+        metrics["position_bits_profile_total_bits"] = float(position_bits_profile["total_bits"])
+        metrics["position_bits_profile_excludes_eos"] = bool(position_bits_profile.get("excludes_eos", True))
+    return metrics
 
 
 def _resolve_megabyte_arithmetic_metadata(
@@ -250,7 +365,9 @@ def compress_sequence_sliding_token(
     arithmetic_merge_size: int = 1,
     factorizer: FixedTokenArithmeticFactorizer | None = None,
     progress_callback: Callable[[int, int], None] | None = None,
+    collect_position_bits_profile: bool = False,
 ) -> dict[str, object]:
+    del collect_position_bits_profile
     symbols = _symbols_with_optional_eos(payload, eos_id, token_merge_size, token_merge_alphabet)
     symbols_tensor = torch.tensor(symbols, dtype=torch.long)
 
@@ -400,8 +517,18 @@ def compress_sequence_train_windows(
     arithmetic_merge_size: int = 1,
     factorizer: FixedTokenArithmeticFactorizer | None = None,
     progress_callback: Callable[[int, int], None] | None = None,
+    collect_position_bits_profile: bool = False,
 ) -> dict[str, object]:
     symbols = _symbols_with_optional_eos(payload, eos_id, token_merge_size, token_merge_alphabet)
+    token_count_without_eos = len(symbols) - (1 if eos_id is not None else 0)
+    position_bits_profile, normalized_bases = _build_position_bits_profile(
+        payload=payload,
+        seq_length=seq_length,
+        token_merge_size=token_merge_size,
+        token_merge_alphabet=token_merge_alphabet,
+        symbol_count_without_eos=token_count_without_eos,
+        collect_position_bits_profile=collect_position_bits_profile,
+    )
     total_bits = 0.0
     encoder = ArithmeticEncoder()
 
@@ -474,8 +601,17 @@ def compress_sequence_train_windows(
                     dtype=torch.long,
                     device=device,
                 )
+                target_log_probs = row_log_probs.gather(1, targets_device.unsqueeze(1)).squeeze(1)
+                _record_position_bits_profile(
+                    accumulator=position_bits_profile,
+                    normalized_bases=normalized_bases,
+                    target_log_probs=target_log_probs,
+                    global_token_start=start + local_start,
+                    window_token_start=local_start,
+                    token_merge_size=token_merge_size,
+                    token_count_without_eos=token_count_without_eos,
+                )
                 if arithmetic_coding_mode == "model_symbol":
-                    target_log_probs = row_log_probs.gather(1, targets_device.unsqueeze(1)).squeeze(1)
                     total_bits += float((-target_log_probs / math.log(2)).sum().item())
                     transfer_started = perf_counter()
                     probs_np = row_log_probs.float().exp().cpu().numpy()
@@ -540,7 +676,7 @@ def compress_sequence_train_windows(
     return _finalize_metrics(
         payload=payload,
         symbols=symbols,
-        symbol_count_without_eos=len(symbols) - (1 if eos_id is not None else 0),
+        symbol_count_without_eos=token_count_without_eos,
         token_merge_size=token_merge_size,
         total_bits=total_bits,
         encoded=encoded,
@@ -556,6 +692,7 @@ def compress_sequence_train_windows(
         cpu_small_alphabet_quantize_seconds=cpu_small_alphabet_quantize_seconds,
         emitted_arithmetic_symbol_count=emitted_arithmetic_symbol_count,
         mode_details=mode_details,
+        position_bits_profile=position_bits_profile.as_dict() if position_bits_profile is not None else None,
     )
 
 
@@ -580,6 +717,7 @@ def compress_source(
     arithmetic_merge_size: int = 1,
     factorizer: FixedTokenArithmeticFactorizer | None = None,
     progress_callback: Callable[[int, int], None] | None = None,
+    collect_position_bits_profile: bool = False,
 ) -> dict[str, object]:
     payload = sample_payload(source, requested_bytes)
     if mode == SLIDING_TOKEN_MODE:
@@ -600,6 +738,7 @@ def compress_source(
             arithmetic_merge_size=arithmetic_merge_size,
             factorizer=factorizer,
             progress_callback=progress_callback,
+            collect_position_bits_profile=collect_position_bits_profile,
         )
     if mode == NON_OVERLAP_MODE:
         return compress_sequence_train_windows(
@@ -620,6 +759,7 @@ def compress_source(
             arithmetic_merge_size=arithmetic_merge_size,
             factorizer=factorizer,
             progress_callback=progress_callback,
+            collect_position_bits_profile=collect_position_bits_profile,
         )
     if mode == OVERLAP_MODE:
         return compress_sequence_train_windows(
@@ -640,6 +780,7 @@ def compress_source(
             arithmetic_merge_size=arithmetic_merge_size,
             factorizer=factorizer,
             progress_callback=progress_callback,
+            collect_position_bits_profile=collect_position_bits_profile,
         )
     raise ValueError(f"Unsupported compression mode '{mode}'")
  

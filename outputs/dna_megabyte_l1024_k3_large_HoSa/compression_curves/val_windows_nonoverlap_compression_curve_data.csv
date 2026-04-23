@@ -1,0 +1,2 @@
+split,mode,species,source_name,sample_bytes,sample_bases,arithmetic_bits_per_base,theoretical_bits_per_base,vs_2bit_percent,paper_baseline_percent,paper_baseline_bpb,compression_bases_per_second,compression_mbases_per_second,compression_bytes_per_second,compression_mbytes_per_second
+val,windows_nonoverlap,HoSa,HoSa,100000,99999,1.7696176961769619,1.768912254552233,88.48088480884809,82.0,1.64,137816.8943509959,0.1378168943509959,137818.27253372123,0.13781827253372123

@@ -136,7 +136,7 @@
   },
   "results": {
     "train": {
-      "train_windows_nonoverlap": {
+      "windows_nonoverlap": {
         "aggregate": {
           "source_count": 8,
           "total_sample_bytes": 581959,
@@ -159,7 +159,7 @@
         "per_source": [
           {
             "species": "OrSa",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -184,7 +184,7 @@
           },
           {
             "species": "HoSa",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -209,7 +209,7 @@
           },
           {
             "species": "DaRe",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -234,7 +234,7 @@
           },
           {
             "species": "ScPo",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -259,7 +259,7 @@
           },
           {
             "species": "EsCo",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -284,7 +284,7 @@
           },
           {
             "species": "YeMi",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 44213,
             "sample_bases": 44211,
             "sample_symbols_with_eos": 14738,
@@ -309,7 +309,7 @@
           },
           {
             "species": "BuEb",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 11364,
             "sample_bases": 11364,
             "sample_symbols_with_eos": 3789,
@@ -334,7 +334,7 @@
           },
           {
             "species": "AgPh",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 26382,
             "sample_bases": 26382,
             "sample_symbols_with_eos": 8795,
@@ -361,7 +361,7 @@
       }
     },
     "val": {
-      "train_windows_nonoverlap": {
+      "windows_nonoverlap": {
         "aggregate": {
           "source_count": 8,
           "total_sample_bytes": 527319,
@@ -384,7 +384,7 @@
         "per_source": [
           {
             "species": "OrSa",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -409,7 +409,7 @@
           },
           {
             "species": "HoSa",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -434,7 +434,7 @@
           },
           {
             "species": "DaRe",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -459,7 +459,7 @@
           },
           {
             "species": "ScPo",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -484,7 +484,7 @@
           },
           {
             "species": "EsCo",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -509,7 +509,7 @@
           },
           {
             "species": "YeMi",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 14737,
             "sample_bases": 14736,
             "sample_symbols_with_eos": 4913,
@@ -534,7 +534,7 @@
           },
           {
             "species": "BuEb",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 3788,
             "sample_bases": 3786,
             "sample_symbols_with_eos": 1263,
@@ -559,7 +559,7 @@
           },
           {
             "species": "AgPh",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 8794,
             "sample_bases": 8793,
             "sample_symbols_with_eos": 2932,
@@ -586,7 +586,7 @@
       }
     },
     "test": {
-      "train_windows_nonoverlap": {
+      "windows_nonoverlap": {
         "aggregate": {
           "source_count": 8,
           "total_sample_bytes": 527321,
@@ -609,7 +609,7 @@
         "per_source": [
           {
             "species": "OrSa",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -634,7 +634,7 @@
           },
           {
             "species": "HoSa",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -659,7 +659,7 @@
           },
           {
             "species": "DaRe",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -684,7 +684,7 @@
           },
           {
             "species": "ScPo",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -709,7 +709,7 @@
           },
           {
             "species": "EsCo",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -734,7 +734,7 @@
           },
           {
             "species": "YeMi",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 14739,
             "sample_bases": 14739,
             "sample_symbols_with_eos": 4914,
@@ -759,7 +759,7 @@
           },
           {
             "species": "BuEb",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 3788,
             "sample_bases": 3786,
             "sample_symbols_with_eos": 1263,
@@ -784,7 +784,7 @@
           },
           {
             "species": "AgPh",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 8794,
             "sample_bases": 8793,
             "sample_symbols_with_eos": 2932,

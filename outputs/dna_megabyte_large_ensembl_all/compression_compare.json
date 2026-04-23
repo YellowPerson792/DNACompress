@@ -2652,7 +2652,7 @@
   },
   "results": {
     "train": {
-      "train_windows_nonoverlap": {
+      "windows_nonoverlap": {
         "aggregate": {
           "source_count": 149,
           "total_sample_bytes": 14381199,
@@ -2691,7 +2691,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:1",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -2730,7 +2730,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:10",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -2769,7 +2769,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:11",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -2808,7 +2808,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:12",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -2847,7 +2847,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:13",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -2886,7 +2886,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:14",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -2925,7 +2925,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:15",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -2964,7 +2964,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:16",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -3003,7 +3003,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:17",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -3042,7 +3042,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:18",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -3081,7 +3081,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:19",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -3120,7 +3120,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:2",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -3159,7 +3159,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:20",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -3198,7 +3198,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:21",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -3237,7 +3237,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:22",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -3276,7 +3276,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:3",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -3315,7 +3315,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:4",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -3354,7 +3354,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:5",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -3393,7 +3393,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:6",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -3432,7 +3432,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:7",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -3471,7 +3471,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:8",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -3510,7 +3510,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:9",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -3549,7 +3549,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:MT",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 16237,
             "sample_bases": 16236,
             "sample_symbols_with_eos": 5413,
@@ -3588,7 +3588,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:X",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -3627,7 +3627,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:Y",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -3666,7 +3666,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:nonchromosomal",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -3705,7 +3705,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:1",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -3744,7 +3744,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:10",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -3783,7 +3783,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:11",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -3822,7 +3822,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:12",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -3861,7 +3861,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:13",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -3900,7 +3900,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:14",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -3939,7 +3939,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:15",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -3978,7 +3978,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:16",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -4017,7 +4017,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:17",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -4056,7 +4056,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:18",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -4095,7 +4095,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:19",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -4134,7 +4134,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:2",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -4173,7 +4173,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:3",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -4212,7 +4212,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:4",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -4251,7 +4251,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:5",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -4290,7 +4290,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:6",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -4329,7 +4329,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:7",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -4368,7 +4368,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:8",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -4407,7 +4407,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:9",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -4446,7 +4446,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:MT",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 15973,
             "sample_bases": 15972,
             "sample_symbols_with_eos": 5325,
@@ -4485,7 +4485,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:X",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -4524,7 +4524,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:Y",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -4563,7 +4563,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:nonchromosomal",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -4602,7 +4602,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:nonchromosomal",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -4641,7 +4641,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:1",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -4680,7 +4680,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:10",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -4719,7 +4719,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:11",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -4758,7 +4758,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:12",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -4797,7 +4797,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:13",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -4836,7 +4836,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:14",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -4875,7 +4875,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:15",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -4914,7 +4914,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:16",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -4953,7 +4953,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:17",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -4992,7 +4992,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:18",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -5031,7 +5031,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:19",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -5070,7 +5070,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:2",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -5109,7 +5109,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:20",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -5148,7 +5148,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:21",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -5187,7 +5187,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:22",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -5226,7 +5226,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:23",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -5265,7 +5265,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:24",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -5304,7 +5304,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:25",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -5343,7 +5343,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:26",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -5382,7 +5382,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:27",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -5421,7 +5421,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:28",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -5460,7 +5460,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:29",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -5499,7 +5499,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:3",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -5538,7 +5538,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:4",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -5577,7 +5577,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:5",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -5616,7 +5616,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:6",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -5655,7 +5655,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:7",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -5694,7 +5694,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:8",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -5733,7 +5733,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:9",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -5772,7 +5772,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:MT",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 16011,
             "sample_bases": 16011,
             "sample_symbols_with_eos": 5338,
@@ -5811,7 +5811,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:X",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -5850,7 +5850,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:Y",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -5889,7 +5889,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:1",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -5928,7 +5928,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:10",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -5967,7 +5967,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:11",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -6006,7 +6006,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:12",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -6045,7 +6045,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:13",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -6084,7 +6084,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:14",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -6123,7 +6123,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:15",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -6162,7 +6162,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:16",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -6201,7 +6201,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:17",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -6240,7 +6240,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:18",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -6279,7 +6279,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:19",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -6318,7 +6318,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:2",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -6357,7 +6357,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:20",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -6396,7 +6396,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:21",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -6435,7 +6435,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:22",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -6474,7 +6474,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:23",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -6513,7 +6513,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:24",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -6552,7 +6552,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:25",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -6591,7 +6591,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:3",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -6630,7 +6630,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:4",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -6669,7 +6669,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:5",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -6708,7 +6708,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:6",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -6747,7 +6747,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:7",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -6786,7 +6786,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:8",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -6825,7 +6825,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:9",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -6864,7 +6864,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:MT",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 16264,
             "sample_bases": 16263,
             "sample_symbols_with_eos": 5422,
@@ -6903,7 +6903,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:nonchromosomal",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -6942,7 +6942,7 @@
           {
             "species": "drosophila_melanogaster",
             "source_name": "drosophila_melanogaster:nonchromosomal",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -6981,7 +6981,7 @@
           {
             "species": "drosophila_melanogaster",
             "source_name": "drosophila_melanogaster:2L",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -7020,7 +7020,7 @@
           {
             "species": "drosophila_melanogaster",
             "source_name": "drosophila_melanogaster:2R",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -7059,7 +7059,7 @@
           {
             "species": "drosophila_melanogaster",
             "source_name": "drosophila_melanogaster:3L",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -7098,7 +7098,7 @@
           {
             "species": "drosophila_melanogaster",
             "source_name": "drosophila_melanogaster:3R",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -7137,7 +7137,7 @@
           {
             "species": "drosophila_melanogaster",
             "source_name": "drosophila_melanogaster:4",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -7176,7 +7176,7 @@
           {
             "species": "drosophila_melanogaster",
             "source_name": "drosophila_melanogaster:X",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -7215,7 +7215,7 @@
           {
             "species": "drosophila_melanogaster",
             "source_name": "drosophila_melanogaster:Y",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -7254,7 +7254,7 @@
           {
             "species": "drosophila_melanogaster",
             "source_name": "drosophila_melanogaster:mitochondrion_genome",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 19133,
             "sample_bases": 19131,
             "sample_symbols_with_eos": 6378,
@@ -7293,7 +7293,7 @@
           {
             "species": "caenorhabditis_elegans",
             "source_name": "caenorhabditis_elegans:I",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -7332,7 +7332,7 @@
           {
             "species": "caenorhabditis_elegans",
             "source_name": "caenorhabditis_elegans:II",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -7371,7 +7371,7 @@
           {
             "species": "caenorhabditis_elegans",
             "source_name": "caenorhabditis_elegans:III",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -7410,7 +7410,7 @@
           {
             "species": "caenorhabditis_elegans",
             "source_name": "caenorhabditis_elegans:IV",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -7449,7 +7449,7 @@
           {
             "species": "caenorhabditis_elegans",
             "source_name": "caenorhabditis_elegans:MtDNA",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 13518,
             "sample_bases": 13518,
             "sample_symbols_with_eos": 4507,
@@ -7488,7 +7488,7 @@
           {
             "species": "caenorhabditis_elegans",
             "source_name": "caenorhabditis_elegans:V",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -7527,7 +7527,7 @@
           {
             "species": "caenorhabditis_elegans",
             "source_name": "caenorhabditis_elegans:X",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -7566,7 +7566,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:I",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -7605,7 +7605,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:II",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -7644,7 +7644,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:III",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -7683,7 +7683,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:IV",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -7722,7 +7722,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:IX",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -7761,7 +7761,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:Mito",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 84063,
             "sample_bases": 84063,
             "sample_symbols_with_eos": 28022,
@@ -7800,7 +7800,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:V",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -7839,7 +7839,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:VI",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -7878,7 +7878,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:VII",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -7917,7 +7917,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:VIII",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -7956,7 +7956,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:X",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -7995,7 +7995,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:XI",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -8034,7 +8034,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:XII",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -8073,7 +8073,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:XIII",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -8112,7 +8112,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:XIV",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -8151,7 +8151,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:XV",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -8190,7 +8190,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:XVI",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -8229,7 +8229,7 @@
           {
             "species": "arabidopsis_thaliana",
             "source_name": "arabidopsis_thaliana:1",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -8268,7 +8268,7 @@
           {
             "species": "arabidopsis_thaliana",
             "source_name": "arabidopsis_thaliana:2",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -8307,7 +8307,7 @@
           {
             "species": "arabidopsis_thaliana",
             "source_name": "arabidopsis_thaliana:3",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -8346,7 +8346,7 @@
           {
             "species": "arabidopsis_thaliana",
             "source_name": "arabidopsis_thaliana:4",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -8385,7 +8385,7 @@
           {
             "species": "arabidopsis_thaliana",
             "source_name": "arabidopsis_thaliana:5",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -8424,7 +8424,7 @@
           {
             "species": "arabidopsis_thaliana",
             "source_name": "arabidopsis_thaliana:Mt",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -8463,7 +8463,7 @@
           {
             "species": "arabidopsis_thaliana",
             "source_name": "arabidopsis_thaliana:Pt",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -8503,7 +8503,7 @@
       }
     },
     "val": {
-      "train_windows_nonoverlap": {
+      "windows_nonoverlap": {
         "aggregate": {
           "source_count": 149,
           "total_sample_bytes": 12287414,
@@ -8542,7 +8542,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:1",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -8581,7 +8581,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:10",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -8620,7 +8620,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:11",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -8659,7 +8659,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:12",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -8698,7 +8698,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:13",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -8737,7 +8737,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:14",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -8776,7 +8776,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:15",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -8815,7 +8815,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:16",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -8854,7 +8854,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:17",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -8893,7 +8893,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:18",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -8932,7 +8932,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:19",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -8971,7 +8971,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:2",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -9010,7 +9010,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:20",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -9049,7 +9049,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:21",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -9088,7 +9088,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:22",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -9127,7 +9127,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:3",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -9166,7 +9166,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:4",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -9205,7 +9205,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:5",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -9244,7 +9244,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:6",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -9283,7 +9283,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:7",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -9322,7 +9322,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:8",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -9361,7 +9361,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:9",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -9400,7 +9400,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:MT",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 165,
             "sample_bases": 165,
             "sample_symbols_with_eos": 56,
@@ -9439,7 +9439,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:X",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -9478,7 +9478,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:Y",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -9517,7 +9517,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:nonchromosomal",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -9556,7 +9556,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:1",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -9595,7 +9595,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:10",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -9634,7 +9634,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:11",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -9673,7 +9673,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:12",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -9712,7 +9712,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:13",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -9751,7 +9751,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:14",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -9790,7 +9790,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:15",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -9829,7 +9829,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:16",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -9868,7 +9868,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:17",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -9907,7 +9907,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:18",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -9946,7 +9946,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:19",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -9985,7 +9985,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:2",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -10024,7 +10024,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:3",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -10063,7 +10063,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:4",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -10102,7 +10102,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:5",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -10141,7 +10141,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:6",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -10180,7 +10180,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:7",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -10219,7 +10219,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:8",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -10258,7 +10258,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:9",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -10297,7 +10297,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:MT",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 162,
             "sample_bases": 162,
             "sample_symbols_with_eos": 55,
@@ -10336,7 +10336,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:X",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -10375,7 +10375,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:Y",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -10414,7 +10414,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:nonchromosomal",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 47913,
             "sample_bases": 47913,
             "sample_symbols_with_eos": 15972,
@@ -10453,7 +10453,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:nonchromosomal",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -10492,7 +10492,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:1",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -10531,7 +10531,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:10",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -10570,7 +10570,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:11",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -10609,7 +10609,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:12",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -10648,7 +10648,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:13",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -10687,7 +10687,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:14",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -10726,7 +10726,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:15",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -10765,7 +10765,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:16",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -10804,7 +10804,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:17",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -10843,7 +10843,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:18",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -10882,7 +10882,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:19",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -10921,7 +10921,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:2",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -10960,7 +10960,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:20",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -10999,7 +10999,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:21",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -11038,7 +11038,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:22",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -11077,7 +11077,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:23",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -11116,7 +11116,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:24",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -11155,7 +11155,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:25",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -11194,7 +11194,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:26",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -11233,7 +11233,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:27",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -11272,7 +11272,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:28",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -11311,7 +11311,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:29",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -11350,7 +11350,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:3",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -11389,7 +11389,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:4",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -11428,7 +11428,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:5",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -11467,7 +11467,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:6",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -11506,7 +11506,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:7",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -11545,7 +11545,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:8",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -11584,7 +11584,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:9",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -11623,7 +11623,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:MT",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 163,
             "sample_bases": 162,
             "sample_symbols_with_eos": 55,
@@ -11662,7 +11662,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:X",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -11701,7 +11701,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:Y",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -11740,7 +11740,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:1",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -11779,7 +11779,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:10",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -11818,7 +11818,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:11",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -11857,7 +11857,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:12",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -11896,7 +11896,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:13",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -11935,7 +11935,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:14",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -11974,7 +11974,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:15",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -12013,7 +12013,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:16",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -12052,7 +12052,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:17",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -12091,7 +12091,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:18",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -12130,7 +12130,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:19",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -12169,7 +12169,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:2",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -12208,7 +12208,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:20",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -12247,7 +12247,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:21",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -12286,7 +12286,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:22",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -12325,7 +12325,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:23",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -12364,7 +12364,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:24",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -12403,7 +12403,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:25",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -12442,7 +12442,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:3",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -12481,7 +12481,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:4",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -12520,7 +12520,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:5",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -12559,7 +12559,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:6",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -12598,7 +12598,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:7",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -12637,7 +12637,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:8",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -12676,7 +12676,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:9",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -12715,7 +12715,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:MT",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 165,
             "sample_bases": 165,
             "sample_symbols_with_eos": 56,
@@ -12754,7 +12754,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:nonchromosomal",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -12793,7 +12793,7 @@
           {
             "species": "drosophila_melanogaster",
             "source_name": "drosophila_melanogaster:nonchromosomal",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 61585,
             "sample_bases": 61584,
             "sample_symbols_with_eos": 20529,
@@ -12832,7 +12832,7 @@
           {
             "species": "drosophila_melanogaster",
             "source_name": "drosophila_melanogaster:2L",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -12871,7 +12871,7 @@
           {
             "species": "drosophila_melanogaster",
             "source_name": "drosophila_melanogaster:2R",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -12910,7 +12910,7 @@
           {
             "species": "drosophila_melanogaster",
             "source_name": "drosophila_melanogaster:3L",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -12949,7 +12949,7 @@
           {
             "species": "drosophila_melanogaster",
             "source_name": "drosophila_melanogaster:3R",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -12988,7 +12988,7 @@
           {
             "species": "drosophila_melanogaster",
             "source_name": "drosophila_melanogaster:4",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 13481,
             "sample_bases": 13479,
             "sample_symbols_with_eos": 4494,
@@ -13027,7 +13027,7 @@
           {
             "species": "drosophila_melanogaster",
             "source_name": "drosophila_melanogaster:X",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -13066,7 +13066,7 @@
           {
             "species": "drosophila_melanogaster",
             "source_name": "drosophila_melanogaster:Y",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 36673,
             "sample_bases": 36672,
             "sample_symbols_with_eos": 12225,
@@ -13105,7 +13105,7 @@
           {
             "species": "drosophila_melanogaster",
             "source_name": "drosophila_melanogaster:mitochondrion_genome",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 195,
             "sample_bases": 195,
             "sample_symbols_with_eos": 66,
@@ -13144,7 +13144,7 @@
           {
             "species": "caenorhabditis_elegans",
             "source_name": "caenorhabditis_elegans:I",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -13183,7 +13183,7 @@
           {
             "species": "caenorhabditis_elegans",
             "source_name": "caenorhabditis_elegans:II",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -13222,7 +13222,7 @@
           {
             "species": "caenorhabditis_elegans",
             "source_name": "caenorhabditis_elegans:III",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -13261,7 +13261,7 @@
           {
             "species": "caenorhabditis_elegans",
             "source_name": "caenorhabditis_elegans:IV",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -13300,7 +13300,7 @@
           {
             "species": "caenorhabditis_elegans",
             "source_name": "caenorhabditis_elegans:MtDNA",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 137,
             "sample_bases": 135,
             "sample_symbols_with_eos": 46,
@@ -13339,7 +13339,7 @@
           {
             "species": "caenorhabditis_elegans",
             "source_name": "caenorhabditis_elegans:V",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -13378,7 +13378,7 @@
           {
             "species": "caenorhabditis_elegans",
             "source_name": "caenorhabditis_elegans:X",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -13417,7 +13417,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:I",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 2302,
             "sample_bases": 2301,
             "sample_symbols_with_eos": 768,
@@ -13456,7 +13456,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:II",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 8131,
             "sample_bases": 8130,
             "sample_symbols_with_eos": 2711,
@@ -13495,7 +13495,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:III",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 3166,
             "sample_bases": 3165,
             "sample_symbols_with_eos": 1056,
@@ -13534,7 +13534,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:IV",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 15319,
             "sample_bases": 15318,
             "sample_symbols_with_eos": 5107,
@@ -13573,7 +13573,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:IX",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 4398,
             "sample_bases": 4398,
             "sample_symbols_with_eos": 1467,
@@ -13612,7 +13612,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:Mito",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 857,
             "sample_bases": 855,
             "sample_symbols_with_eos": 286,
@@ -13651,7 +13651,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:V",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 5768,
             "sample_bases": 5766,
             "sample_symbols_with_eos": 1923,
@@ -13690,7 +13690,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:VI",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 2701,
             "sample_bases": 2700,
             "sample_symbols_with_eos": 901,
@@ -13729,7 +13729,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:VII",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 10909,
             "sample_bases": 10908,
             "sample_symbols_with_eos": 3637,
@@ -13768,7 +13768,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:VIII",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 5626,
             "sample_bases": 5625,
             "sample_symbols_with_eos": 1876,
@@ -13807,7 +13807,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:X",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 7457,
             "sample_bases": 7455,
             "sample_symbols_with_eos": 2486,
@@ -13846,7 +13846,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:XI",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 6668,
             "sample_bases": 6666,
             "sample_symbols_with_eos": 2223,
@@ -13885,7 +13885,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:XII",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 10781,
             "sample_bases": 10779,
             "sample_symbols_with_eos": 3594,
@@ -13924,7 +13924,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:XIII",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 9244,
             "sample_bases": 9243,
             "sample_symbols_with_eos": 3082,
@@ -13963,7 +13963,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:XIV",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 7843,
             "sample_bases": 7842,
             "sample_symbols_with_eos": 2615,
@@ -14002,7 +14002,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:XV",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 10912,
             "sample_bases": 10911,
             "sample_symbols_with_eos": 3638,
@@ -14041,7 +14041,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:XVI",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 9480,
             "sample_bases": 9480,
             "sample_symbols_with_eos": 3161,
@@ -14080,7 +14080,7 @@
           {
             "species": "arabidopsis_thaliana",
             "source_name": "arabidopsis_thaliana:1",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -14119,7 +14119,7 @@
           {
             "species": "arabidopsis_thaliana",
             "source_name": "arabidopsis_thaliana:2",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -14158,7 +14158,7 @@
           {
             "species": "arabidopsis_thaliana",
             "source_name": "arabidopsis_thaliana:3",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -14197,7 +14197,7 @@
           {
             "species": "arabidopsis_thaliana",
             "source_name": "arabidopsis_thaliana:4",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -14236,7 +14236,7 @@
           {
             "species": "arabidopsis_thaliana",
             "source_name": "arabidopsis_thaliana:5",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -14275,7 +14275,7 @@
           {
             "species": "arabidopsis_thaliana",
             "source_name": "arabidopsis_thaliana:Mt",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 3669,
             "sample_bases": 3669,
             "sample_symbols_with_eos": 1224,
@@ -14314,7 +14314,7 @@
           {
             "species": "arabidopsis_thaliana",
             "source_name": "arabidopsis_thaliana:Pt",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 1544,
             "sample_bases": 1542,
             "sample_symbols_with_eos": 515,
@@ -14354,7 +14354,7 @@
       }
     },
     "test": {
-      "train_windows_nonoverlap": {
+      "windows_nonoverlap": {
         "aggregate": {
           "source_count": 149,
           "total_sample_bytes": 12287458,
@@ -14393,7 +14393,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:1",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -14432,7 +14432,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:10",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -14471,7 +14471,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:11",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -14510,7 +14510,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:12",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -14549,7 +14549,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:13",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -14588,7 +14588,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:14",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -14627,7 +14627,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:15",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -14666,7 +14666,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:16",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -14705,7 +14705,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:17",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -14744,7 +14744,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:18",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -14783,7 +14783,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:19",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -14822,7 +14822,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:2",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -14861,7 +14861,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:20",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -14900,7 +14900,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:21",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -14939,7 +14939,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:22",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -14978,7 +14978,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:3",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -15017,7 +15017,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:4",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -15056,7 +15056,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:5",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -15095,7 +15095,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:6",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -15134,7 +15134,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:7",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -15173,7 +15173,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:8",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -15212,7 +15212,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:9",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -15251,7 +15251,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:MT",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 167,
             "sample_bases": 165,
             "sample_symbols_with_eos": 56,
@@ -15290,7 +15290,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:X",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -15329,7 +15329,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:Y",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -15368,7 +15368,7 @@
           {
             "species": "homo_sapiens",
             "source_name": "homo_sapiens:nonchromosomal",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -15407,7 +15407,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:1",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -15446,7 +15446,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:10",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -15485,7 +15485,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:11",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -15524,7 +15524,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:12",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -15563,7 +15563,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:13",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -15602,7 +15602,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:14",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -15641,7 +15641,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:15",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -15680,7 +15680,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:16",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -15719,7 +15719,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:17",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -15758,7 +15758,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:18",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -15797,7 +15797,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:19",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -15836,7 +15836,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:2",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -15875,7 +15875,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:3",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -15914,7 +15914,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:4",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -15953,7 +15953,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:5",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -15992,7 +15992,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:6",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -16031,7 +16031,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:7",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -16070,7 +16070,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:8",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -16109,7 +16109,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:9",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -16148,7 +16148,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:MT",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 164,
             "sample_bases": 162,
             "sample_symbols_with_eos": 55,
@@ -16187,7 +16187,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:X",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -16226,7 +16226,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:Y",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -16265,7 +16265,7 @@
           {
             "species": "mus_musculus",
             "source_name": "mus_musculus:nonchromosomal",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 47914,
             "sample_bases": 47913,
             "sample_symbols_with_eos": 15972,
@@ -16304,7 +16304,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:nonchromosomal",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -16343,7 +16343,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:1",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -16382,7 +16382,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:10",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -16421,7 +16421,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:11",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -16460,7 +16460,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:12",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -16499,7 +16499,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:13",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -16538,7 +16538,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:14",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -16577,7 +16577,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:15",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -16616,7 +16616,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:16",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -16655,7 +16655,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:17",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -16694,7 +16694,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:18",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -16733,7 +16733,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:19",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -16772,7 +16772,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:2",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -16811,7 +16811,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:20",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -16850,7 +16850,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:21",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -16889,7 +16889,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:22",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -16928,7 +16928,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:23",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -16967,7 +16967,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:24",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -17006,7 +17006,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:25",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -17045,7 +17045,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:26",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -17084,7 +17084,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:27",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -17123,7 +17123,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:28",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -17162,7 +17162,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:29",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -17201,7 +17201,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:3",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -17240,7 +17240,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:4",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -17279,7 +17279,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:5",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -17318,7 +17318,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:6",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -17357,7 +17357,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:7",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -17396,7 +17396,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:8",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -17435,7 +17435,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:9",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -17474,7 +17474,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:MT",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 164,
             "sample_bases": 162,
             "sample_symbols_with_eos": 55,
@@ -17513,7 +17513,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:X",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -17552,7 +17552,7 @@
           {
             "species": "bos_taurus",
             "source_name": "bos_taurus:Y",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -17591,7 +17591,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:1",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -17630,7 +17630,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:10",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -17669,7 +17669,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:11",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -17708,7 +17708,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:12",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -17747,7 +17747,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:13",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -17786,7 +17786,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:14",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -17825,7 +17825,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:15",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -17864,7 +17864,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:16",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -17903,7 +17903,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:17",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -17942,7 +17942,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:18",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -17981,7 +17981,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:19",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -18020,7 +18020,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:2",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -18059,7 +18059,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:20",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -18098,7 +18098,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:21",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -18137,7 +18137,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:22",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -18176,7 +18176,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:23",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -18215,7 +18215,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:24",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -18254,7 +18254,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:25",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -18293,7 +18293,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:3",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -18332,7 +18332,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:4",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -18371,7 +18371,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:5",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -18410,7 +18410,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:6",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -18449,7 +18449,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:7",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -18488,7 +18488,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:8",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -18527,7 +18527,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:9",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -18566,7 +18566,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:MT",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 167,
             "sample_bases": 165,
             "sample_symbols_with_eos": 56,
@@ -18605,7 +18605,7 @@
           {
             "species": "danio_rerio",
             "source_name": "danio_rerio:nonchromosomal",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -18644,7 +18644,7 @@
           {
             "species": "drosophila_melanogaster",
             "source_name": "drosophila_melanogaster:nonchromosomal",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 61586,
             "sample_bases": 61584,
             "sample_symbols_with_eos": 20529,
@@ -18683,7 +18683,7 @@
           {
             "species": "drosophila_melanogaster",
             "source_name": "drosophila_melanogaster:2L",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -18722,7 +18722,7 @@
           {
             "species": "drosophila_melanogaster",
             "source_name": "drosophila_melanogaster:2R",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -18761,7 +18761,7 @@
           {
             "species": "drosophila_melanogaster",
             "source_name": "drosophila_melanogaster:3L",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -18800,7 +18800,7 @@
           {
             "species": "drosophila_melanogaster",
             "source_name": "drosophila_melanogaster:3R",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -18839,7 +18839,7 @@
           {
             "species": "drosophila_melanogaster",
             "source_name": "drosophila_melanogaster:4",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 13482,
             "sample_bases": 13482,
             "sample_symbols_with_eos": 4495,
@@ -18878,7 +18878,7 @@
           {
             "species": "drosophila_melanogaster",
             "source_name": "drosophila_melanogaster:X",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -18917,7 +18917,7 @@
           {
             "species": "drosophila_melanogaster",
             "source_name": "drosophila_melanogaster:Y",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 36675,
             "sample_bases": 36675,
             "sample_symbols_with_eos": 12226,
@@ -18956,7 +18956,7 @@
           {
             "species": "drosophila_melanogaster",
             "source_name": "drosophila_melanogaster:mitochondrion_genome",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 196,
             "sample_bases": 195,
             "sample_symbols_with_eos": 66,
@@ -18995,7 +18995,7 @@
           {
             "species": "caenorhabditis_elegans",
             "source_name": "caenorhabditis_elegans:I",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -19034,7 +19034,7 @@
           {
             "species": "caenorhabditis_elegans",
             "source_name": "caenorhabditis_elegans:II",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -19073,7 +19073,7 @@
           {
             "species": "caenorhabditis_elegans",
             "source_name": "caenorhabditis_elegans:III",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -19112,7 +19112,7 @@
           {
             "species": "caenorhabditis_elegans",
             "source_name": "caenorhabditis_elegans:IV",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -19151,7 +19151,7 @@
           {
             "species": "caenorhabditis_elegans",
             "source_name": "caenorhabditis_elegans:MtDNA",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 139,
             "sample_bases": 138,
             "sample_symbols_with_eos": 47,
@@ -19190,7 +19190,7 @@
           {
             "species": "caenorhabditis_elegans",
             "source_name": "caenorhabditis_elegans:V",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -19229,7 +19229,7 @@
           {
             "species": "caenorhabditis_elegans",
             "source_name": "caenorhabditis_elegans:X",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -19268,7 +19268,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:I",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 2303,
             "sample_bases": 2301,
             "sample_symbols_with_eos": 768,
@@ -19307,7 +19307,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:II",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 8133,
             "sample_bases": 8133,
             "sample_symbols_with_eos": 2712,
@@ -19346,7 +19346,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:III",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 3167,
             "sample_bases": 3165,
             "sample_symbols_with_eos": 1056,
@@ -19385,7 +19385,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:IV",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 15320,
             "sample_bases": 15318,
             "sample_symbols_with_eos": 5107,
@@ -19424,7 +19424,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:IX",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 4400,
             "sample_bases": 4398,
             "sample_symbols_with_eos": 1467,
@@ -19463,7 +19463,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:Mito",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 859,
             "sample_bases": 858,
             "sample_symbols_with_eos": 287,
@@ -19502,7 +19502,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:V",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 5770,
             "sample_bases": 5769,
             "sample_symbols_with_eos": 1924,
@@ -19541,7 +19541,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:VI",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 2703,
             "sample_bases": 2703,
             "sample_symbols_with_eos": 902,
@@ -19580,7 +19580,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:VII",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 10910,
             "sample_bases": 10908,
             "sample_symbols_with_eos": 3637,
@@ -19619,7 +19619,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:VIII",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 5627,
             "sample_bases": 5625,
             "sample_symbols_with_eos": 1876,
@@ -19658,7 +19658,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:X",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 7459,
             "sample_bases": 7458,
             "sample_symbols_with_eos": 2487,
@@ -19697,7 +19697,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:XI",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 6669,
             "sample_bases": 6669,
             "sample_symbols_with_eos": 2224,
@@ -19736,7 +19736,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:XII",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 10783,
             "sample_bases": 10782,
             "sample_symbols_with_eos": 3595,
@@ -19775,7 +19775,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:XIII",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 9245,
             "sample_bases": 9243,
             "sample_symbols_with_eos": 3082,
@@ -19814,7 +19814,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:XIV",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 7844,
             "sample_bases": 7842,
             "sample_symbols_with_eos": 2615,
@@ -19853,7 +19853,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:XV",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 10914,
             "sample_bases": 10914,
             "sample_symbols_with_eos": 3639,
@@ -19892,7 +19892,7 @@
           {
             "species": "saccharomyces_cerevisiae",
             "source_name": "saccharomyces_cerevisiae:XVI",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 9482,
             "sample_bases": 9480,
             "sample_symbols_with_eos": 3161,
@@ -19931,7 +19931,7 @@
           {
             "species": "arabidopsis_thaliana",
             "source_name": "arabidopsis_thaliana:1",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -19970,7 +19970,7 @@
           {
             "species": "arabidopsis_thaliana",
             "source_name": "arabidopsis_thaliana:2",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -20009,7 +20009,7 @@
           {
             "species": "arabidopsis_thaliana",
             "source_name": "arabidopsis_thaliana:3",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -20048,7 +20048,7 @@
           {
             "species": "arabidopsis_thaliana",
             "source_name": "arabidopsis_thaliana:4",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -20087,7 +20087,7 @@
           {
             "species": "arabidopsis_thaliana",
             "source_name": "arabidopsis_thaliana:5",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_bases": 99999,
             "sample_symbols_with_eos": 33334,
@@ -20126,7 +20126,7 @@
           {
             "species": "arabidopsis_thaliana",
             "source_name": "arabidopsis_thaliana:Mt",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 3670,
             "sample_bases": 3669,
             "sample_symbols_with_eos": 1224,
@@ -20165,7 +20165,7 @@
           {
             "species": "arabidopsis_thaliana",
             "source_name": "arabidopsis_thaliana:Pt",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 1546,
             "sample_bases": 1545,
             "sample_symbols_with_eos": 516,

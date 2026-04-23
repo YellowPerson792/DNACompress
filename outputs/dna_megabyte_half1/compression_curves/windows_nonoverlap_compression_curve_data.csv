@@ -1,0 +1,10 @@
+split,mode,species,source_name,sample_bytes,sample_bases,arithmetic_bits_per_base,theoretical_bits_per_base,vs_2bit_percent,paper_baseline_percent,paper_baseline_bpb,compression_bases_per_second,compression_mbases_per_second,compression_bytes_per_second,compression_mbytes_per_second
+train,windows_nonoverlap,GaGa,GaGa,100000,,,,,91.0,1.82,,,,
+train,windows_nonoverlap,DrMe,DrMe,100000,,,,,93.0,1.86,,,,
+train,windows_nonoverlap,EnIn,EnIn,100000,,,,,79.0,1.58,,,,
+train,windows_nonoverlap,PlFa,PlFa,100000,,,,,87.0,1.74,,,,
+train,windows_nonoverlap,HePy,HePy,100000,,,,,91.0,1.82,,,,
+train,windows_nonoverlap,AeCa,AeCa,100000,,,,,97.0,1.94,,,,
+train,windows_nonoverlap,HaHi,HaHi,100000,,,,,93.0,1.86,,,,
+train,windows_nonoverlap,AnCa,AnCa,100000,,,,,,,,,,
+train,windows_nonoverlap,WaMe,WaMe,100000,,,,,,,,,,

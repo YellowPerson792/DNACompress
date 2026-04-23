@@ -93,7 +93,7 @@
   },
   "results": {
     "train": {
-      "train_windows_nonoverlap": {
+      "windows_nonoverlap": {
         "aggregate": {
           "source_count": 1,
           "total_sample_bytes": 1000000,
@@ -116,7 +116,7 @@
         "per_source": [
           {
             "species": "GaGa",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 1000000,
             "sample_bases": 999999,
             "sample_symbols_with_eos": 333334,
@@ -145,7 +145,7 @@
       }
     },
     "val": {
-      "train_windows_nonoverlap": {
+      "windows_nonoverlap": {
         "aggregate": {
           "source_count": 1,
           "total_sample_bytes": 1000000,
@@ -168,7 +168,7 @@
         "per_source": [
           {
             "species": "GaGa",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 1000000,
             "sample_bases": 999999,
             "sample_symbols_with_eos": 333334,
@@ -197,7 +197,7 @@
       }
     },
     "test": {
-      "train_windows_nonoverlap": {
+      "windows_nonoverlap": {
         "aggregate": {
           "source_count": 1,
           "total_sample_bytes": 1000000,
@@ -220,7 +220,7 @@
         "per_source": [
           {
             "species": "GaGa",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 1000000,
             "sample_bases": 999999,
             "sample_symbols_with_eos": 333334,

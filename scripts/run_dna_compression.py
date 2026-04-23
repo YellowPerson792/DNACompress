@@ -26,36 +26,38 @@ from __future__ import annotations
 
 Modes:
   - sliding_token: original per-token right-aligned sliding window evaluation
-  - train_windows_nonoverlap: contiguous non-overlapping windows, matching training-style inputs
-  - train_windows_overlap: contiguous overlapping windows with patch-aligned stride;
+  - windows_nonoverlap: contiguous non-overlapping windows, matching training-style inputs
+  - windows_overlap: contiguous overlapping windows with patch-aligned stride;
     exact cache reuse is not enabled in this evaluator
 
 Complete examples:
 
     python scripts/run_dna_compression.py \
-      --run-dir outputs/dna_megabyte_large_b128_ensembl_all_finetune \
-      --output-json outputs/dna_megabyte_large_b128_ensembl_all_finetune/statistics/compression_compare.json \
+      --run-dir outputs/dna_megabyte_huge_ensembl_all \
+      --output-json outputs/dna_megabyte_huge_ensembl_all/statistics_test/compression_compare.json \
       --checkpoint-tag best \
       --dataset-dir datasets/DNACorpus \
       --sequence-source-mode auto \
       --multi-sequence-mode separate \
       --split train val test \
-      --train-ratio 0.6 \
-        --val-ratio 0.2 \
-        --test-ratio 0.2 \
       --eval-batch-size 10 \
-      --compression-modes train_windows_nonoverlap \
+      --compression-modes windows_nonoverlap \
       --compression-sample-bytes 60000 \
       --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe \
       --arithmetic-coding-mode model_symbol \
       --arithmetic-merge-size 3 \
-      --device cuda:1 
-      
+      --device cuda:1 \
+      --export-position-bits-curves 
+        
+      --export-position-bits-curves \
       --device cuda:2 \
       --species homo_sapiens mus_musculus bos_taurus danio_rerio \
                 drosophila_melanogaster caenorhabditis_elegans \
                 saccharomyces_cerevisiae arabidopsis_thaliana \
       --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe \
+      --train-ratio 0.6 \
+      --val-ratio 0.2 \
+      --test-ratio 0.2 \
       --parallel-window-arithmetic \
       --arithmetic-workers 0
 
@@ -65,12 +67,12 @@ Complete examples:
       --sequence-source-mode auto \
       --multi-sequence-mode separate \
       --split train val test \
-      --compression-modes train_windows_overlap \
+      --compression-modes windows_overlap \
       --overlap-patches 128 \
       --species homo_sapiens mus_musculus bos_taurus danio_rerio \
                 drosophila_melanogaster caenorhabditis_elegans \
                 saccharomyces_cerevisiae arabidopsis_thaliana \
-    --output-json outputs/dna_megabyte_quick_l1024_p3/statistics/compression_compare.json \
+      --output-json outputs/dna_megabyte_quick_l1024_p3/statistics/compression_compare.json \
       --export-out-dir outputs/dna_megabyte_quick_l1024_p3/statistics
 
 Compatibility (explicit paths still supported):
@@ -82,8 +84,11 @@ Compatibility (explicit paths still supported):
 """
  
 import argparse
+import csv
+import importlib
 import json
 from pathlib import Path
+import re
 import subprocess
 import sys
 import time
@@ -330,6 +335,147 @@ def _resolve_overlap_stride(config: ExperimentConfig, args: argparse.Namespace) 
     return args.overlap_stride
 
 
+def _sanitize_artifact_name(name: str) -> str:
+    sanitized = re.sub(r"[^0-9A-Za-z]+", "_", name).strip("_")
+    return sanitized or "source"
+
+
+def _load_matplotlib_pyplot():
+    try:
+        matplotlib = importlib.import_module("matplotlib")
+    except ImportError as error:
+        raise RuntimeError(
+            "Position-bits curve export requires matplotlib. Install it or rerun without "
+            "--export-position-bits-curves."
+        ) from error
+    matplotlib.use("Agg")
+    return importlib.import_module("matplotlib.pyplot")
+
+
+def _build_position_bits_profile_rows(
+    *,
+    split_name: str,
+    mode_name: str,
+    species_name: str,
+    source_name: str,
+    profile: dict[str, object],
+) -> list[dict[str, object]]:
+    counts = profile["counts"]
+    sum_bits = profile["sum_bits_per_base"]
+    window_base_length = int(profile["window_base_length"])
+
+    rows: list[dict[str, object]] = []
+    for window_position in range(window_base_length):
+        count = sum(int(base_counts[window_position]) for base_counts in counts)
+        bits_sum = sum(float(base_sum_bits[window_position]) for base_sum_bits in sum_bits)
+        rows.append(
+            {
+                "split": split_name,
+                "mode": mode_name,
+                "species": species_name,
+                "source_name": source_name,
+                "window_position_zero_based": window_position,
+                "window_position_one_based": window_position + 1,
+                "count": count,
+                "sum_bits_per_base": bits_sum,
+                "mean_bits_per_base": (bits_sum / count) if count > 0 else None,
+            }
+        )
+    return rows
+
+
+def _write_position_bits_profile_csv(path: Path, rows: list[dict[str, object]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    columns = [
+        "split",
+        "mode",
+        "species",
+        "source_name",
+        "window_position_zero_based",
+        "window_position_one_based",
+        "count",
+        "sum_bits_per_base",
+        "mean_bits_per_base",
+    ]
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=columns)
+        writer.writeheader()
+        for row in rows:
+            writer.writerow({column: row.get(column) for column in columns})
+
+
+def _write_position_bits_profile_png(
+    *,
+    path: Path,
+    split_name: str,
+    mode_name: str,
+    species_name: str,
+    source_name: str,
+    profile: dict[str, object],
+) -> None:
+    plt = _load_matplotlib_pyplot()
+    counts = profile["counts"]
+    sum_bits = profile["sum_bits_per_base"]
+    window_base_length = int(profile["window_base_length"])
+    x_values = list(range(1, window_base_length + 1))
+
+    figure_width = max(8.0, min(18.0, window_base_length / 8.0))
+    figure, axis = plt.subplots(figsize=(figure_width, 4.8))
+    y_values = []
+    for position in range(window_base_length):
+        total_count = sum(int(base_counts[position]) for base_counts in counts)
+        total_bits = sum(float(base_sum_bits[position]) for base_sum_bits in sum_bits)
+        y_values.append((total_bits / total_count) if total_count > 0 else float("nan"))
+    axis.plot(x_values, y_values, linewidth=2.0, color="#1f77b4")
+
+    axis.set_xlabel("Window Position (1-based)")
+    axis.set_ylabel("Mean Theoretical Bits per Base")
+    axis.set_title(f"{split_name} | {mode_name} | {species_name} | {source_name}")
+    axis.grid(True, alpha=0.25, linewidth=0.6)
+    figure.tight_layout()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    figure.savefig(path, dpi=160)
+    plt.close(figure)
+
+
+def _export_position_bits_profile_artifacts(
+    *,
+    out_dir: Path,
+    split_name: str,
+    mode_name: str,
+    species_name: str,
+    source_name: str,
+    profile: dict[str, object],
+) -> dict[str, object]:
+    sanitized_name = _sanitize_artifact_name(source_name)
+    artifact_dir = out_dir / split_name / mode_name
+    csv_path = artifact_dir / f"{sanitized_name}_position_bits.csv"
+    png_path = artifact_dir / f"{sanitized_name}_position_bits.png"
+    rows = _build_position_bits_profile_rows(
+        split_name=split_name,
+        mode_name=mode_name,
+        species_name=species_name,
+        source_name=source_name,
+        profile=profile,
+    )
+    _write_position_bits_profile_csv(csv_path, rows)
+    _write_position_bits_profile_png(
+        path=png_path,
+        split_name=split_name,
+        mode_name=mode_name,
+        species_name=species_name,
+        source_name=source_name,
+        profile=profile,
+    )
+    return {
+        "position_bits_profile_enabled": True,
+        "position_bits_curve_csv": str(csv_path),
+        "position_bits_curve_png": str(png_path),
+        "position_bits_profile_total_bits": float(profile["total_bits"]),
+        "position_bits_profile_excludes_eos": bool(profile.get("excludes_eos", True)),
+    }
+
+
 def _run_split(
     *,
     model: torch.nn.Module,
@@ -340,6 +486,8 @@ def _run_split(
     overlap_stride: int,
     device: torch.device,
     factorizer,
+    export_position_bits_curves: bool,
+    position_bits_out_dir: Path | None,
 ) -> dict[str, object]:
     sources = _sources_for_split(splits, split_name)
     source_entries = _source_entries(splits)
@@ -348,9 +496,18 @@ def _run_split(
     for mode in modes:
         per_source: list[dict[str, object]] = []
         source_total = len(sources)
+        warned_position_bits_unavailable = False
         for source_index, (entry, source) in enumerate(zip(source_entries, sources), start=1):
             species_name = str(entry["species"])
             source_name = str(entry.get("source_name", species_name))
+
+            if export_position_bits_curves and mode == SLIDING_TOKEN_MODE and not warned_position_bits_unavailable:
+                print(
+                    f"[position-bits] skip split={split_name} mode={mode}: "
+                    "sliding_token has no stable window-relative position profile.",
+                    flush=True,
+                )
+                warned_position_bits_unavailable = True
 
             def _on_progress(batch_done: int, batch_total: int, *, si: int = source_index, sn: str = source_name) -> None:
                 ratio = 100.0 * batch_done / max(batch_total, 1)
@@ -383,9 +540,27 @@ def _run_split(
                 arithmetic_merge_size=config.arithmetic.merge_size,
                 factorizer=factorizer,
                 progress_callback=_on_progress,
+                collect_position_bits_profile=export_position_bits_curves and mode != SLIDING_TOKEN_MODE,
             )
             print()
-            per_source.append({"species": species_name, "source_name": source_name, **metrics})
+            position_bits_profile = metrics.pop("position_bits_profile", None)
+            row = {"species": species_name, "source_name": source_name, **metrics}
+            if export_position_bits_curves:
+                if position_bits_profile is not None and position_bits_out_dir is not None:
+                    row.update(
+                        _export_position_bits_profile_artifacts(
+                            out_dir=position_bits_out_dir,
+                            split_name=split_name,
+                            mode_name=mode,
+                            species_name=species_name,
+                            source_name=source_name,
+                            profile=position_bits_profile,
+                        )
+                    )
+                else:
+                    row["position_bits_profile_enabled"] = False
+                    row["position_bits_profile_excludes_eos"] = True
+            per_source.append(row)
 
         split_result[mode] = {
             "aggregate": summarize_per_source(per_source),
@@ -459,6 +634,20 @@ def _resolve_output_paths(args: argparse.Namespace, config: ExperimentConfig) ->
     return output_json, export_out_dir
 
 
+def _resolve_position_bits_out_dir(
+    args: argparse.Namespace,
+    *,
+    output_json: Path,
+    export_out_dir: Path | None,
+) -> Path | None:
+    if not args.export_position_bits_curves:
+        return None
+    if args.position_bits_out_dir:
+        return Path(args.position_bits_out_dir)
+    base_dir = export_out_dir if export_out_dir is not None else output_json.parent
+    return base_dir / "position_bits_curves"
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Run standalone DNA compression comparisons with a trained Megabyte checkpoint.",
@@ -488,7 +677,7 @@ def _build_parser() -> argparse.ArgumentParser:
         "--overlap-stride",
         type=int,
         default=None,
-        help="Overlap stride in tokens for train_windows_overlap mode. Must be a multiple of patch_size.",
+        help="Overlap stride in tokens for windows_overlap mode. Must be a multiple of patch_size.",
     )
     parser.add_argument(
         "--overlap-patches",
@@ -507,6 +696,16 @@ def _build_parser() -> argparse.ArgumentParser:
         "--export-out-dir",
         default=None,
         help="Optional output directory for exported tables. Defaults to the parent directory of --output-json.",
+    )
+    parser.add_argument(
+        "--export-position-bits-curves",
+        action="store_true",
+        help="Export per-source average theoretical bits/base curves by window-relative base position.",
+    )
+    parser.add_argument(
+        "--position-bits-out-dir",
+        default=None,
+        help="Optional output directory for position-bits CSV/PNG artifacts. Defaults to <export-out-dir>/position_bits_curves.",
     )
     parser.add_argument("--export-project", default="", help="Optional project metadata for exported run_metadata.json.")
     parser.add_argument("--export-entity", default="", help="Optional entity metadata for exported run_metadata.json.")
@@ -606,6 +805,12 @@ def main() -> None:
         )
     requested_splits = _normalize_splits(args.split)
     overlap_stride = _resolve_overlap_stride(config, args)
+    output_json, export_out_dir = _resolve_output_paths(args, config)
+    position_bits_out_dir = _resolve_position_bits_out_dir(
+        args,
+        output_json=output_json,
+        export_out_dir=export_out_dir,
+    )
     metrics = {
         "device": str(device),
         "checkpoint_path": str(checkpoint_path),
@@ -630,6 +835,8 @@ def main() -> None:
             overlap_stride=overlap_stride,
             device=device,
             factorizer=factorizer,
+            export_position_bits_curves=args.export_position_bits_curves,
+            position_bits_out_dir=position_bits_out_dir,
         )
         if "arithmetic" not in metrics:
             split_result = metrics["results"][split_name]
@@ -651,7 +858,6 @@ def main() -> None:
                         }
                         break
 
-    output_json, export_out_dir = _resolve_output_paths(args, config)
     output_json.parent.mkdir(parents=True, exist_ok=True)
     output_json.write_text(json.dumps(metrics, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"Saved compression metrics to {output_json}")

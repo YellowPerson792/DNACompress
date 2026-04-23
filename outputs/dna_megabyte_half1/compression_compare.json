@@ -141,7 +141,7 @@
   },
   "results": {
     "train": {
-      "train_windows_nonoverlap": {
+      "windows_nonoverlap": {
         "aggregate": {
           "source_count": 9,
           "total_sample_bytes": 900000,
@@ -158,7 +158,7 @@
         "per_source": [
           {
             "species": "GaGa",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_symbols_with_eos": 100001,
             "theoretical_bits": 190376.92070771786,
@@ -176,7 +176,7 @@
           },
           {
             "species": "DrMe",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_symbols_with_eos": 100001,
             "theoretical_bits": 189569.84785245836,
@@ -194,7 +194,7 @@
           },
           {
             "species": "EnIn",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_symbols_with_eos": 100001,
             "theoretical_bits": 191377.97588298545,
@@ -212,7 +212,7 @@
           },
           {
             "species": "PlFa",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_symbols_with_eos": 100001,
             "theoretical_bits": 186440.6854093525,
@@ -230,7 +230,7 @@
           },
           {
             "species": "HePy",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_symbols_with_eos": 100001,
             "theoretical_bits": 194190.28260636792,
@@ -248,7 +248,7 @@
           },
           {
             "species": "AeCa",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_symbols_with_eos": 100001,
             "theoretical_bits": 199078.308414896,
@@ -266,7 +266,7 @@
           },
           {
             "species": "HaHi",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_symbols_with_eos": 100001,
             "theoretical_bits": 187557.08766059624,
@@ -284,7 +284,7 @@
           },
           {
             "species": "AnCa",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_symbols_with_eos": 100001,
             "theoretical_bits": 191244.5443443824,
@@ -302,7 +302,7 @@
           },
           {
             "species": "WaMe",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_symbols_with_eos": 100001,
             "theoretical_bits": 195790.9711466066,
@@ -322,7 +322,7 @@
       }
     },
     "val": {
-      "train_windows_nonoverlap": {
+      "windows_nonoverlap": {
         "aggregate": {
           "source_count": 9,
           "total_sample_bytes": 862943,
@@ -339,7 +339,7 @@
         "per_source": [
           {
             "species": "GaGa",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_symbols_with_eos": 100001,
             "theoretical_bits": 185716.0921767166,
@@ -357,7 +357,7 @@
           },
           {
             "species": "DrMe",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_symbols_with_eos": 100001,
             "theoretical_bits": 192131.59397242012,
@@ -375,7 +375,7 @@
           },
           {
             "species": "EnIn",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_symbols_with_eos": 100001,
             "theoretical_bits": 194331.4380181145,
@@ -393,7 +393,7 @@
           },
           {
             "species": "PlFa",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_symbols_with_eos": 100001,
             "theoretical_bits": 185242.30790448491,
@@ -411,7 +411,7 @@
           },
           {
             "species": "HePy",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 83391,
             "sample_symbols_with_eos": 83392,
             "theoretical_bits": 162224.11547828457,
@@ -429,7 +429,7 @@
           },
           {
             "species": "AeCa",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 79552,
             "sample_symbols_with_eos": 79553,
             "theoretical_bits": 153051.65480532026,
@@ -447,7 +447,7 @@
           },
           {
             "species": "HaHi",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_symbols_with_eos": 100001,
             "theoretical_bits": 193413.0550326822,
@@ -465,7 +465,7 @@
           },
           {
             "species": "AnCa",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_symbols_with_eos": 100001,
             "theoretical_bits": 189318.56950601548,
@@ -483,7 +483,7 @@
           },
           {
             "species": "WaMe",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_symbols_with_eos": 100001,
             "theoretical_bits": 196445.23927708814,
@@ -503,7 +503,7 @@
       }
     },
     "test": {
-      "train_windows_nonoverlap": {
+      "windows_nonoverlap": {
         "aggregate": {
           "source_count": 9,
           "total_sample_bytes": 862945,
@@ -520,7 +520,7 @@
         "per_source": [
           {
             "species": "GaGa",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_symbols_with_eos": 100001,
             "theoretical_bits": 190330.07419321823,
@@ -538,7 +538,7 @@
           },
           {
             "species": "DrMe",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_symbols_with_eos": 100001,
             "theoretical_bits": 195583.19038314675,
@@ -556,7 +556,7 @@
           },
           {
             "species": "EnIn",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_symbols_with_eos": 100001,
             "theoretical_bits": 191472.08243465584,
@@ -574,7 +574,7 @@
           },
           {
             "species": "PlFa",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_symbols_with_eos": 100001,
             "theoretical_bits": 185012.03905057424,
@@ -592,7 +592,7 @@
           },
           {
             "species": "HePy",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 83392,
             "sample_symbols_with_eos": 83393,
             "theoretical_bits": 161437.1864574133,
@@ -610,7 +610,7 @@
           },
           {
             "species": "AeCa",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 79553,
             "sample_symbols_with_eos": 79554,
             "theoretical_bits": 153789.78224133796,
@@ -628,7 +628,7 @@
           },
           {
             "species": "HaHi",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_symbols_with_eos": 100001,
             "theoretical_bits": 192488.3857180165,
@@ -646,7 +646,7 @@
           },
           {
             "species": "AnCa",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_symbols_with_eos": 100001,
             "theoretical_bits": 190550.49814529443,
@@ -664,7 +664,7 @@
           },
           {
             "species": "WaMe",
-            "mode": "train_windows_nonoverlap",
+            "mode": "windows_nonoverlap",
             "sample_bytes": 100000,
             "sample_symbols_with_eos": 100001,
             "theoretical_bits": 196545.66896974423,

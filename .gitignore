@@ -11,3 +11,10 @@ __pycache__/
 **/*.pt
 **/__pycache__/
 **/__pycache__/**
+
+# Generated position-level plots
+**/position_bits_curves/**/*.png
+**/position_bits_curves/**/*.jpg
+**/position_bits_curves/**/*.jpeg
+**/position_bits_curves/**/*.svg
+**/position_bits_curves/**/*.pdf

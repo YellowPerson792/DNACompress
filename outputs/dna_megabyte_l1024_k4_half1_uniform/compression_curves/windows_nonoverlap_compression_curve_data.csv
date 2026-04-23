@@ -1,0 +1,9 @@
+split,mode,species,source_name,sample_bytes,sample_bases,arithmetic_bits_per_base,theoretical_bits_per_base,vs_2bit_percent,paper_baseline_percent,paper_baseline_bpb,compression_bases_per_second,compression_mbases_per_second,compression_bytes_per_second,compression_mbytes_per_second
+train,windows_nonoverlap,OrSa,OrSa,100000,100000,1.94304,1.9391841737440485,97.152,80.0,1.6,,,,
+train,windows_nonoverlap,HoSa,HoSa,100000,100000,1.8936,1.8898559586424697,94.67999999999999,82.0,1.64,,,,
+train,windows_nonoverlap,DaRe,DaRe,100000,100000,1.92904,1.925624750524152,96.452,74.0,1.48,,,,
+train,windows_nonoverlap,ScPo,ScPo,100000,100000,1.95192,1.9479098811569848,97.596,95.0,1.9,,,,
+train,windows_nonoverlap,EsCo,EsCo,100000,100000,1.96304,1.959068892851515,98.152,95.0,1.9,,,,
+train,windows_nonoverlap,YeMi,YeMi,44213,44212,0.11327241472903284,0.10682889165289125,5.663620736451642,94.0,1.88,,,,
+train,windows_nonoverlap,BuEb,BuEb,11364,11364,0.5744456177402323,0.5686822349856518,28.722280887011614,99.0,1.98,,,,
+train,windows_nonoverlap,AgPh,AgPh,26382,26380,0.1649734647460197,0.15834028529448585,8.248673237300984,99.0,1.98,,,,

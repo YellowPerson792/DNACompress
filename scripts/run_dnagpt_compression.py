@@ -9,7 +9,7 @@ Example: evaluate official DNAGPT 0.1B multi-organism weights on HoSa test split
       --eval-batch-size 10 \
       --config configs/dna_dnagpt_h_quick.json \
       --weight third_party/DNAGPT/checkpoints/dna_gpt0.1b_h.pth \
-      --compression-modes train_windows_nonoverlap \
+      --compression-modes windows_nonoverlap \
       --compression-sample-bytes 60000 \
       --train-ratio 0.6 \
       --val-ratio 0.2 \
@@ -27,7 +27,7 @@ Example: evaluate official DNAGPT 0.1B multi-organism weights on HoSa test split
       --split train val test \
       --eval-batch-size 10 \
       --run-dir outputs/dna_dnagpt_0p1bm_all_finetune \
-      --compression-modes train_windows_nonoverlap \
+      --compression-modes windows_nonoverlap \
       --compression-sample-bytes 60000 \
       --arithmetic-coding-mode base_prefix_exact_gpu_cpu \
       --arithmetic-merge-size 2 \
