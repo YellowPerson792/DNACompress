@@ -174,7 +174,8 @@ def open_training_log_file(output_dir: Path, filename: str = "training_metrics.j
 
 
 def write_training_log_event(handle: TextIO, event: dict[str, object]) -> None:
-    handle.write(json.dumps(event, ensure_ascii=False) + "\n")
+    line = json.dumps(event, ensure_ascii=False)
+    handle.write(line + "\n")
     handle.flush()
 
 
@@ -778,7 +779,7 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
 
                     scaler.scale(loss).backward()
                     scaler.unscale_(optimizer)
-                    clip_grad_norm_(model.parameters(), config.train.grad_clip_norm)
+                    grad_norm = clip_grad_norm_(model.parameters(), config.train.grad_clip_norm)
                     scaler.step(optimizer)
                     scaler.update()
                     if scheduler is not None:
@@ -803,6 +804,7 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
                                     "epoch": epoch + 1,
                                     "loss_nats_per_token": float(loss.item()),
                                     "bits_per_base": float(bits_per_base),
+                                    "grad_norm": float(grad_norm.item() if isinstance(grad_norm, torch.Tensor) else grad_norm),
                                     "learning_rate": float(optimizer.param_groups[0]["lr"]),
                                     "tokens_per_second": float(tokens_per_second),
                                 },
@@ -813,6 +815,7 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
                                 "epoch": epoch + 1,
                                 "train/loss": float(loss.item()),
                                 "train/bpb": float(bits_per_base),
+                                "train/grad_norm": float(grad_norm.item() if isinstance(grad_norm, torch.Tensor) else grad_norm),
                                 "train/lr": float(optimizer.param_groups[0]["lr"]),
                                 "train/tokens_per_second": float(tokens_per_second),
                             },
@@ -821,6 +824,7 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
                         print(
                             f"[train] epoch={epoch + 1} step={global_step} "
                             f"loss/token={loss.item():.4f} bits/base={bits_per_base:.4f} "
+                            f"grad_norm={float(grad_norm.item() if isinstance(grad_norm, torch.Tensor) else grad_norm):.4f} "
                             f"bytes/s={bytes_per_second:.1f} lr={optimizer.param_groups[0]['lr']:.6g}",
                             flush=True,
                         )

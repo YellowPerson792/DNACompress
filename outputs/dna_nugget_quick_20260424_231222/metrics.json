@@ -1,0 +1,444 @@
+{
+  "device": "cuda:0",
+  "gpu_ids": [
+    0
+  ],
+  "distributed_data_parallel": false,
+  "world_size": 1,
+  "model_parameters": 146875393,
+  "dataset": {
+    "species": [
+      {
+        "species": "OrSa",
+        "source_name": "OrSa",
+        "source_mode": "flat_file",
+        "source_path": "datasets/DNACorpus/OrSa",
+        "sequence_keys": [
+          "OrSa"
+        ],
+        "sequence_files": [
+          "OrSa"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 43262523,
+        "train_start": 0,
+        "train_bytes": 25957513,
+        "val_start": 25957513,
+        "val_bytes": 8652504,
+        "test_start": 34610017,
+        "test_bytes": 8652506,
+        "clean_cache_status": "not_applicable",
+        "clean_cache_path": null
+      },
+      {
+        "species": "HoSa",
+        "source_name": "HoSa",
+        "source_mode": "flat_file",
+        "source_path": "datasets/DNACorpus/HoSa",
+        "sequence_keys": [
+          "HoSa"
+        ],
+        "sequence_files": [
+          "HoSa"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 189752667,
+        "train_start": 0,
+        "train_bytes": 113851600,
+        "val_start": 113851600,
+        "val_bytes": 37950533,
+        "test_start": 151802133,
+        "test_bytes": 37950534,
+        "clean_cache_status": "not_applicable",
+        "clean_cache_path": null
+      },
+      {
+        "species": "DaRe",
+        "source_name": "DaRe",
+        "source_mode": "flat_file",
+        "source_path": "datasets/DNACorpus/DaRe",
+        "sequence_keys": [
+          "DaRe"
+        ],
+        "sequence_files": [
+          "DaRe"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 62565020,
+        "train_start": 0,
+        "train_bytes": 37539012,
+        "val_start": 37539012,
+        "val_bytes": 12513004,
+        "test_start": 50052016,
+        "test_bytes": 12513004,
+        "clean_cache_status": "not_applicable",
+        "clean_cache_path": null
+      },
+      {
+        "species": "ScPo",
+        "source_name": "ScPo",
+        "source_mode": "flat_file",
+        "source_path": "datasets/DNACorpus/ScPo",
+        "sequence_keys": [
+          "ScPo"
+        ],
+        "sequence_files": [
+          "ScPo"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 10652155,
+        "train_start": 0,
+        "train_bytes": 6391293,
+        "val_start": 6391293,
+        "val_bytes": 2130431,
+        "test_start": 8521724,
+        "test_bytes": 2130431,
+        "clean_cache_status": "not_applicable",
+        "clean_cache_path": null
+      },
+      {
+        "species": "EsCo",
+        "source_name": "EsCo",
+        "source_mode": "flat_file",
+        "source_path": "datasets/DNACorpus/EsCo",
+        "sequence_keys": [
+          "EsCo"
+        ],
+        "sequence_files": [
+          "EsCo"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 4641652,
+        "train_start": 0,
+        "train_bytes": 2784991,
+        "val_start": 2784991,
+        "val_bytes": 928330,
+        "test_start": 3713321,
+        "test_bytes": 928331,
+        "clean_cache_status": "not_applicable",
+        "clean_cache_path": null
+      },
+      {
+        "species": "YeMi",
+        "source_name": "YeMi",
+        "source_mode": "flat_file",
+        "source_path": "datasets/DNACorpus/YeMi",
+        "sequence_keys": [
+          "YeMi"
+        ],
+        "sequence_files": [
+          "YeMi"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 73689,
+        "train_start": 0,
+        "train_bytes": 44213,
+        "val_start": 44213,
+        "val_bytes": 14737,
+        "test_start": 58950,
+        "test_bytes": 14739,
+        "clean_cache_status": "not_applicable",
+        "clean_cache_path": null
+      },
+      {
+        "species": "BuEb",
+        "source_name": "BuEb",
+        "source_mode": "flat_file",
+        "source_path": "datasets/DNACorpus/BuEb",
+        "sequence_keys": [
+          "BuEb"
+        ],
+        "sequence_files": [
+          "BuEb"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 18940,
+        "train_start": 0,
+        "train_bytes": 11364,
+        "val_start": 11364,
+        "val_bytes": 3788,
+        "test_start": 15152,
+        "test_bytes": 3788,
+        "clean_cache_status": "not_applicable",
+        "clean_cache_path": null
+      },
+      {
+        "species": "AgPh",
+        "source_name": "AgPh",
+        "source_mode": "flat_file",
+        "source_path": "datasets/DNACorpus/AgPh",
+        "sequence_keys": [
+          "AgPh"
+        ],
+        "sequence_files": [
+          "AgPh"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 43970,
+        "train_start": 0,
+        "train_bytes": 26382,
+        "val_start": 26382,
+        "val_bytes": 8794,
+        "test_start": 35176,
+        "test_bytes": 8794,
+        "clean_cache_status": "not_applicable",
+        "clean_cache_path": null
+      },
+      {
+        "species": "GaGa",
+        "source_name": "GaGa",
+        "source_mode": "flat_file",
+        "source_path": "datasets/DNACorpus/GaGa",
+        "sequence_keys": [
+          "GaGa"
+        ],
+        "sequence_files": [
+          "GaGa"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 148532294,
+        "train_start": 0,
+        "train_bytes": 89119376,
+        "val_start": 89119376,
+        "val_bytes": 29706458,
+        "test_start": 118825834,
+        "test_bytes": 29706460,
+        "clean_cache_status": "not_applicable",
+        "clean_cache_path": null
+      },
+      {
+        "species": "DrMe",
+        "source_name": "DrMe",
+        "source_mode": "flat_file",
+        "source_path": "datasets/DNACorpus/DrMe",
+        "sequence_keys": [
+          "DrMe"
+        ],
+        "sequence_files": [
+          "DrMe"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 32181429,
+        "train_start": 0,
+        "train_bytes": 19308857,
+        "val_start": 19308857,
+        "val_bytes": 6436285,
+        "test_start": 25745142,
+        "test_bytes": 6436287,
+        "clean_cache_status": "not_applicable",
+        "clean_cache_path": null
+      },
+      {
+        "species": "EnIn",
+        "source_name": "EnIn",
+        "source_mode": "flat_file",
+        "source_path": "datasets/DNACorpus/EnIn",
+        "sequence_keys": [
+          "EnIn"
+        ],
+        "sequence_files": [
+          "EnIn"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 26403087,
+        "train_start": 0,
+        "train_bytes": 15841852,
+        "val_start": 15841852,
+        "val_bytes": 5280617,
+        "test_start": 21122469,
+        "test_bytes": 5280618,
+        "clean_cache_status": "not_applicable",
+        "clean_cache_path": null
+      },
+      {
+        "species": "PlFa",
+        "source_name": "PlFa",
+        "source_mode": "flat_file",
+        "source_path": "datasets/DNACorpus/PlFa",
+        "sequence_keys": [
+          "PlFa"
+        ],
+        "sequence_files": [
+          "PlFa"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 8986712,
+        "train_start": 0,
+        "train_bytes": 5392027,
+        "val_start": 5392027,
+        "val_bytes": 1797342,
+        "test_start": 7189369,
+        "test_bytes": 1797343,
+        "clean_cache_status": "not_applicable",
+        "clean_cache_path": null
+      },
+      {
+        "species": "HePy",
+        "source_name": "HePy",
+        "source_mode": "flat_file",
+        "source_path": "datasets/DNACorpus/HePy",
+        "sequence_keys": [
+          "HePy"
+        ],
+        "sequence_files": [
+          "HePy"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 1667825,
+        "train_start": 0,
+        "train_bytes": 1000695,
+        "val_start": 1000695,
+        "val_bytes": 333565,
+        "test_start": 1334260,
+        "test_bytes": 333565,
+        "clean_cache_status": "not_applicable",
+        "clean_cache_path": null
+      },
+      {
+        "species": "AeCa",
+        "source_name": "AeCa",
+        "source_mode": "flat_file",
+        "source_path": "datasets/DNACorpus/AeCa",
+        "sequence_keys": [
+          "AeCa"
+        ],
+        "sequence_files": [
+          "AeCa"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 1591049,
+        "train_start": 0,
+        "train_bytes": 954629,
+        "val_start": 954629,
+        "val_bytes": 318209,
+        "test_start": 1272838,
+        "test_bytes": 318211,
+        "clean_cache_status": "not_applicable",
+        "clean_cache_path": null
+      },
+      {
+        "species": "HaHi",
+        "source_name": "HaHi",
+        "source_mode": "flat_file",
+        "source_path": "datasets/DNACorpus/HaHi",
+        "sequence_keys": [
+          "HaHi"
+        ],
+        "sequence_files": [
+          "HaHi"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 3890005,
+        "train_start": 0,
+        "train_bytes": 2334003,
+        "val_start": 2334003,
+        "val_bytes": 778001,
+        "test_start": 3112004,
+        "test_bytes": 778001,
+        "clean_cache_status": "not_applicable",
+        "clean_cache_path": null
+      },
+      {
+        "species": "AnCa",
+        "source_name": "AnCa",
+        "source_mode": "flat_file",
+        "source_path": "datasets/DNACorpus/AnCa",
+        "sequence_keys": [
+          "AnCa"
+        ],
+        "sequence_files": [
+          "AnCa"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 142189675,
+        "train_start": 0,
+        "train_bytes": 85313805,
+        "val_start": 85313805,
+        "val_bytes": 28437935,
+        "test_start": 113751740,
+        "test_bytes": 28437935,
+        "clean_cache_status": "not_applicable",
+        "clean_cache_path": null
+      },
+      {
+        "species": "WaMe",
+        "source_name": "WaMe",
+        "source_mode": "flat_file",
+        "source_path": "datasets/DNACorpus/WaMe",
+        "sequence_keys": [
+          "WaMe"
+        ],
+        "sequence_files": [
+          "WaMe"
+        ],
+        "selected_sequence_count": 1,
+        "total_size": 9144432,
+        "train_start": 0,
+        "train_bytes": 5486659,
+        "val_start": 5486659,
+        "val_bytes": 1828886,
+        "test_start": 7315545,
+        "test_bytes": 1828887,
+        "clean_cache_status": "not_applicable",
+        "clean_cache_path": null
+      }
+    ],
+    "alphabet_bytes": [
+      65,
+      67,
+      71,
+      84
+    ],
+    "clean_cache": {
+      "enabled": true,
+      "cache_dir": "datasets/DNACorpus/.dna_cache/clean",
+      "applicable_sources": 0,
+      "hits": 0,
+      "created": 0,
+      "rebuilt": 0,
+      "disabled": 0
+    }
+  },
+  "nugget": {
+    "backbone": "bart",
+    "tokenizer": "fixed_kmer",
+    "vocab_size": 15627,
+    "pad_id": 15625,
+    "eos_id": 15626,
+    "decoder_start_token_id": 15626,
+    "decoder_start_source": "eos_id",
+    "config_source": "/root/autodl-tmp/DNACompress/configs/hf/facebook_bart_base_config.json",
+    "d_model": 768,
+    "encoder_layers": 6,
+    "decoder_layers": 6,
+    "encoder_attention_heads": 12,
+    "decoder_attention_heads": 12,
+    "encoder_ffn_dim": 3072,
+    "decoder_ffn_dim": 3072,
+    "seq_length": 512,
+    "nugget_ratio": 0.7,
+    "hidden_mode": "runtime_hidden",
+    "hidden_storage_dtype": "runtime",
+    "loaded_checkpoint_path": null
+  },
+  "training_log_jsonl": "outputs/dna_nugget_quick_20260424_231222/training_metrics.jsonl",
+  "best_val_bits_per_base": 3.378580649931869e-05,
+  "validation": {
+    "loss_nats_per_token": 0.00014051121910767974,
+    "loss_nats_per_base": 2.3418536517946625e-05,
+    "bits_per_token": 0.00020271483899591213,
+    "bits_per_base": 3.378580649931869e-05,
+    "tokens": 22853228,
+    "bases": 137119368,
+    "elapsed_seconds": 174.9961061477661
+  },
+  "test": {
+    "loss_nats_per_token": 0.00014204164898648684,
+    "loss_nats_per_base": 2.3673608164414474e-05,
+    "bits_per_token": 0.00020492278259249543,
+    "bits_per_base": 3.415379709874924e-05,
+    "tokens": 22853231,
+    "bases": 137119386,
+    "elapsed_seconds": 175.31376934051514
+  }
+}

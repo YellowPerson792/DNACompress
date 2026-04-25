@@ -31,13 +31,13 @@ datasets are appended at the end.
 
 Complete example (train + eval + compression, with common overrides):
 
-    torchrun --nproc_per_node=2 scripts/run_dna_experiment.py \
-        --config configs/dna_megabyte_huge.json \
+    python scripts/run_dna_experiment.py \
+        --config configs/dna_megabyte_large.json \
         --mode all \
-        --init-from resume \
+        --init-from scratch \
         --pretrained-weight-path outputs/dna_megabyte_huge_ensembl_all/best.pt \
-        --seed 43 \
-        --dataset-dir datasets/ensembl_raw \
+        --seed 42 \
+        --dataset-dir datasets/DNACorpus \
         --sequence-source-mode auto \
         --multi-sequence-mode separate \
         --dtype bfloat16 \
@@ -45,10 +45,8 @@ Complete example (train + eval + compression, with common overrides):
         --batch-size 32 \
         --eval-batch-size 32 \
         --learning-rate 1e-4 \
-        --species homo_sapiens mus_musculus bos_taurus danio_rerio \
-                  drosophila_melanogaster caenorhabditis_elegans \
-                  saccharomyces_cerevisiae arabidopsis_thaliana \
-        --train-samples-per-epoch 5000000 \
+        --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe \
+        --train-samples-per-epoch 600000 \
         --compression-sample-bytes 100000 \
         --print-config \
         --seq-length 1024 \
@@ -56,15 +54,16 @@ Complete example (train + eval + compression, with common overrides):
         --weight-decay 0.01 \
         --log-interval 25 \
         --eval-interval 2500 \
-        --train-ratio 0.98 \
-        --val-ratio 0.01 \
-        --test-ratio 0.01 \
+        --train-ratio 0.6 \
+        --val-ratio 0.2 \
+        --test-ratio 0.2 \
         --lr-scheduler cosine \
         --lr-warmup-steps 0 \
         --lr-min-ratio 0.1 \
         --grad-clip-norm 1.0 \
         --num-workers 4 \
-        --train-sampling-strategy proportional \
+        --train-sampling-strategy proportional 
+            
         --wandb-project dna-compress \
         --wandb-name dna_megabyte_huge_ensembl_all_resume \
         --gpu-ids 2 3 

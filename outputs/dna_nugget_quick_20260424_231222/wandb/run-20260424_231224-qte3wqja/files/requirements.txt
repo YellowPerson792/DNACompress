@@ -97,7 +97,6 @@ h5py==3.10.0
 hf_transfer==0.1.9
 hjson==3.1.0
 httptools==0.6.4
-transformers==5.0.0rc0
 humanfriendly==10.0
 imageio==2.37.0
 importlib_metadata==8.7.0
@@ -106,7 +105,6 @@ iopath==0.1.10
 jieba==0.42.1
 Jinja2==3.1.6
 jiter==0.10.0
-huggingface_hub==1.2.3
 joblib==1.5.2
 kagglehub==0.3.12
 lark==1.2.2
@@ -249,7 +247,6 @@ oss2==2.19.1
 typer-slim==0.21.0
 pillow==12.0.0
 binpacking==1.5.2
-tokenizers==0.22.1
 decord==0.6.0
 sortedcontainers==2.4.0
 crcmod==1.7
@@ -281,6 +278,9 @@ nvidia-cudnn-cu12==9.5.1.17
 torchvision==0.22.0
 torchaudio==2.7.0
 tqdm==4.67.1
+huggingface_hub==0.36.2
+tokenizers==0.19.1
+transformers==4.41.2
 Markdown==3.7
 MarkupSafe==3.0.2
 Send2Trash==1.8.3

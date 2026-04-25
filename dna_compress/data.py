@@ -26,6 +26,7 @@ class SourceRecord:
     species: str
     source_name: str
     source_mode: str
+    source_path: str | None
     sequence_keys: list[str]
     sequence_files: list[str]
     observed_bytes: set[int]
@@ -121,6 +122,7 @@ def _load_source_records_for_species(config: DataConfig, species: str, seq_lengt
                 species=species,
                 source_name=species,
                 source_mode="flat_file",
+                source_path=str(species_path),
                 sequence_keys=[species],
                 sequence_files=[species_path.name],
                 observed_bytes=set(raw_bytes),
@@ -182,6 +184,7 @@ def _load_source_records_for_species(config: DataConfig, species: str, seq_lengt
                     species=species,
                     source_name=f"{species}:{sequence_key}",
                     source_mode="fasta_dir_separate",
+                    source_path=str(fasta_path),
                     sequence_keys=[sequence_key],
                     sequence_files=[str(fasta_path.relative_to(species_path))],
                     observed_bytes=set(observed_bytes),
@@ -233,6 +236,7 @@ def _load_source_records_for_species(config: DataConfig, species: str, seq_lengt
             species=species,
             source_name=species,
             source_mode="fasta_dir_concat",
+            source_path=None,
             sequence_keys=sequence_keys,
             sequence_files=sequence_files,
             observed_bytes=observed_bytes,
@@ -334,14 +338,19 @@ def load_splits(config: DataConfig, seq_length: int | None = None) -> LoadedSpli
                     "species": record.species,
                     "source_name": record.source_name,
                     "source_mode": record.source_mode,
+                    "source_path": record.source_path,
                     "sequence_keys": list(record.sequence_keys),
                     "sequence_files": list(record.sequence_files),
                     "selected_sequence_count": len(record.sequence_keys),
                     "total_size": total_size,
+                    "train_start": 0,
                     "train_bytes": len(train_bytes),
+                    "val_start": train_end,
                     "val_bytes": len(val_bytes),
+                    "test_start": val_end,
                     "test_bytes": len(test_bytes),
                     "clean_cache_status": record.cache_status,
+                    "clean_cache_path": record.cache_path,
                 }
             )
 

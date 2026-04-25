@@ -26,6 +26,34 @@ class ModelConfig:
     initializer_range: float = 0.02
     pad_id: int = 257
     eos_id: int = 258
+    nugget_backbone: str = "bart"
+    nugget_bart_config_path: str = "configs/hf/facebook_bart_base_config.json"
+    nugget_bart_d_model: int | None = None
+    nugget_bart_encoder_layers: int | None = None
+    nugget_bart_decoder_layers: int | None = None
+    nugget_bart_encoder_attention_heads: int | None = None
+    nugget_bart_decoder_attention_heads: int | None = None
+    nugget_bart_encoder_ffn_dim: int | None = None
+    nugget_bart_decoder_ffn_dim: int | None = None
+    nugget_bart_dropout: float | None = None
+    nugget_bart_attention_dropout: float | None = None
+    nugget_bart_activation_dropout: float | None = None
+    nugget_bart_max_position_embeddings: int | None = None
+    nugget_t5_d_model: int = 512
+    nugget_t5_d_ff: int = 2048
+    nugget_t5_num_layers: int = 6
+    nugget_t5_num_decoder_layers: int = 6
+    nugget_t5_num_heads: int = 8
+    nugget_t5_d_kv: int | None = None
+    nugget_t5_dropout_rate: float = 0.1
+    nugget_ratio: float = 0.25
+    nugget_scorer_layer: int = 3
+    nugget_residual_start: int = 0
+    nugget_residual_end: int = -1
+    nugget_value_ffn: bool = True
+    nugget_straight_through: bool = True
+    nugget_hidden_mode: str = "runtime_hidden"
+    nugget_hidden_storage_dtype: str = "runtime"
 
 
 @dataclass
@@ -33,6 +61,7 @@ class DataConfig:
     dataset_dir: str = "datasets/DNACorpus"
     species: list[str] = field(default_factory=lambda: ["HoSa"])
     species_prefix_map: dict[str, str] = field(default_factory=dict)
+    nugget_tokenizer: str = "byte"
     sequence_source_mode: str = "auto"
     multi_sequence_mode: str = "separate"
     sequence_include_map: dict[str, list[str]] = field(default_factory=dict)
