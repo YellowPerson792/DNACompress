@@ -223,6 +223,179 @@ def _stored_hidden_payload(
     }
 
 
+def _nugget_payload(
+    *,
+    model: NuggetAutoencoder,
+    nuggets,
+    hidden_mode: str,
+    hidden_storage_dtype: str,
+    requires_scores_side_info: bool,
+) -> dict[str, object]:
+    if model.latent_mode == "dense":
+        payload = _stored_hidden_payload(
+            encoding=nuggets.encoding,
+            scores=nuggets.scores,
+            mask=nuggets.mask,
+            hidden_mode=hidden_mode,
+            hidden_storage_dtype=hidden_storage_dtype,
+            requires_scores_side_info=requires_scores_side_info,
+        )
+        payload.update(
+            {
+                "decoder_encoding": payload["stored_encoding"],
+                "decoder_scores": payload["stored_scores"] if requires_scores_side_info else nuggets.scores,
+                "code_bytes": 0,
+                "codebook_bits": 0,
+                "vq_num_codes": 0,
+                "codebook_size": 0,
+                "code_dim": 0,
+                "flatten_bottleneck_dim": 0,
+                "flatten_input_dim": 0,
+                "flatten_max_nuggets": 0,
+                "latent_mode": model.latent_mode,
+            }
+        )
+        return payload
+
+    if model.latent_mode == "continuous_bottleneck":
+        quantized = model.quantize_nuggets(nuggets)
+        if getattr(quantized, "bottleneck_encoding", None) is None:
+            raise RuntimeError("Continuous bottleneck payload is missing bottleneck encoding.")
+        runtime_dtype = nuggets.encoding.dtype
+        if hidden_storage_dtype == "runtime":
+            storage_dtype = runtime_dtype
+            storage_dtype_name = _dtype_name(runtime_dtype)
+        else:
+            storage_dtype = _TORCH_DTYPE_BY_NAME[hidden_storage_dtype]
+            storage_dtype_name = hidden_storage_dtype
+        stored_encoding = quantized.bottleneck_encoding.to(dtype=storage_dtype)
+        decoder_encoding = model.code_to_decoder(stored_encoding.to(dtype=runtime_dtype))
+        if model.decoder_input_layer_norm is not None:
+            decoder_encoding = model.decoder_input_layer_norm(decoder_encoding)
+        valid_count = int(nuggets.mask.sum().item())
+        hidden_bytes = valid_count * int(model.vq_code_dim) * _element_size_for_dtype(storage_dtype)
+        score_bytes = 0
+        stored_scores = nuggets.scores
+        if requires_scores_side_info and nuggets.scores is not None:
+            stored_scores = nuggets.scores.to(dtype=storage_dtype)
+            score_bytes = valid_count * _element_size_for_dtype(storage_dtype)
+        metadata_bytes = int(nuggets.mask.shape[0]) * 4 + score_bytes
+        return {
+            "stored_encoding": stored_encoding,
+            "stored_scores": stored_scores,
+            "decoder_encoding": decoder_encoding,
+            "decoder_scores": stored_scores if requires_scores_side_info else nuggets.scores,
+            "runtime_dtype": _dtype_name(runtime_dtype),
+            "storage_dtype": f"continuous_bottleneck_{storage_dtype_name}",
+            "cast_applied": storage_dtype != runtime_dtype,
+            "hidden_bytes": hidden_bytes,
+            "score_bytes": score_bytes,
+            "metadata_bytes": metadata_bytes,
+            "valid_count": valid_count,
+            "code_bytes": hidden_bytes,
+            "codebook_bits": 0,
+            "vq_num_codes": 0,
+            "codebook_size": 0,
+            "code_dim": model.vq_code_dim,
+            "flatten_bottleneck_dim": 0,
+            "flatten_input_dim": 0,
+            "flatten_max_nuggets": 0,
+            "latent_mode": model.latent_mode,
+        }
+
+    if model.latent_mode == "flatten_bottleneck":
+        quantized = model.quantize_nuggets(nuggets)
+        if getattr(quantized, "bottleneck_encoding", None) is None:
+            raise RuntimeError("Flatten bottleneck payload is missing bottleneck encoding.")
+        if model.bottleneck_to_flatten is None:
+            raise RuntimeError("Flatten bottleneck reconstruction module is not initialized.")
+        runtime_dtype = nuggets.encoding.dtype
+        if hidden_storage_dtype == "runtime":
+            storage_dtype = runtime_dtype
+            storage_dtype_name = _dtype_name(runtime_dtype)
+        else:
+            storage_dtype = _TORCH_DTYPE_BY_NAME[hidden_storage_dtype]
+            storage_dtype_name = hidden_storage_dtype
+        stored_encoding = quantized.bottleneck_encoding.to(dtype=storage_dtype)
+        reconstructed_flattened = model.bottleneck_to_flatten(stored_encoding.to(dtype=runtime_dtype))
+        reconstructed_projected = reconstructed_flattened.reshape(
+            stored_encoding.shape[0],
+            model.flatten_max_nuggets,
+            model.vq_code_dim,
+        )[:, : nuggets.encoding.shape[1], :]
+        reconstructed_projected = reconstructed_projected * nuggets.mask.to(dtype=reconstructed_projected.dtype).unsqueeze(-1)
+        decoder_encoding = model.code_to_decoder(reconstructed_projected)
+        if model.decoder_input_layer_norm is not None:
+            decoder_encoding = model.decoder_input_layer_norm(decoder_encoding)
+        valid_count = int(nuggets.mask.sum().item())
+        hidden_bytes = int(nuggets.mask.shape[0]) * int(model.flatten_bottleneck_dim) * _element_size_for_dtype(storage_dtype)
+        score_bytes = 0
+        stored_scores = nuggets.scores
+        if requires_scores_side_info and nuggets.scores is not None:
+            stored_scores = nuggets.scores.to(dtype=storage_dtype)
+            score_bytes = valid_count * _element_size_for_dtype(storage_dtype)
+        metadata_bytes = int(nuggets.mask.shape[0]) * 4 + score_bytes
+        return {
+            "stored_encoding": stored_encoding,
+            "stored_scores": stored_scores,
+            "decoder_encoding": decoder_encoding,
+            "decoder_scores": stored_scores if requires_scores_side_info else nuggets.scores,
+            "runtime_dtype": _dtype_name(runtime_dtype),
+            "storage_dtype": f"flatten_bottleneck_{storage_dtype_name}",
+            "cast_applied": storage_dtype != runtime_dtype,
+            "hidden_bytes": hidden_bytes,
+            "score_bytes": score_bytes,
+            "metadata_bytes": metadata_bytes,
+            "valid_count": valid_count,
+            "code_bytes": hidden_bytes,
+            "codebook_bits": 0,
+            "vq_num_codes": 0,
+            "codebook_size": 0,
+            "code_dim": model.vq_code_dim,
+            "flatten_bottleneck_dim": model.flatten_bottleneck_dim,
+            "flatten_input_dim": model.flatten_input_dim,
+            "flatten_max_nuggets": model.flatten_max_nuggets,
+            "latent_mode": model.latent_mode,
+        }
+
+    quantized = model.quantize_nuggets(nuggets)
+    storage_dtype = (
+        nuggets.encoding.dtype
+        if hidden_storage_dtype == "runtime"
+        else _TORCH_DTYPE_BY_NAME[hidden_storage_dtype]
+    )
+    valid_count = int(nuggets.mask.sum().item())
+    code_bytes = math.ceil(valid_count * int(model.vq_codebook_bits) * int(model.vq_num_codes) / 8)
+    score_bytes = 0
+    stored_scores = nuggets.scores
+    if requires_scores_side_info and nuggets.scores is not None:
+        stored_scores = nuggets.scores.to(dtype=storage_dtype)
+        score_bytes = valid_count * _element_size_for_dtype(storage_dtype)
+    metadata_bytes = int(nuggets.mask.shape[0]) * 4 + score_bytes
+    return {
+        "stored_encoding": quantized.encoding,
+        "stored_scores": stored_scores,
+        "decoder_encoding": quantized.encoding,
+        "decoder_scores": stored_scores if requires_scores_side_info else nuggets.scores,
+        "runtime_dtype": _dtype_name(nuggets.encoding.dtype),
+        "storage_dtype": f"{model.vq_num_codes}x_code_index_{model.vq_codebook_bits}bit",
+        "cast_applied": False,
+        "hidden_bytes": code_bytes,
+        "score_bytes": score_bytes,
+        "metadata_bytes": metadata_bytes,
+        "valid_count": valid_count,
+        "code_bytes": code_bytes,
+        "codebook_bits": model.vq_codebook_bits,
+        "vq_num_codes": model.vq_num_codes,
+        "codebook_size": model.vq_codebook_size,
+        "code_dim": model.vq_code_dim,
+        "flatten_bottleneck_dim": 0,
+        "flatten_input_dim": 0,
+        "flatten_max_nuggets": 0,
+        "latent_mode": model.latent_mode,
+    }
+
+
 def _tail_side_info_bytes(tokenizer_spec: NuggetTokenizerSpec, tail_sequence: str) -> bytes:
     if not tail_sequence:
         return b""
@@ -300,6 +473,15 @@ def compress_nugget_source(
     nugget_metadata_bytes = 0
     nugget_score_bytes = 0
     nugget_valid_count = 0
+    nugget_code_bytes = 0
+    nugget_codebook_bits = 0
+    nugget_vq_num_codes = 0
+    nugget_codebook_size = 0
+    nugget_code_dim = 0
+    nugget_flatten_bottleneck_dim = 0
+    nugget_flatten_input_dim = 0
+    nugget_flatten_max_nuggets = 0
+    nugget_latent_mode = model.latent_mode
     runtime_dtype_name: str | None = None
     storage_dtype_name: str | None = None
     cast_applied = False
@@ -335,16 +517,15 @@ def compress_nugget_source(
             with autocast_context(device, dtype_name):
                 forward_started = perf_counter()
                 nuggets = model.encode_nuggets(input_ids=input_ids, attention_mask=attention_mask)
-                payload_info = _stored_hidden_payload(
-                    encoding=nuggets.encoding,
-                    scores=nuggets.scores,
-                    mask=nuggets.mask,
+                payload_info = _nugget_payload(
+                    model=model,
+                    nuggets=nuggets,
                     hidden_mode=hidden_mode,
                     hidden_storage_dtype=hidden_storage_dtype,
                     requires_scores_side_info=requires_scores_side_info,
                 )
-                decoder_encoding = payload_info["stored_encoding"]
-                decoder_scores = payload_info["stored_scores"] if requires_scores_side_info else nuggets.scores
+                decoder_encoding = payload_info["decoder_encoding"]
+                decoder_scores = payload_info["decoder_scores"]
                 model_dtype = next(model.decoder.parameters()).dtype
                 if decoder_encoding.dtype != model_dtype and device.type == "cpu":
                     decoder_encoding = decoder_encoding.to(dtype=model_dtype)
@@ -367,6 +548,15 @@ def compress_nugget_source(
             nugget_metadata_bytes += int(payload_info["metadata_bytes"])
             nugget_score_bytes += int(payload_info["score_bytes"])
             nugget_valid_count += int(payload_info["valid_count"])
+            nugget_code_bytes += int(payload_info["code_bytes"])
+            nugget_codebook_bits = int(payload_info["codebook_bits"])
+            nugget_vq_num_codes = int(payload_info.get("vq_num_codes", 1))
+            nugget_codebook_size = int(payload_info["codebook_size"])
+            nugget_code_dim = int(payload_info["code_dim"])
+            nugget_flatten_bottleneck_dim = int(payload_info.get("flatten_bottleneck_dim", 0))
+            nugget_flatten_input_dim = int(payload_info.get("flatten_input_dim", 0))
+            nugget_flatten_max_nuggets = int(payload_info.get("flatten_max_nuggets", 0))
+            nugget_latent_mode = str(payload_info["latent_mode"])
             runtime_dtype_name = str(payload_info["runtime_dtype"])
             storage_dtype_name = str(payload_info["storage_dtype"])
             cast_applied = cast_applied or bool(payload_info["cast_applied"])
@@ -485,6 +675,16 @@ def compress_nugget_source(
         "nugget_metadata_bytes": nugget_metadata_bytes,
         "nugget_score_bytes": nugget_score_bytes,
         "nugget_valid_count": nugget_valid_count,
+        "nugget_latent_mode": nugget_latent_mode,
+        "nugget_codebook_bits": nugget_codebook_bits,
+        "nugget_vq_num_codes": nugget_vq_num_codes,
+        "nugget_codebook_size": nugget_codebook_size,
+        "nugget_code_dim": nugget_code_dim,
+        "nugget_flatten_bottleneck_dim": nugget_flatten_bottleneck_dim,
+        "nugget_flatten_input_dim": nugget_flatten_input_dim,
+        "nugget_flatten_max_nuggets": nugget_flatten_max_nuggets,
+        "nugget_code_bytes": nugget_code_bytes,
+        "nugget_codes_per_base": (nugget_valid_count * max(nugget_vq_num_codes, 0)) / max(sample_bases, 1),
         "nugget_hidden_runtime_dtype": runtime_dtype_name or "unknown",
         "nugget_hidden_storage_dtype": storage_dtype_name or hidden_storage_dtype,
         "nugget_hidden_mode": hidden_mode,
@@ -523,6 +723,12 @@ def summarize_nugget_per_source(per_source: Iterable[dict[str, object]]) -> dict
     total_arithmetic_bytes = sum(int(row["arithmetic_coded_bytes"]) for row in rows)
     total_hidden_bytes = sum(int(row["nugget_hidden_bytes"]) for row in rows)
     total_metadata_bytes = sum(int(row["nugget_metadata_bytes"]) for row in rows)
+    total_code_bytes = sum(int(row.get("nugget_code_bytes", 0)) for row in rows)
+    total_valid_count = sum(int(row.get("nugget_valid_count", 0)) for row in rows)
+    total_code_count = sum(
+        int(row.get("nugget_valid_count", 0)) * int(row.get("nugget_vq_num_codes", 0))
+        for row in rows
+    )
     total_side_info_bytes = sum(int(row["side_info_bytes"]) for row in rows)
     total_coded_bytes = sum(int(row["total_coded_bytes"]) for row in rows)
     total_decoder_bits = sum(float(row["decoder_theoretical_bits"]) for row in rows)
@@ -540,6 +746,9 @@ def summarize_nugget_per_source(per_source: Iterable[dict[str, object]]) -> dict
         "total_arithmetic_bits_per_base": (total_arithmetic_bytes * 8) / max(total_sample_bases, 1),
         "total_nugget_hidden_bytes": total_hidden_bytes,
         "total_nugget_metadata_bytes": total_metadata_bytes,
+        "total_nugget_code_bytes": total_code_bytes,
+        "total_nugget_valid_count": total_valid_count,
+        "total_nugget_codes_per_base": total_code_count / max(total_sample_bases, 1),
         "total_side_info_bytes": total_side_info_bytes,
         "total_coded_bytes": total_coded_bytes,
         "total_bits_per_base": (total_coded_bytes * 8) / max(total_sample_bases, 1),
@@ -556,6 +765,14 @@ def summarize_nugget_per_source(per_source: Iterable[dict[str, object]]) -> dict
         "arithmetic_merge_size",
         "nugget_hidden_mode",
         "nugget_hidden_storage_dtype",
+        "nugget_latent_mode",
+        "nugget_codebook_bits",
+        "nugget_vq_num_codes",
+        "nugget_codebook_size",
+        "nugget_code_dim",
+        "nugget_flatten_bottleneck_dim",
+        "nugget_flatten_input_dim",
+        "nugget_flatten_max_nuggets",
     ):
         if rows and all(row.get(key) == rows[0].get(key) for row in rows):
             summary[key] = rows[0].get(key)

@@ -30,10 +30,10 @@
     "nugget_scorer_layer": 3,
     "nugget_residual_start": 0,
     "nugget_residual_end": -1,      
-    "nugget_value_ffn": true,
+    "nugget_value_ffn": false,
     "nugget_straight_through": true,
-    "nugget_hidden_mode": "runtime_hidden",
-    "nugget_hidden_storage_dtype": "runtime"
+    "nugget_hidden_mode": "stored_hidden",
+    "nugget_hidden_storage_dtype": "bfloat16"
   },
   "data": {
     "dataset_dir": "datasets/DNACorpus",
@@ -80,7 +80,7 @@
     "eval_interval": 100
   },
   "output": {
-    "run_name": "dna_nugget_quick",
-    "output_dir": "outputs/dna_nugget_quick"
+    "run_name": "dna_nugget_modified",
+    "output_dir": "outputs/dna_nugget_modified"
   }
 }

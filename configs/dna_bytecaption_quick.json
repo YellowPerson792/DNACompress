@@ -1,0 +1,71 @@
+{
+  "model": {
+    "implementation": "bytecaption",
+    "vocab_size": 15627,
+    "seq_length": 512,
+    "pad_id": 15625,
+    "eos_id": 15626,
+    "bytecaption_decoder_dim": 512,
+    "bytecaption_decoder_layers": 3,
+    "bytecaption_decoder_heads": 8,
+    "bytecaption_decoder_dropout": 0.1,
+    "bytecaption_decoder_ff_dropout": 0.1,
+    "bytecaption_latent_mode": "dense",
+    "bytecaption_code_dim": 64,
+    "bytecaption_flatten_bottleneck_dim": 512,
+    "bytecaption_bottleneck_layer_norm": false,
+    "bytecaption_hidden_storage_dtype": "runtime"
+  },
+  "data": {
+    "dataset_dir": "datasets/DNACorpus",
+    "species": ["HoSa"],
+    "nugget_tokenizer": "fixed_kmer",
+    "sequence_source_mode": "auto",
+    "multi_sequence_mode": "separate",
+    "train_ratio": 0.9,
+    "val_ratio": 0.05,
+    "test_ratio": 0.05,
+    "train_samples_per_epoch": 128,
+    "token_merge_size": 6,
+    "token_merge_alphabet": "ACGTN",
+    "compression_sample_bytes": 16384
+  },
+  "train": {
+    "seed": 42,
+    "device": "auto",
+    "dtype": "bfloat16",
+    "init_from": "scratch",
+    "epochs": 1,
+    "batch_size": 2,
+    "eval_batch_size": 2,
+    "learning_rate": 0.00005,
+    "weight_decay": 0.0,
+    "lr_scheduler": "none",
+    "lr_warmup_steps": 0,
+    "lr_min_ratio": 0.0,
+    "grad_clip_norm": 1.0,
+    "num_workers": 0,
+    "prefetch_factor": 2,
+    "persistent_workers": false,
+    "pin_memory": true,
+    "log_interval": 10,
+    "eval_interval": 50
+  },
+  "output": {
+    "run_name": "dna_bytecaption_quick",
+    "output_dir": "outputs/dna_bytecaption_quick",
+    "wandb_enabled": false,
+    "wandb_project": "",
+    "wandb_entity": "",
+    "wandb_name": null,
+    "wandb_group": "",
+    "wandb_tags": [],
+    "wandb_mode": "online"
+  },
+  "arithmetic": {
+    "frequency_total": null,
+    "target_uniform_mass": 0.01,
+    "coding_mode": "model_symbol",
+    "merge_size": 1
+  }
+}

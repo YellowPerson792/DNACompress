@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import json
+import math
 from pathlib import Path
 import re
 import sys
@@ -9,6 +10,7 @@ from types import SimpleNamespace
 from typing import Any
 
 import torch
+import torch.distributed as dist
 
 from .config import ModelConfig
 from .nugget_tokenization import NuggetTokenizerSpec
@@ -19,6 +21,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 NUGGET_BACKBONES = ("bart", "mbart", "t5")
 NUGGET_HIDDEN_MODES = ("runtime_hidden", "stored_hidden")
 NUGGET_HIDDEN_STORAGE_DTYPES = ("runtime", "float32", "float16", "bfloat16")
+NUGGET_LATENT_MODES = ("dense", "continuous_bottleneck", "flatten_bottleneck", "vq_codebook")
 
 
 @dataclass(frozen=True)
@@ -259,13 +262,399 @@ class NuggetAutoencoder(torch.nn.Module):
         decoder: torch.nn.Module,
         vocab_size: int,
         pad_id: int,
+        hidden_dim: int,
+        latent_mode: str,
+        vq_codebook_bits: int,
+        vq_num_codes: int,
+        vq_code_dim: int,
+        vq_commitment_weight: float,
+        vq_usage_weight: float,
+        vq_usage_temperature: float,
+        vq_restart_dead_codes: bool,
+        vq_restart_usage_threshold: float,
+        vq_restart_usage_decay: float,
+        vq_restart_max_fraction: float,
+        bottleneck_layer_norm: bool,
+        flatten_max_nuggets: int,
+        flatten_bottleneck_dim: int,
     ) -> None:
         super().__init__()
+        if latent_mode not in NUGGET_LATENT_MODES:
+            raise ValueError(f"latent_mode must be one of: {', '.join(NUGGET_LATENT_MODES)}")
+        if vq_codebook_bits <= 0:
+            raise ValueError("vq_codebook_bits must be > 0")
+        if vq_num_codes <= 0:
+            raise ValueError("vq_num_codes must be > 0")
+        if vq_code_dim <= 0:
+            raise ValueError("vq_code_dim must be > 0")
+        if flatten_max_nuggets <= 0:
+            raise ValueError("flatten_max_nuggets must be > 0")
+        if flatten_bottleneck_dim <= 0:
+            raise ValueError("flatten_bottleneck_dim must be > 0")
+        if vq_restart_usage_threshold < 0.0:
+            raise ValueError("vq_restart_usage_threshold must be >= 0")
+        if not (0.0 <= vq_restart_usage_decay < 1.0):
+            raise ValueError("vq_restart_usage_decay must be in [0, 1)")
+        if not (0.0 < vq_restart_max_fraction <= 1.0):
+            raise ValueError("vq_restart_max_fraction must be in (0, 1]")
         self.scorer = scorer
         self.encoder = encoder
         self.decoder = decoder
         self.vocab_size = int(vocab_size)
         self.pad_id = int(pad_id)
+        self.hidden_dim = int(hidden_dim)
+        self.latent_mode = latent_mode
+        self.vq_codebook_bits = int(vq_codebook_bits)
+        self.vq_num_codes = int(vq_num_codes)
+        self.vq_codebook_size = 1 << self.vq_codebook_bits
+        self.vq_code_dim = int(vq_code_dim)
+        self.vq_commitment_weight = float(vq_commitment_weight)
+        self.vq_usage_weight = float(vq_usage_weight)
+        self.vq_usage_temperature = float(vq_usage_temperature)
+        self.vq_restart_dead_codes = bool(vq_restart_dead_codes)
+        self.vq_restart_usage_threshold = float(vq_restart_usage_threshold)
+        self.vq_restart_usage_decay = float(vq_restart_usage_decay)
+        self.vq_restart_max_fraction = float(vq_restart_max_fraction)
+        self.bottleneck_layer_norm = bool(bottleneck_layer_norm)
+        self.flatten_max_nuggets = int(flatten_max_nuggets)
+        self.flatten_bottleneck_dim = int(flatten_bottleneck_dim)
+        self.flatten_input_dim = self.flatten_max_nuggets * self.vq_code_dim
+        if self.latent_mode in {"continuous_bottleneck", "flatten_bottleneck", "vq_codebook"}:
+            self.encoder_to_code = torch.nn.Linear(self.hidden_dim, self.vq_code_dim)
+            self.code_to_decoder = torch.nn.Linear(self.vq_code_dim, self.hidden_dim)
+            if self.bottleneck_layer_norm:
+                self.code_layer_norm = torch.nn.LayerNorm(self.vq_code_dim)
+                self.decoder_input_layer_norm = torch.nn.LayerNorm(self.hidden_dim)
+                if self.latent_mode == "flatten_bottleneck":
+                    self.flatten_bottleneck_layer_norm = torch.nn.LayerNorm(self.flatten_bottleneck_dim)
+                else:
+                    self.flatten_bottleneck_layer_norm = None
+            else:
+                self.code_layer_norm = None
+                self.decoder_input_layer_norm = None
+                self.flatten_bottleneck_layer_norm = None
+            if self.latent_mode == "flatten_bottleneck":
+                self.flatten_to_bottleneck = torch.nn.Linear(self.flatten_input_dim, self.flatten_bottleneck_dim)
+                self.bottleneck_to_flatten = torch.nn.Linear(self.flatten_bottleneck_dim, self.flatten_input_dim)
+            else:
+                self.flatten_to_bottleneck = None
+                self.bottleneck_to_flatten = None
+        else:
+            self.encoder_to_code = None
+            self.code_to_decoder = None
+            self.code_layer_norm = None
+            self.decoder_input_layer_norm = None
+            self.flatten_bottleneck_layer_norm = None
+            self.flatten_to_bottleneck = None
+            self.bottleneck_to_flatten = None
+
+        if self.latent_mode == "vq_codebook":
+            self.register_buffer(
+                "vq_usage_ema",
+                torch.zeros(self.vq_num_codes, self.vq_codebook_size),
+                persistent=False,
+            )
+            if self.vq_num_codes == 1:
+                self.codebook = torch.nn.Embedding(self.vq_codebook_size, self.vq_code_dim)
+                self.codebooks = None
+                torch.nn.init.normal_(self.codebook.weight, mean=0.0, std=self.vq_code_dim ** -0.5)
+            else:
+                self.codebook = None
+                self.codebooks = torch.nn.ModuleList(
+                    torch.nn.Embedding(self.vq_codebook_size, self.vq_code_dim)
+                    for _ in range(self.vq_num_codes)
+                )
+                for codebook in self.codebooks:
+                    torch.nn.init.normal_(codebook.weight, mean=0.0, std=self.vq_code_dim ** -0.5)
+        else:
+            self.codebook = None
+            self.codebooks = None
+            self.vq_usage_ema = None
+
+    def _iter_vq_codebooks(self):
+        if self.vq_num_codes == 1:
+            if self.codebook is None:
+                raise RuntimeError("VQ codebook is not initialized.")
+            return (self.codebook,)
+        if self.codebooks is None:
+            raise RuntimeError("VQ codebooks are not initialized.")
+        return tuple(self.codebooks)
+
+    @torch.no_grad()
+    def _restart_dead_vq_codes(
+        self,
+        *,
+        valid_indices: torch.Tensor,
+        valid_residual_targets: list[torch.Tensor],
+    ) -> torch.Tensor:
+        if (
+            not self.training
+            or not self.vq_restart_dead_codes
+            or self.latent_mode != "vq_codebook"
+            or self.vq_usage_ema is None
+            or valid_indices.numel() == 0
+        ):
+            device = valid_indices.device
+            return torch.zeros((), device=device)
+
+        distributed = dist.is_available() and dist.is_initialized()
+        rank = dist.get_rank() if distributed else 0
+        restart_count = 0
+        codebooks = self._iter_vq_codebooks()
+        if rank == 0:
+            max_restarts = max(1, int(math.ceil(self.vq_codebook_size * self.vq_restart_max_fraction)))
+            for codebook_id, codebook in enumerate(codebooks):
+                counts = torch.bincount(
+                    valid_indices[:, codebook_id],
+                    minlength=self.vq_codebook_size,
+                ).to(device=self.vq_usage_ema.device, dtype=self.vq_usage_ema.dtype)
+                batch_usage = counts / counts.sum().clamp_min(1.0)
+                self.vq_usage_ema[codebook_id].mul_(self.vq_restart_usage_decay).add_(
+                    batch_usage,
+                    alpha=1.0 - self.vq_restart_usage_decay,
+                )
+                dead_mask = (self.vq_usage_ema[codebook_id] < self.vq_restart_usage_threshold) & counts.eq(0)
+                dead_indices = torch.nonzero(dead_mask, as_tuple=False).flatten()
+                if dead_indices.numel() == 0:
+                    continue
+
+                targets = valid_residual_targets[codebook_id]
+                if targets.numel() == 0:
+                    continue
+                restart_n = min(max_restarts, int(dead_indices.numel()), int(targets.shape[0]))
+                if restart_n <= 0:
+                    continue
+
+                selected_dead = dead_indices[:restart_n].to(device=codebook.weight.device)
+                selected_targets = targets[
+                    torch.randint(targets.shape[0], (restart_n,), device=targets.device)
+                ].to(device=codebook.weight.device, dtype=codebook.weight.dtype)
+                codebook.weight.data[selected_dead] = selected_targets
+                self.vq_usage_ema[codebook_id, dead_indices[:restart_n]] = max(
+                    self.vq_restart_usage_threshold * 2.0,
+                    1.0 / float(self.vq_codebook_size),
+                )
+                restart_count += restart_n
+
+        restart_count_tensor = torch.tensor(float(restart_count), device=valid_indices.device)
+        if distributed:
+            for codebook in codebooks:
+                dist.broadcast(codebook.weight.data, src=0)
+            dist.broadcast(self.vq_usage_ema, src=0)
+            dist.broadcast(restart_count_tensor, src=0)
+
+        return restart_count_tensor
+
+    def _quantize_nugget_encoding(self, encoding: torch.Tensor, mask: torch.Tensor):
+        if self.latent_mode == "dense":
+            return SimpleNamespace(
+                encoding=encoding,
+                code_indices=None,
+                codebook_loss=encoding.new_zeros(()),
+                commitment_loss=encoding.new_zeros(()),
+                usage_loss=encoding.new_zeros(()),
+                usage_entropy=encoding.new_zeros(()),
+                restart_count=encoding.new_zeros(()),
+                total_vq_loss=encoding.new_zeros(()),
+                perplexity=encoding.new_zeros(()),
+                active_codes=encoding.new_zeros(()),
+            )
+        if self.latent_mode == "continuous_bottleneck":
+            if self.encoder_to_code is None or self.code_to_decoder is None:
+                raise RuntimeError("Continuous bottleneck modules are not initialized.")
+            projected = self.encoder_to_code(encoding)
+            if self.code_layer_norm is not None:
+                projected = self.code_layer_norm(projected)
+            decoder_encoding = self.code_to_decoder(projected)
+            if self.decoder_input_layer_norm is not None:
+                decoder_encoding = self.decoder_input_layer_norm(decoder_encoding)
+            return SimpleNamespace(
+                encoding=decoder_encoding,
+                code_indices=None,
+                bottleneck_encoding=projected,
+                codebook_loss=encoding.new_zeros(()),
+                commitment_loss=encoding.new_zeros(()),
+                usage_loss=encoding.new_zeros(()),
+                usage_entropy=encoding.new_zeros(()),
+                restart_count=encoding.new_zeros(()),
+                total_vq_loss=encoding.new_zeros(()),
+                perplexity=encoding.new_zeros(()),
+                active_codes=encoding.new_zeros(()),
+            )
+        if self.latent_mode == "flatten_bottleneck":
+            if self.encoder_to_code is None or self.code_to_decoder is None:
+                raise RuntimeError("Flatten bottleneck projection modules are not initialized.")
+            if self.flatten_to_bottleneck is None or self.bottleneck_to_flatten is None:
+                raise RuntimeError("Flatten bottleneck modules are not initialized.")
+            if encoding.shape[1] > self.flatten_max_nuggets:
+                raise ValueError(
+                    "Nugget count exceeds configured flatten max nuggets: "
+                    f"{encoding.shape[1]} > {self.flatten_max_nuggets}"
+                )
+            projected = self.encoder_to_code(encoding)
+            if self.code_layer_norm is not None:
+                projected = self.code_layer_norm(projected)
+            projected = projected * mask.to(dtype=projected.dtype).unsqueeze(-1)
+            if projected.shape[1] < self.flatten_max_nuggets:
+                padded = projected.new_zeros(projected.shape[0], self.flatten_max_nuggets, self.vq_code_dim)
+                padded[:, : projected.shape[1], :] = projected
+                projected_for_flatten = padded
+            else:
+                projected_for_flatten = projected
+            flattened = projected_for_flatten.reshape(projected_for_flatten.shape[0], self.flatten_input_dim)
+            bottleneck = self.flatten_to_bottleneck(flattened)
+            if self.flatten_bottleneck_layer_norm is not None:
+                bottleneck = self.flatten_bottleneck_layer_norm(bottleneck)
+            reconstructed_flattened = self.bottleneck_to_flatten(bottleneck)
+            reconstructed_projected = reconstructed_flattened.reshape(
+                projected_for_flatten.shape[0],
+                self.flatten_max_nuggets,
+                self.vq_code_dim,
+            )[:, : encoding.shape[1], :]
+            reconstructed_projected = reconstructed_projected * mask.to(dtype=reconstructed_projected.dtype).unsqueeze(-1)
+            decoder_encoding = self.code_to_decoder(reconstructed_projected)
+            if self.decoder_input_layer_norm is not None:
+                decoder_encoding = self.decoder_input_layer_norm(decoder_encoding)
+            return SimpleNamespace(
+                encoding=decoder_encoding,
+                code_indices=None,
+                bottleneck_encoding=bottleneck,
+                codebook_loss=encoding.new_zeros(()),
+                commitment_loss=encoding.new_zeros(()),
+                usage_loss=encoding.new_zeros(()),
+                usage_entropy=encoding.new_zeros(()),
+                restart_count=encoding.new_zeros(()),
+                total_vq_loss=encoding.new_zeros(()),
+                perplexity=encoding.new_zeros(()),
+                active_codes=encoding.new_zeros(()),
+            )
+        if self.encoder_to_code is None or self.code_to_decoder is None:
+            raise RuntimeError("VQ modules are not initialized.")
+
+        projected = self.encoder_to_code(encoding)
+        if self.code_layer_norm is not None:
+            projected = self.code_layer_norm(projected)
+        flat_projected = projected.reshape(-1, self.vq_code_dim)
+        flat_residual = flat_projected
+        quantized_parts = []
+        distance_parts = []
+        index_parts = []
+        for codebook in self._iter_vq_codebooks():
+            codebook_weight = codebook.weight
+            distances = (
+                flat_residual.float().pow(2).sum(dim=1, keepdim=True)
+                + codebook_weight.float().pow(2).sum(dim=1).unsqueeze(0)
+                - 2.0 * flat_residual.float().matmul(codebook_weight.float().transpose(0, 1))
+            )
+            flat_indices = torch.argmin(distances, dim=1)
+            flat_quantized = codebook(flat_indices)
+            quantized_parts.append(flat_quantized.reshape_as(projected))
+            distance_parts.append(distances)
+            index_parts.append(flat_indices.reshape(projected.shape[:-1]))
+            flat_residual = flat_residual - flat_quantized.detach()
+
+        quantized = torch.stack(quantized_parts, dim=0).sum(dim=0)
+        code_indices = torch.stack(index_parts, dim=-1)
+        quantized_st = projected + (quantized - projected).detach()
+        decoder_encoding = self.code_to_decoder(quantized_st)
+        if self.decoder_input_layer_norm is not None:
+            decoder_encoding = self.decoder_input_layer_norm(decoder_encoding)
+
+        valid_mask = mask.to(dtype=torch.bool)
+        if valid_mask.any():
+            valid_projected = projected[valid_mask]
+            valid_quantized = quantized[valid_mask]
+            residual_targets = []
+            residual = projected.detach()
+            for quantized_part in quantized_parts:
+                residual_targets.append(residual)
+                residual = residual - quantized_part.detach()
+            codebook_loss = torch.stack(
+                [
+                    torch.mean((quantized_part[valid_mask] - residual_target[valid_mask]) ** 2)
+                    for quantized_part, residual_target in zip(quantized_parts, residual_targets)
+                ]
+            ).mean()
+            commitment_loss = torch.mean((valid_projected - valid_quantized.detach()) ** 2)
+            if self.vq_usage_weight > 0.0:
+                temperature = max(self.vq_usage_temperature, 1e-6)
+                usage_entropies = []
+                usage_losses = []
+                for distances in distance_parts:
+                    valid_distances = distances[valid_mask.reshape(-1)]
+                    assignment_probabilities = torch.softmax(-valid_distances / temperature, dim=-1)
+                    average_probabilities = assignment_probabilities.mean(dim=0)
+                    entropy = -(
+                        average_probabilities
+                        * torch.log(average_probabilities.clamp_min(torch.finfo(average_probabilities.dtype).tiny))
+                    ).sum()
+                    usage_entropies.append(entropy)
+                    usage_losses.append(math.log(float(self.vq_codebook_size)) - entropy)
+                usage_entropy = torch.stack(usage_entropies).mean()
+                usage_loss = torch.stack(usage_losses).mean()
+            else:
+                usage_loss = projected.new_zeros(())
+                usage_entropy = projected.new_zeros(())
+            valid_indices = code_indices[valid_mask]
+            valid_residual_targets = [residual_target[valid_mask].detach() for residual_target in residual_targets]
+            restart_count = self._restart_dead_vq_codes(
+                valid_indices=valid_indices,
+                valid_residual_targets=valid_residual_targets,
+            )
+            offsets = torch.arange(self.vq_num_codes, device=valid_indices.device) * self.vq_codebook_size
+            flat_valid_indices = (valid_indices + offsets).reshape(-1)
+            counts = torch.bincount(flat_valid_indices, minlength=self.vq_num_codes * self.vq_codebook_size).float()
+            probabilities = counts / counts.sum().clamp_min(1.0)
+            nonzero = probabilities > 0
+            perplexity = torch.exp(-(probabilities[nonzero] * torch.log(probabilities[nonzero])).sum())
+            active_codes = counts.gt(0).sum().to(dtype=projected.dtype)
+        else:
+            codebook_loss = projected.new_zeros(())
+            commitment_loss = projected.new_zeros(())
+            usage_loss = projected.new_zeros(())
+            usage_entropy = projected.new_zeros(())
+            restart_count = projected.new_zeros(())
+            perplexity = projected.new_zeros(())
+            active_codes = projected.new_zeros(())
+        total_vq_loss = (
+            codebook_loss
+            + self.vq_commitment_weight * commitment_loss
+            + self.vq_usage_weight * usage_loss
+        )
+        return SimpleNamespace(
+            encoding=decoder_encoding,
+            code_indices=code_indices,
+            bottleneck_encoding=projected,
+            codebook_loss=codebook_loss,
+            commitment_loss=commitment_loss,
+            usage_loss=usage_loss,
+            usage_entropy=usage_entropy,
+            restart_count=restart_count,
+            total_vq_loss=total_vq_loss,
+            perplexity=perplexity,
+            active_codes=active_codes,
+        )
+
+    def quantize_nuggets(self, nuggets):
+        quantized = self._quantize_nugget_encoding(nuggets.encoding, nuggets.mask)
+        return SimpleNamespace(
+            encoding=quantized.encoding,
+            mask=nuggets.mask,
+            scores=nuggets.scores,
+            index=nuggets.index,
+            all_scores=nuggets.all_scores,
+            index_in_batch=nuggets.index_in_batch,
+            code_indices=quantized.code_indices,
+            bottleneck_encoding=getattr(quantized, "bottleneck_encoding", None),
+            codebook_loss=quantized.codebook_loss,
+            commitment_loss=quantized.commitment_loss,
+            usage_loss=quantized.usage_loss,
+            usage_entropy=quantized.usage_entropy,
+            restart_count=quantized.restart_count,
+            total_vq_loss=quantized.total_vq_loss,
+            perplexity=quantized.perplexity,
+            active_codes=quantized.active_codes,
+        )
 
     def encode_nuggets(self, input_ids: torch.Tensor, attention_mask: torch.Tensor):
         encoder_out = self.encoder(input_ids=input_ids, attention_mask=attention_mask)
@@ -293,6 +682,35 @@ class NuggetAutoencoder(torch.nn.Module):
                 decoder_attention_mask=decoder_attention_mask,
             )
 
+    def decode_quantized_nuggets(
+        self,
+        *,
+        nuggets,
+        labels: torch.Tensor,
+        decoder_attention_mask: torch.Tensor,
+    ):
+        quantized = self.quantize_nuggets(nuggets)
+        output = self.decode_from_nuggets(
+            nugget_encoding=quantized.encoding,
+            nugget_mask=quantized.mask,
+            nugget_scores=quantized.scores,
+            labels=labels,
+            decoder_attention_mask=decoder_attention_mask,
+        )
+        if self.latent_mode == "vq_codebook":
+            output.loss = output.loss + quantized.total_vq_loss
+        output.decoder_loss = output.loss - quantized.total_vq_loss if self.latent_mode == "vq_codebook" else output.loss
+        output.vq_codebook_loss = quantized.codebook_loss
+        output.vq_commitment_loss = quantized.commitment_loss
+        output.vq_usage_loss = quantized.usage_loss
+        output.vq_usage_entropy = quantized.usage_entropy
+        output.vq_restart_count = quantized.restart_count
+        output.vq_loss = quantized.total_vq_loss
+        output.vq_perplexity = quantized.perplexity
+        output.vq_active_codes = quantized.active_codes
+        output.nugget_code_indices = quantized.code_indices
+        return output
+
     def forward(
         self,
         input_ids: torch.Tensor,
@@ -301,13 +719,11 @@ class NuggetAutoencoder(torch.nn.Module):
         decoder_attention_mask: torch.Tensor,
     ):
         nuggets = self.encode_nuggets(input_ids=input_ids, attention_mask=attention_mask)
-        with self.scorer.score_context(nuggets):
-            return self.decoder(
-                encoder_outputs=[nuggets.encoding],
-                attention_mask=nuggets.mask,
-                labels=labels,
-                decoder_attention_mask=decoder_attention_mask,
-            )
+        return self.decode_quantized_nuggets(
+            nuggets=nuggets,
+            labels=labels,
+            decoder_attention_mask=decoder_attention_mask,
+        )
 
 
 def build_nugget_model(model_config: ModelConfig, tokenizer_spec: NuggetTokenizerSpec) -> tuple[NuggetAutoencoder, NuggetBackboneSpec]:
@@ -316,6 +732,7 @@ def build_nugget_model(model_config: ModelConfig, tokenizer_spec: NuggetTokenize
     from nugget import nuggify
 
     backbone_spec = _resolve_backbone_spec(model_config, tokenizer_spec)
+    flatten_max_nuggets = max(1, math.ceil(model_config.seq_length * model_config.nugget_ratio))
     base_model = _build_hf_seq2seq_model(backbone_spec, model_config.seq_length)
     scorer, encoder, decoder, _ = nuggify(
         base_model,
@@ -326,6 +743,11 @@ def build_nugget_model(model_config: ModelConfig, tokenizer_spec: NuggetTokenize
         straight_through=model_config.nugget_straight_through,
         ratio=model_config.nugget_ratio,
     )
+    if model_config.nugget_value_ffn_layer_norm and getattr(scorer, "value_ffn", None) is not None:
+        scorer.value_ffn = torch.nn.Sequential(
+            scorer.value_ffn,
+            torch.nn.LayerNorm(backbone_spec.d_model),
+        )
     return (
         NuggetAutoencoder(
             scorer=scorer,
@@ -333,6 +755,21 @@ def build_nugget_model(model_config: ModelConfig, tokenizer_spec: NuggetTokenize
             decoder=decoder,
             vocab_size=tokenizer_spec.vocab_size,
             pad_id=tokenizer_spec.pad_id,
+            hidden_dim=backbone_spec.d_model,
+            latent_mode=model_config.nugget_latent_mode,
+            vq_codebook_bits=model_config.nugget_vq_codebook_bits,
+            vq_num_codes=model_config.nugget_vq_num_codes,
+            vq_code_dim=model_config.nugget_vq_code_dim,
+            vq_commitment_weight=model_config.nugget_vq_commitment_weight,
+            vq_usage_weight=model_config.nugget_vq_usage_weight,
+            vq_usage_temperature=model_config.nugget_vq_usage_temperature,
+            vq_restart_dead_codes=model_config.nugget_vq_restart_dead_codes,
+            vq_restart_usage_threshold=model_config.nugget_vq_restart_usage_threshold,
+            vq_restart_usage_decay=model_config.nugget_vq_restart_usage_decay,
+            vq_restart_max_fraction=model_config.nugget_vq_restart_max_fraction,
+            bottleneck_layer_norm=model_config.nugget_bottleneck_layer_norm,
+            flatten_max_nuggets=flatten_max_nuggets,
+            flatten_bottleneck_dim=model_config.nugget_flatten_bottleneck_dim,
         ),
         backbone_spec,
     )
@@ -349,5 +786,5 @@ def load_nugget_checkpoint(
     state = torch.load(path, map_location=map_location)
     if not isinstance(state, dict) or "model_state" not in state:
         raise ValueError(f"Nugget checkpoint '{path}' is missing 'model_state'.")
-    metadata = {key: value for key, value in state.items() if key not in {"model_state", "optimizer_state"}}
+    metadata = {key: value for key, value in state.items() if key not in {"model_state", "optimizer_state", "scheduler_state"}}
     return state["model_state"], metadata, state

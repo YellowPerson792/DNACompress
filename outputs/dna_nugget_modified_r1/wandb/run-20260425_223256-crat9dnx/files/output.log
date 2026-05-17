@@ -1,0 +1,168 @@
+[setup] loading DNACorpus splits
+[setup] DNACorpus splits loaded: sources=17 train_bytes=411358271 val_bytes=137119419 test_bytes=137119434 elapsed=7.0s
+[setup] tokenizing 17 source(s) with Nugget tokenizer=fixed_kmer
+[cache] nugget_tokenized enabled=True dir=datasets/DNACorpus/.dna_cache/nugget_tokens hits=51 created=0 rebuilt=0 disabled=0 load=0.57s build=0.00s write=0.00s elapsed=0.6s
+[setup] training dataset ready: tokenized_sources=17 samples_per_epoch=1200000
+[setup] validation dataset ready: tokenized_sources=17 windows=44645
+[setup] test dataset ready: tokenized_sources=17 windows=44645
+[setup] building Nugget model backbone=bart vocab_size=15627
+[setup] built Nugget model parameters=146,875,393
+[setup] loading checkpoint outputs/dna_nugget_modified_20260425_220128/best.pt
+[setup] pretrained weights loaded: scope=decoder tensors=163 missing=158 unexpected=0
+[setup] moving model to device=cuda:0
+/root/autodl-tmp/DNACompress/dna_compress/nugget_experiment.py:606: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = torch.cuda.amp.GradScaler(enabled=device.type == "cuda" and config.train.dtype == "float16")
+[startup] loaded checkpoint=outputs/dna_nugget_modified_20260425_220128/best.pt init_from=pretrained optimizer_restored=False scheduler_restored=False
+[setup] starting training epochs=1 steps_per_epoch=37500
+[train] epoch=1 step=25 loss/token=7.7969 decoder_loss=7.7969 bits/base=1.8748 decoder_bpb=1.8748 latent_bpb=2048.0104 total_bpb=2049.8852 grad_norm=0.4979 tokens/s=44014.0 lr=2.6e-06
+[train] epoch=1 step=50 loss/token=7.7693 decoder_loss=7.7693 bits/base=1.8681 decoder_bpb=1.8681 latent_bpb=2048.0104 total_bpb=2049.8785 grad_norm=0.4394 tokens/s=50488.1 lr=5.1e-06
+[train] epoch=1 step=75 loss/token=7.7436 decoder_loss=7.7436 bits/base=1.8619 decoder_bpb=1.8619 latent_bpb=2048.0104 total_bpb=2049.8723 grad_norm=0.3959 tokens/s=50449.4 lr=7.6e-06
+[train] epoch=1 step=100 loss/token=7.8067 decoder_loss=7.8067 bits/base=1.8771 decoder_bpb=1.8771 latent_bpb=2048.0104 total_bpb=2049.8875 grad_norm=0.4123 tokens/s=50436.7 lr=1.01e-05
+[train] epoch=1 step=125 loss/token=7.8316 decoder_loss=7.8316 bits/base=1.8831 decoder_bpb=1.8831 latent_bpb=2048.0104 total_bpb=2049.8935 grad_norm=0.3770 tokens/s=50475.8 lr=1.26e-05
+[train] epoch=1 step=150 loss/token=7.8233 decoder_loss=7.8233 bits/base=1.8811 decoder_bpb=1.8811 latent_bpb=2048.0104 total_bpb=2049.8915 grad_norm=0.4742 tokens/s=50478.3 lr=1.51e-05
+[train] epoch=1 step=175 loss/token=7.6933 decoder_loss=7.6933 bits/base=1.8498 decoder_bpb=1.8498 latent_bpb=2048.0104 total_bpb=2049.8603 grad_norm=0.3870 tokens/s=50469.7 lr=1.76e-05
+[train] epoch=1 step=200 loss/token=7.7981 decoder_loss=7.7981 bits/base=1.8750 decoder_bpb=1.8750 latent_bpb=2048.0104 total_bpb=2049.8855 grad_norm=0.4207 tokens/s=50475.0 lr=2.01e-05
+[train] epoch=1 step=225 loss/token=7.5517 decoder_loss=7.5517 bits/base=1.8158 decoder_bpb=1.8158 latent_bpb=2048.0104 total_bpb=2049.8262 grad_norm=0.3654 tokens/s=50466.6 lr=2.26e-05
+[train] epoch=1 step=250 loss/token=7.7575 decoder_loss=7.7575 bits/base=1.8653 decoder_bpb=1.8653 latent_bpb=2048.0104 total_bpb=2049.8757 grad_norm=0.3995 tokens/s=50473.2 lr=2.51e-05
+[train] epoch=1 step=275 loss/token=7.7892 decoder_loss=7.7892 bits/base=1.8729 decoder_bpb=1.8729 latent_bpb=2048.0104 total_bpb=2049.8833 grad_norm=0.3906 tokens/s=50473.7 lr=2.76e-05
+[train] epoch=1 step=300 loss/token=7.8004 decoder_loss=7.8004 bits/base=1.8756 decoder_bpb=1.8756 latent_bpb=2048.0104 total_bpb=2049.8860 grad_norm=0.4222 tokens/s=50475.0 lr=3.01e-05
+[train] epoch=1 step=325 loss/token=7.7371 decoder_loss=7.7371 bits/base=1.8604 decoder_bpb=1.8604 latent_bpb=2048.0104 total_bpb=2049.8708 grad_norm=0.4616 tokens/s=50452.8 lr=3.26e-05
+[train] epoch=1 step=350 loss/token=7.7699 decoder_loss=7.7699 bits/base=1.8683 decoder_bpb=1.8683 latent_bpb=2048.0104 total_bpb=2049.8787 grad_norm=0.3822 tokens/s=50467.8 lr=3.51e-05
+[train] epoch=1 step=375 loss/token=7.7925 decoder_loss=7.7925 bits/base=1.8737 decoder_bpb=1.8737 latent_bpb=2048.0104 total_bpb=2049.8841 grad_norm=0.3621 tokens/s=50455.4 lr=3.76e-05
+[train] epoch=1 step=400 loss/token=7.6887 decoder_loss=7.6887 bits/base=1.8487 decoder_bpb=1.8487 latent_bpb=2048.0104 total_bpb=2049.8592 grad_norm=0.3949 tokens/s=50400.1 lr=4.01e-05
+[train] epoch=1 step=425 loss/token=7.8371 decoder_loss=7.8371 bits/base=1.8844 decoder_bpb=1.8844 latent_bpb=2048.0104 total_bpb=2049.8948 grad_norm=0.4494 tokens/s=50346.9 lr=4.26e-05
+[train] epoch=1 step=450 loss/token=7.5861 decoder_loss=7.5861 bits/base=1.8241 decoder_bpb=1.8241 latent_bpb=2048.0104 total_bpb=2049.8345 grad_norm=0.3708 tokens/s=50365.5 lr=4.51e-05
+[train] epoch=1 step=475 loss/token=7.6430 decoder_loss=7.6430 bits/base=1.8378 decoder_bpb=1.8378 latent_bpb=2048.0104 total_bpb=2049.8482 grad_norm=0.4671 tokens/s=50391.4 lr=4.76e-05
+[train] epoch=1 step=500 loss/token=7.5960 decoder_loss=7.5960 bits/base=1.8265 decoder_bpb=1.8265 latent_bpb=2048.0104 total_bpb=2049.8369 grad_norm=0.4728 tokens/s=50356.4 lr=5e-05
+[train] epoch=1 step=525 loss/token=7.8178 decoder_loss=7.8178 bits/base=1.8798 decoder_bpb=1.8798 latent_bpb=2048.0104 total_bpb=2049.8902 grad_norm=0.4046 tokens/s=50374.9 lr=4.99999e-05
+[train] epoch=1 step=550 loss/token=7.6505 decoder_loss=7.6505 bits/base=1.8396 decoder_bpb=1.8396 latent_bpb=2048.0104 total_bpb=2049.8500 grad_norm=0.4877 tokens/s=50396.0 lr=4.99998e-05
+[train] epoch=1 step=575 loss/token=7.5861 decoder_loss=7.5861 bits/base=1.8241 decoder_bpb=1.8241 latent_bpb=2048.0104 total_bpb=2049.8345 grad_norm=0.4935 tokens/s=50378.0 lr=4.99995e-05
+[train] epoch=1 step=600 loss/token=7.7923 decoder_loss=7.7923 bits/base=1.8737 decoder_bpb=1.8737 latent_bpb=2048.0104 total_bpb=2049.8841 grad_norm=0.4158 tokens/s=50397.0 lr=4.99992e-05
+[train] epoch=1 step=625 loss/token=7.6828 decoder_loss=7.6828 bits/base=1.8473 decoder_bpb=1.8473 latent_bpb=2048.0104 total_bpb=2049.8577 grad_norm=0.3846 tokens/s=50398.2 lr=4.99987e-05
+[train] epoch=1 step=650 loss/token=7.7471 decoder_loss=7.7471 bits/base=1.8628 decoder_bpb=1.8628 latent_bpb=2048.0104 total_bpb=2049.8732 grad_norm=0.4449 tokens/s=50384.4 lr=4.99982e-05
+[train] epoch=1 step=675 loss/token=7.3258 decoder_loss=7.3258 bits/base=1.7615 decoder_bpb=1.7615 latent_bpb=2048.0104 total_bpb=2049.7719 grad_norm=0.6273 tokens/s=50370.6 lr=4.99975e-05
+[train] epoch=1 step=700 loss/token=7.8137 decoder_loss=7.8137 bits/base=1.8788 decoder_bpb=1.8788 latent_bpb=2048.0104 total_bpb=2049.8892 grad_norm=0.4077 tokens/s=50390.6 lr=4.99968e-05
+[train] epoch=1 step=725 loss/token=7.6664 decoder_loss=7.6664 bits/base=1.8434 decoder_bpb=1.8434 latent_bpb=2048.0104 total_bpb=2049.8538 grad_norm=0.4724 tokens/s=50392.6 lr=4.99959e-05
+[train] epoch=1 step=750 loss/token=7.7836 decoder_loss=7.7836 bits/base=1.8716 decoder_bpb=1.8716 latent_bpb=2048.0104 total_bpb=2049.8820 grad_norm=0.4363 tokens/s=50410.1 lr=4.99949e-05
+[train] epoch=1 step=775 loss/token=7.8093 decoder_loss=7.8093 bits/base=1.8777 decoder_bpb=1.8777 latent_bpb=2048.0104 total_bpb=2049.8882 grad_norm=0.4163 tokens/s=50401.9 lr=4.99939e-05
+[train] epoch=1 step=800 loss/token=7.4192 decoder_loss=7.4192 bits/base=1.7839 decoder_bpb=1.7839 latent_bpb=2048.0104 total_bpb=2049.7943 grad_norm=0.5682 tokens/s=50397.2 lr=4.99927e-05
+[train] epoch=1 step=825 loss/token=7.3909 decoder_loss=7.3909 bits/base=1.7771 decoder_bpb=1.7771 latent_bpb=2048.0104 total_bpb=2049.7876 grad_norm=0.5408 tokens/s=50383.0 lr=4.99914e-05
+[train] epoch=1 step=850 loss/token=7.7870 decoder_loss=7.7870 bits/base=1.8724 decoder_bpb=1.8724 latent_bpb=2048.0104 total_bpb=2049.8828 grad_norm=0.5097 tokens/s=50394.7 lr=4.99901e-05
+[train] epoch=1 step=875 loss/token=7.5148 decoder_loss=7.5148 bits/base=1.8069 decoder_bpb=1.8069 latent_bpb=2048.0104 total_bpb=2049.8173 grad_norm=0.4627 tokens/s=50390.7 lr=4.99886e-05
+[train] epoch=1 step=900 loss/token=7.6883 decoder_loss=7.6883 bits/base=1.8487 decoder_bpb=1.8487 latent_bpb=2048.0104 total_bpb=2049.8591 grad_norm=0.5829 tokens/s=50385.5 lr=4.9987e-05
+[train] epoch=1 step=925 loss/token=7.7149 decoder_loss=7.7149 bits/base=1.8550 decoder_bpb=1.8550 latent_bpb=2048.0104 total_bpb=2049.8655 grad_norm=0.5192 tokens/s=50384.5 lr=4.99854e-05
+[train] epoch=1 step=950 loss/token=7.6539 decoder_loss=7.6539 bits/base=1.8404 decoder_bpb=1.8404 latent_bpb=2048.0104 total_bpb=2049.8508 grad_norm=0.5892 tokens/s=50386.6 lr=4.99836e-05
+[train] epoch=1 step=975 loss/token=7.6690 decoder_loss=7.6690 bits/base=1.8440 decoder_bpb=1.8440 latent_bpb=2048.0104 total_bpb=2049.8544 grad_norm=0.6966 tokens/s=50392.2 lr=4.99817e-05
+[train] epoch=1 step=1000 loss/token=7.7307 decoder_loss=7.7307 bits/base=1.8588 decoder_bpb=1.8588 latent_bpb=2048.0104 total_bpb=2049.8693 grad_norm=0.6710 tokens/s=50391.8 lr=4.99797e-05
+[train] epoch=1 step=1025 loss/token=7.6080 decoder_loss=7.6080 bits/base=1.8293 decoder_bpb=1.8293 latent_bpb=2048.0104 total_bpb=2049.8398 grad_norm=0.6737 tokens/s=50401.7 lr=4.99776e-05
+[train] epoch=1 step=1050 loss/token=7.5045 decoder_loss=7.5045 bits/base=1.8044 decoder_bpb=1.8044 latent_bpb=2048.0104 total_bpb=2049.8149 grad_norm=0.8016 tokens/s=50397.7 lr=4.99755e-05
+[train] epoch=1 step=1075 loss/token=7.7337 decoder_loss=7.7337 bits/base=1.8596 decoder_bpb=1.8596 latent_bpb=2048.0104 total_bpb=2049.8700 grad_norm=0.7567 tokens/s=50396.8 lr=4.99732e-05
+[train] epoch=1 step=1100 loss/token=7.6811 decoder_loss=7.6811 bits/base=1.8469 decoder_bpb=1.8469 latent_bpb=2048.0104 total_bpb=2049.8573 grad_norm=0.7794 tokens/s=50392.8 lr=4.99708e-05
+[train] epoch=1 step=1125 loss/token=7.4869 decoder_loss=7.4869 bits/base=1.8002 decoder_bpb=1.8002 latent_bpb=2048.0104 total_bpb=2049.8106 grad_norm=1.1971 tokens/s=50403.1 lr=4.99683e-05
+[train] epoch=1 step=1150 loss/token=7.5926 decoder_loss=7.5926 bits/base=1.8256 decoder_bpb=1.8256 latent_bpb=2048.0104 total_bpb=2049.8361 grad_norm=1.4515 tokens/s=50402.6 lr=4.99657e-05
+[train] epoch=1 step=1175 loss/token=7.3815 decoder_loss=7.3815 bits/base=1.7749 decoder_bpb=1.7749 latent_bpb=2048.0104 total_bpb=2049.7853 grad_norm=1.1018 tokens/s=50387.6 lr=4.99631e-05
+[train] epoch=1 step=1200 loss/token=7.3392 decoder_loss=7.3392 bits/base=1.7647 decoder_bpb=1.7647 latent_bpb=2048.0104 total_bpb=2049.7751 grad_norm=1.7932 tokens/s=50387.3 lr=4.99603e-05
+[train] epoch=1 step=1225 loss/token=7.2364 decoder_loss=7.2364 bits/base=1.7400 decoder_bpb=1.7400 latent_bpb=2048.0104 total_bpb=2049.7504 grad_norm=4.4538 tokens/s=50397.1 lr=4.99574e-05
+[train] epoch=1 step=1250 loss/token=7.0726 decoder_loss=7.0726 bits/base=1.7006 decoder_bpb=1.7006 latent_bpb=2048.0104 total_bpb=2049.7110 grad_norm=4.0747 tokens/s=50391.5 lr=4.99544e-05
+[train] epoch=1 step=1275 loss/token=6.6486 decoder_loss=6.6486 bits/base=1.5987 decoder_bpb=1.5987 latent_bpb=2048.0104 total_bpb=2049.6091 grad_norm=5.3706 tokens/s=50383.5 lr=4.99513e-05
+[train] epoch=1 step=1300 loss/token=6.5703 decoder_loss=6.5703 bits/base=1.5798 decoder_bpb=1.5798 latent_bpb=2048.0104 total_bpb=2049.5902 grad_norm=11.7925 tokens/s=50388.1 lr=4.99481e-05
+[train] epoch=1 step=1325 loss/token=6.3419 decoder_loss=6.3419 bits/base=1.5249 decoder_bpb=1.5249 latent_bpb=2048.0104 total_bpb=2049.5353 grad_norm=16.0399 tokens/s=50390.7 lr=4.99448e-05
+[train] epoch=1 step=1350 loss/token=5.9240 decoder_loss=5.9240 bits/base=1.4244 decoder_bpb=1.4244 latent_bpb=2048.0104 total_bpb=2049.4348 grad_norm=14.0339 tokens/s=50387.3 lr=4.99414e-05
+[train] epoch=1 step=1375 loss/token=5.8572 decoder_loss=5.8572 bits/base=1.4084 decoder_bpb=1.4084 latent_bpb=2048.0104 total_bpb=2049.4188 grad_norm=21.3507 tokens/s=50380.5 lr=4.99379e-05
+[train] epoch=1 step=1400 loss/token=5.8041 decoder_loss=5.8041 bits/base=1.3956 decoder_bpb=1.3956 latent_bpb=2048.0104 total_bpb=2049.4060 grad_norm=30.6263 tokens/s=50373.6 lr=4.99343e-05
+[train] epoch=1 step=1425 loss/token=5.3589 decoder_loss=5.3589 bits/base=1.2885 decoder_bpb=1.2885 latent_bpb=2048.0104 total_bpb=2049.2990 grad_norm=26.9446 tokens/s=50379.3 lr=4.99306e-05
+[train] epoch=1 step=1450 loss/token=5.3261 decoder_loss=5.3261 bits/base=1.2807 decoder_bpb=1.2807 latent_bpb=2048.0104 total_bpb=2049.2911 grad_norm=35.2317 tokens/s=50380.4 lr=4.99268e-05
+[train] epoch=1 step=1475 loss/token=4.8931 decoder_loss=4.8931 bits/base=1.1765 decoder_bpb=1.1765 latent_bpb=2048.0104 total_bpb=2049.1870 grad_norm=27.3772 tokens/s=50388.7 lr=4.99229e-05
+[train] epoch=1 step=1500 loss/token=4.6333 decoder_loss=4.6333 bits/base=1.1141 decoder_bpb=1.1141 latent_bpb=2048.0104 total_bpb=2049.1245 grad_norm=34.2629 tokens/s=50378.3 lr=4.99189e-05
+[train] epoch=1 step=1525 loss/token=4.3653 decoder_loss=4.3653 bits/base=1.0496 decoder_bpb=1.0496 latent_bpb=2048.0104 total_bpb=2049.0600 grad_norm=34.1262 tokens/s=50384.7 lr=4.99148e-05
+[train] epoch=1 step=1550 loss/token=4.0695 decoder_loss=4.0695 bits/base=0.9785 decoder_bpb=0.9785 latent_bpb=2048.0104 total_bpb=2048.9889 grad_norm=35.9222 tokens/s=50378.5 lr=4.99106e-05
+[train] epoch=1 step=1575 loss/token=4.1152 decoder_loss=4.1152 bits/base=0.9895 decoder_bpb=0.9895 latent_bpb=2048.0104 total_bpb=2048.9999 grad_norm=42.7394 tokens/s=50389.3 lr=4.99063e-05
+[train] epoch=1 step=1600 loss/token=3.8454 decoder_loss=3.8454 bits/base=0.9246 decoder_bpb=0.9246 latent_bpb=2048.0104 total_bpb=2048.9350 grad_norm=42.5870 tokens/s=50383.5 lr=4.99019e-05
+[train] epoch=1 step=1625 loss/token=3.7081 decoder_loss=3.7081 bits/base=0.8916 decoder_bpb=0.8916 latent_bpb=2048.0104 total_bpb=2048.9020 grad_norm=42.2764 tokens/s=50392.7 lr=4.98974e-05
+[train] epoch=1 step=1650 loss/token=3.6268 decoder_loss=3.6268 bits/base=0.8721 decoder_bpb=0.8721 latent_bpb=2048.0104 total_bpb=2048.8825 grad_norm=52.4494 tokens/s=50391.0 lr=4.98928e-05
+[train] epoch=1 step=1675 loss/token=3.7017 decoder_loss=3.7017 bits/base=0.8901 decoder_bpb=0.8901 latent_bpb=2048.0104 total_bpb=2048.9005 grad_norm=54.9602 tokens/s=50394.7 lr=4.98881e-05
+[train] epoch=1 step=1700 loss/token=3.2211 decoder_loss=3.2211 bits/base=0.7745 decoder_bpb=0.7745 latent_bpb=2048.0104 total_bpb=2048.7849 grad_norm=40.0682 tokens/s=50387.0 lr=4.98833e-05
+[train] epoch=1 step=1725 loss/token=3.2191 decoder_loss=3.2191 bits/base=0.7740 decoder_bpb=0.7740 latent_bpb=2048.0104 total_bpb=2048.7844 grad_norm=49.5976 tokens/s=50392.1 lr=4.98784e-05
+[train] epoch=1 step=1750 loss/token=2.9231 decoder_loss=2.9231 bits/base=0.7028 decoder_bpb=0.7028 latent_bpb=2048.0104 total_bpb=2048.7133 grad_norm=51.0133 tokens/s=50395.0 lr=4.98734e-05
+[train] epoch=1 step=1775 loss/token=3.0352 decoder_loss=3.0352 bits/base=0.7298 decoder_bpb=0.7298 latent_bpb=2048.0104 total_bpb=2048.7402 grad_norm=69.3186 tokens/s=50378.9 lr=4.98683e-05
+[train] epoch=1 step=1800 loss/token=2.8497 decoder_loss=2.8497 bits/base=0.6852 decoder_bpb=0.6852 latent_bpb=2048.0104 total_bpb=2048.6956 grad_norm=64.6664 tokens/s=50386.4 lr=4.98631e-05
+[train] epoch=1 step=1825 loss/token=2.5996 decoder_loss=2.5996 bits/base=0.6251 decoder_bpb=0.6251 latent_bpb=2048.0104 total_bpb=2048.6355 grad_norm=50.3451 tokens/s=50377.3 lr=4.98578e-05
+[train] epoch=1 step=1850 loss/token=2.8551 decoder_loss=2.8551 bits/base=0.6865 decoder_bpb=0.6865 latent_bpb=2048.0104 total_bpb=2048.6969 grad_norm=77.9796 tokens/s=50405.4 lr=4.98523e-05
+[train] epoch=1 step=1875 loss/token=2.2075 decoder_loss=2.2075 bits/base=0.5308 decoder_bpb=0.5308 latent_bpb=2048.0104 total_bpb=2048.5412 grad_norm=30.3164 tokens/s=50380.0 lr=4.98468e-05
+[train] epoch=1 step=1900 loss/token=2.1679 decoder_loss=2.1679 bits/base=0.5213 decoder_bpb=0.5213 latent_bpb=2048.0104 total_bpb=2048.5317 grad_norm=46.6736 tokens/s=50374.8 lr=4.98412e-05
+[train] epoch=1 step=1925 loss/token=2.1728 decoder_loss=2.1728 bits/base=0.5224 decoder_bpb=0.5224 latent_bpb=2048.0104 total_bpb=2048.5329 grad_norm=58.4192 tokens/s=50385.1 lr=4.98355e-05
+[train] epoch=1 step=1950 loss/token=1.8999 decoder_loss=1.8999 bits/base=0.4568 decoder_bpb=0.4568 latent_bpb=2048.0104 total_bpb=2048.4672 grad_norm=35.6098 tokens/s=50360.2 lr=4.98297e-05
+[train] epoch=1 step=1975 loss/token=2.1820 decoder_loss=2.1820 bits/base=0.5247 decoder_bpb=0.5247 latent_bpb=2048.0104 total_bpb=2048.5351 grad_norm=50.7529 tokens/s=50356.3 lr=4.98238e-05
+[train] epoch=1 step=2000 loss/token=1.8739 decoder_loss=1.8739 bits/base=0.4506 decoder_bpb=0.4506 latent_bpb=2048.0104 total_bpb=2048.4610 grad_norm=51.0949 tokens/s=50368.9 lr=4.98178e-05
+[stage] running validation at step=2000...
+[eval] val step=2000 loss/token=1.7550 bits/base=0.4220 decoder_bpb=0.4220 latent_bpb=2048.0104 total_bpb=2048.4324 bits/token=2.5320 tokens=22853228 bases=137119368 elapsed=189.8s
+[train] epoch=1 step=2025 loss/token=1.8571 decoder_loss=1.8571 bits/base=0.4465 decoder_bpb=0.4465 latent_bpb=2048.0104 total_bpb=2048.4570 grad_norm=48.2233 tokens/s=2029.1 lr=4.98116e-05
+[train] epoch=1 step=2050 loss/token=1.4954 decoder_loss=1.4954 bits/base=0.3596 decoder_bpb=0.3596 latent_bpb=2048.0104 total_bpb=2048.3700 grad_norm=31.4008 tokens/s=50372.5 lr=4.98054e-05
+[train] epoch=1 step=2075 loss/token=1.6678 decoder_loss=1.6678 bits/base=0.4010 decoder_bpb=0.4010 latent_bpb=2048.0104 total_bpb=2048.4114 grad_norm=55.2640 tokens/s=50380.6 lr=4.97991e-05
+[train] epoch=1 step=2100 loss/token=1.5844 decoder_loss=1.5844 bits/base=0.3810 decoder_bpb=0.3810 latent_bpb=2048.0104 total_bpb=2048.3914 grad_norm=55.4069 tokens/s=50378.8 lr=4.97927e-05
+[train] epoch=1 step=2125 loss/token=1.2687 decoder_loss=1.2687 bits/base=0.3051 decoder_bpb=0.3051 latent_bpb=2048.0104 total_bpb=2048.3155 grad_norm=41.1538 tokens/s=50374.4 lr=4.97862e-05
+[train] epoch=1 step=2150 loss/token=1.3581 decoder_loss=1.3581 bits/base=0.3266 decoder_bpb=0.3266 latent_bpb=2048.0104 total_bpb=2048.3370 grad_norm=60.5544 tokens/s=50378.0 lr=4.97796e-05
+[train] epoch=1 step=2175 loss/token=1.0898 decoder_loss=1.0898 bits/base=0.2620 decoder_bpb=0.2620 latent_bpb=2048.0104 total_bpb=2048.2724 grad_norm=35.2614 tokens/s=50358.2 lr=4.97728e-05
+[train] epoch=1 step=2200 loss/token=1.1649 decoder_loss=1.1649 bits/base=0.2801 decoder_bpb=0.2801 latent_bpb=2048.0104 total_bpb=2048.2905 grad_norm=47.9916 tokens/s=50389.5 lr=4.9766e-05
+[train] epoch=1 step=2225 loss/token=1.1402 decoder_loss=1.1402 bits/base=0.2741 decoder_bpb=0.2741 latent_bpb=2048.0104 total_bpb=2048.2846 grad_norm=59.7328 tokens/s=50387.4 lr=4.97591e-05
+[train] epoch=1 step=2250 loss/token=1.0281 decoder_loss=1.0281 bits/base=0.2472 decoder_bpb=0.2472 latent_bpb=2048.0104 total_bpb=2048.2576 grad_norm=37.3103 tokens/s=50384.1 lr=4.97521e-05
+[train] epoch=1 step=2275 loss/token=0.8742 decoder_loss=0.8742 bits/base=0.2102 decoder_bpb=0.2102 latent_bpb=2048.0104 total_bpb=2048.2206 grad_norm=29.4767 tokens/s=50380.0 lr=4.9745e-05
+[train] epoch=1 step=2300 loss/token=0.6885 decoder_loss=0.6885 bits/base=0.1655 decoder_bpb=0.1655 latent_bpb=2048.0104 total_bpb=2048.1760 grad_norm=27.1069 tokens/s=50370.4 lr=4.97377e-05
+[train] epoch=1 step=2325 loss/token=0.6924 decoder_loss=0.6924 bits/base=0.1665 decoder_bpb=0.1665 latent_bpb=2048.0104 total_bpb=2048.1769 grad_norm=27.1540 tokens/s=50369.8 lr=4.97304e-05
+[train] epoch=1 step=2350 loss/token=0.6764 decoder_loss=0.6764 bits/base=0.1626 decoder_bpb=0.1626 latent_bpb=2048.0104 total_bpb=2048.1731 grad_norm=31.5886 tokens/s=50381.0 lr=4.9723e-05
+[train] epoch=1 step=2375 loss/token=0.6931 decoder_loss=0.6931 bits/base=0.1667 decoder_bpb=0.1667 latent_bpb=2048.0104 total_bpb=2048.1771 grad_norm=35.8269 tokens/s=50385.0 lr=4.97155e-05
+[train] epoch=1 step=2400 loss/token=0.6282 decoder_loss=0.6282 bits/base=0.1511 decoder_bpb=0.1511 latent_bpb=2048.0104 total_bpb=2048.1615 grad_norm=25.9672 tokens/s=50381.3 lr=4.97078e-05
+[train] epoch=1 step=2425 loss/token=0.5426 decoder_loss=0.5426 bits/base=0.1305 decoder_bpb=0.1305 latent_bpb=2048.0104 total_bpb=2048.1409 grad_norm=18.7131 tokens/s=50380.5 lr=4.97001e-05
+[train] epoch=1 step=2450 loss/token=0.6356 decoder_loss=0.6356 bits/base=0.1528 decoder_bpb=0.1528 latent_bpb=2048.0104 total_bpb=2048.1632 grad_norm=38.5504 tokens/s=50371.5 lr=4.96923e-05
+[train] epoch=1 step=2475 loss/token=0.6665 decoder_loss=0.6665 bits/base=0.1603 decoder_bpb=0.1603 latent_bpb=2048.0104 total_bpb=2048.1707 grad_norm=57.4983 tokens/s=50376.6 lr=4.96844e-05
+[train] epoch=1 step=2500 loss/token=0.4960 decoder_loss=0.4960 bits/base=0.1193 decoder_bpb=0.1193 latent_bpb=2048.0104 total_bpb=2048.1297 grad_norm=32.4965 tokens/s=50357.9 lr=4.96764e-05
+[train] epoch=1 step=2525 loss/token=0.4735 decoder_loss=0.4735 bits/base=0.1139 decoder_bpb=0.1139 latent_bpb=2048.0104 total_bpb=2048.1243 grad_norm=31.0415 tokens/s=50363.3 lr=4.96682e-05
+[train] epoch=1 step=2550 loss/token=0.3658 decoder_loss=0.3658 bits/base=0.0880 decoder_bpb=0.0880 latent_bpb=2048.0104 total_bpb=2048.0984 grad_norm=15.9046 tokens/s=50354.3 lr=4.966e-05
+[train] epoch=1 step=2575 loss/token=0.4581 decoder_loss=0.4581 bits/base=0.1102 decoder_bpb=0.1102 latent_bpb=2048.0104 total_bpb=2048.1206 grad_norm=30.8105 tokens/s=50376.0 lr=4.96517e-05
+[train] epoch=1 step=2600 loss/token=0.4288 decoder_loss=0.4288 bits/base=0.1031 decoder_bpb=0.1031 latent_bpb=2048.0104 total_bpb=2048.1135 grad_norm=30.1637 tokens/s=50368.9 lr=4.96433e-05
+[train] epoch=1 step=2625 loss/token=0.2944 decoder_loss=0.2944 bits/base=0.0708 decoder_bpb=0.0708 latent_bpb=2048.0104 total_bpb=2048.0812 grad_norm=7.6015 tokens/s=50375.7 lr=4.96348e-05
+[train] epoch=1 step=2650 loss/token=0.3515 decoder_loss=0.3515 bits/base=0.0845 decoder_bpb=0.0845 latent_bpb=2048.0104 total_bpb=2048.0949 grad_norm=19.3647 tokens/s=50375.2 lr=4.96261e-05
+[train] epoch=1 step=2675 loss/token=0.2355 decoder_loss=0.2355 bits/base=0.0566 decoder_bpb=0.0566 latent_bpb=2048.0104 total_bpb=2048.0670 grad_norm=7.8961 tokens/s=50384.2 lr=4.96174e-05
+[train] epoch=1 step=2700 loss/token=0.3537 decoder_loss=0.3537 bits/base=0.0850 decoder_bpb=0.0850 latent_bpb=2048.0104 total_bpb=2048.0955 grad_norm=34.2443 tokens/s=50380.7 lr=4.96086e-05
+[train] epoch=1 step=2725 loss/token=0.2236 decoder_loss=0.2236 bits/base=0.0538 decoder_bpb=0.0538 latent_bpb=2048.0104 total_bpb=2048.0642 grad_norm=25.6667 tokens/s=50373.5 lr=4.95997e-05
+[train] epoch=1 step=2750 loss/token=0.2074 decoder_loss=0.2074 bits/base=0.0499 decoder_bpb=0.0499 latent_bpb=2048.0104 total_bpb=2048.0603 grad_norm=14.8161 tokens/s=50376.6 lr=4.95907e-05
+[train] epoch=1 step=2775 loss/token=0.1653 decoder_loss=0.1653 bits/base=0.0397 decoder_bpb=0.0397 latent_bpb=2048.0104 total_bpb=2048.0502 grad_norm=5.6427 tokens/s=50369.6 lr=4.95815e-05
+[train] epoch=1 step=2800 loss/token=0.1787 decoder_loss=0.1787 bits/base=0.0430 decoder_bpb=0.0430 latent_bpb=2048.0104 total_bpb=2048.0534 grad_norm=9.1996 tokens/s=50362.3 lr=4.95723e-05
+[train] epoch=1 step=2825 loss/token=0.1356 decoder_loss=0.1356 bits/base=0.0326 decoder_bpb=0.0326 latent_bpb=2048.0104 total_bpb=2048.0430 grad_norm=7.0197 tokens/s=50370.9 lr=4.9563e-05
+[train] epoch=1 step=2850 loss/token=0.1382 decoder_loss=0.1382 bits/base=0.0332 decoder_bpb=0.0332 latent_bpb=2048.0104 total_bpb=2048.0436 grad_norm=5.4755 tokens/s=50357.1 lr=4.95536e-05
+[train] epoch=1 step=2875 loss/token=0.1737 decoder_loss=0.1737 bits/base=0.0418 decoder_bpb=0.0418 latent_bpb=2048.0104 total_bpb=2048.0522 grad_norm=23.7951 tokens/s=50356.8 lr=4.95441e-05
+[train] epoch=1 step=2900 loss/token=0.1699 decoder_loss=0.1699 bits/base=0.0409 decoder_bpb=0.0409 latent_bpb=2048.0104 total_bpb=2048.0513 grad_norm=19.0854 tokens/s=50375.1 lr=4.95344e-05
+[train] epoch=1 step=2925 loss/token=0.1164 decoder_loss=0.1164 bits/base=0.0280 decoder_bpb=0.0280 latent_bpb=2048.0104 total_bpb=2048.0384 grad_norm=11.2459 tokens/s=50371.7 lr=4.95247e-05
+[train] epoch=1 step=2950 loss/token=0.1078 decoder_loss=0.1078 bits/base=0.0259 decoder_bpb=0.0259 latent_bpb=2048.0104 total_bpb=2048.0363 grad_norm=4.5730 tokens/s=50378.8 lr=4.95149e-05
+[train] epoch=1 step=2975 loss/token=0.2199 decoder_loss=0.2199 bits/base=0.0529 decoder_bpb=0.0529 latent_bpb=2048.0104 total_bpb=2048.0633 grad_norm=25.6596 tokens/s=50380.4 lr=4.9505e-05
+[train] epoch=1 step=3000 loss/token=0.2288 decoder_loss=0.2288 bits/base=0.0550 decoder_bpb=0.0550 latent_bpb=2048.0104 total_bpb=2048.0654 grad_norm=34.5801 tokens/s=50369.2 lr=4.9495e-05
+[train] epoch=1 step=3025 loss/token=0.1035 decoder_loss=0.1035 bits/base=0.0249 decoder_bpb=0.0249 latent_bpb=2048.0104 total_bpb=2048.0353 grad_norm=15.3542 tokens/s=50363.7 lr=4.94849e-05
+[train] epoch=1 step=3050 loss/token=0.1247 decoder_loss=0.1247 bits/base=0.0300 decoder_bpb=0.0300 latent_bpb=2048.0104 total_bpb=2048.0404 grad_norm=19.2019 tokens/s=50373.4 lr=4.94747e-05
+[train] epoch=1 step=3075 loss/token=0.1709 decoder_loss=0.1709 bits/base=0.0411 decoder_bpb=0.0411 latent_bpb=2048.0104 total_bpb=2048.0515 grad_norm=25.5935 tokens/s=50354.9 lr=4.94644e-05
+[train] epoch=1 step=3100 loss/token=0.1448 decoder_loss=0.1448 bits/base=0.0348 decoder_bpb=0.0348 latent_bpb=2048.0104 total_bpb=2048.0452 grad_norm=22.1198 tokens/s=50370.9 lr=4.9454e-05
+[train] epoch=1 step=3125 loss/token=0.0982 decoder_loss=0.0982 bits/base=0.0236 decoder_bpb=0.0236 latent_bpb=2048.0104 total_bpb=2048.0340 grad_norm=9.8587 tokens/s=50376.9 lr=4.94434e-05
+[train] epoch=1 step=3150 loss/token=0.0935 decoder_loss=0.0935 bits/base=0.0225 decoder_bpb=0.0225 latent_bpb=2048.0104 total_bpb=2048.0329 grad_norm=13.5568 tokens/s=50369.5 lr=4.94328e-05
+[train] epoch=1 step=3175 loss/token=0.1757 decoder_loss=0.1757 bits/base=0.0423 decoder_bpb=0.0423 latent_bpb=2048.0104 total_bpb=2048.0527 grad_norm=35.7017 tokens/s=50368.0 lr=4.94221e-05
+[train] epoch=1 step=3200 loss/token=0.0996 decoder_loss=0.0996 bits/base=0.0240 decoder_bpb=0.0240 latent_bpb=2048.0104 total_bpb=2048.0344 grad_norm=16.5125 tokens/s=50381.0 lr=4.94113e-05
+[train] epoch=1 step=3225 loss/token=0.1168 decoder_loss=0.1168 bits/base=0.0281 decoder_bpb=0.0281 latent_bpb=2048.0104 total_bpb=2048.0385 grad_norm=16.2025 tokens/s=50371.8 lr=4.94004e-05
+[train] epoch=1 step=3250 loss/token=0.0552 decoder_loss=0.0552 bits/base=0.0133 decoder_bpb=0.0133 latent_bpb=2048.0104 total_bpb=2048.0237 grad_norm=3.5883 tokens/s=50346.5 lr=4.93894e-05
+[train] epoch=1 step=3275 loss/token=0.0806 decoder_loss=0.0806 bits/base=0.0194 decoder_bpb=0.0194 latent_bpb=2048.0104 total_bpb=2048.0298 grad_norm=9.5838 tokens/s=50359.4 lr=4.93783e-05
+[train] epoch=1 step=3300 loss/token=0.0631 decoder_loss=0.0631 bits/base=0.0152 decoder_bpb=0.0152 latent_bpb=2048.0104 total_bpb=2048.0256 grad_norm=5.5229 tokens/s=50382.3 lr=4.93671e-05
+[train] epoch=1 step=3325 loss/token=0.0909 decoder_loss=0.0909 bits/base=0.0219 decoder_bpb=0.0219 latent_bpb=2048.0104 total_bpb=2048.0323 grad_norm=16.1844 tokens/s=50370.2 lr=4.93558e-05
+[train] epoch=1 step=3350 loss/token=0.0706 decoder_loss=0.0706 bits/base=0.0170 decoder_bpb=0.0170 latent_bpb=2048.0104 total_bpb=2048.0274 grad_norm=11.9439 tokens/s=50368.5 lr=4.93444e-05
+[train] epoch=1 step=3375 loss/token=0.1687 decoder_loss=0.1687 bits/base=0.0406 decoder_bpb=0.0406 latent_bpb=2048.0104 total_bpb=2048.0510 grad_norm=32.3019 tokens/s=50364.2 lr=4.93329e-05
+[train] epoch=1 step=3400 loss/token=0.0698 decoder_loss=0.0698 bits/base=0.0168 decoder_bpb=0.0168 latent_bpb=2048.0104 total_bpb=2048.0272 grad_norm=8.4387 tokens/s=50383.2 lr=4.93213e-05
+[train] epoch=1 step=3425 loss/token=0.0647 decoder_loss=0.0647 bits/base=0.0156 decoder_bpb=0.0156 latent_bpb=2048.0104 total_bpb=2048.0260 grad_norm=7.7729 tokens/s=50354.5 lr=4.93097e-05
+[train] epoch=1 step=3450 loss/token=0.1412 decoder_loss=0.1412 bits/base=0.0340 decoder_bpb=0.0340 latent_bpb=2048.0104 total_bpb=2048.0444 grad_norm=28.8928 tokens/s=50369.0 lr=4.92979e-05
+[train] epoch=1 step=3475 loss/token=0.0658 decoder_loss=0.0658 bits/base=0.0158 decoder_bpb=0.0158 latent_bpb=2048.0104 total_bpb=2048.0262 grad_norm=10.0358 tokens/s=50373.3 lr=4.9286e-05
+[train] epoch=1 step=3500 loss/token=0.2318 decoder_loss=0.2318 bits/base=0.0557 decoder_bpb=0.0557 latent_bpb=2048.0104 total_bpb=2048.0662 grad_norm=45.7196 tokens/s=50373.2 lr=4.9274e-05
+[train] epoch=1 step=3525 loss/token=0.0390 decoder_loss=0.0390 bits/base=0.0094 decoder_bpb=0.0094 latent_bpb=2048.0104 total_bpb=2048.0198 grad_norm=2.8435 tokens/s=50357.8 lr=4.92619e-05
+[train] epoch=1 step=3550 loss/token=0.0401 decoder_loss=0.0401 bits/base=0.0096 decoder_bpb=0.0096 latent_bpb=2048.0104 total_bpb=2048.0200 grad_norm=4.2188 tokens/s=50378.8 lr=4.92497e-05
+[train] epoch=1 step=3575 loss/token=0.0633 decoder_loss=0.0633 bits/base=0.0152 decoder_bpb=0.0152 latent_bpb=2048.0104 total_bpb=2048.0256 grad_norm=9.3495 tokens/s=50381.5 lr=4.92374e-05
+[train] epoch=1 step=3600 loss/token=0.0603 decoder_loss=0.0603 bits/base=0.0145 decoder_bpb=0.0145 latent_bpb=2048.0104 total_bpb=2048.0249 grad_norm=5.7809 tokens/s=50380.1 lr=4.92251e-05
+[train] epoch=1 step=3625 loss/token=0.1260 decoder_loss=0.1260 bits/base=0.0303 decoder_bpb=0.0303 latent_bpb=2048.0104 total_bpb=2048.0407 grad_norm=18.6385 tokens/s=50369.6 lr=4.92126e-05
+[train] epoch=1 step=3650 loss/token=0.0494 decoder_loss=0.0494 bits/base=0.0119 decoder_bpb=0.0119 latent_bpb=2048.0104 total_bpb=2048.0223 grad_norm=5.1231 tokens/s=50341.1 lr=4.92e-05
+[train] epoch=1 step=3675 loss/token=0.1590 decoder_loss=0.1590 bits/base=0.0382 decoder_bpb=0.0382 latent_bpb=2048.0104 total_bpb=2048.0486 grad_norm=28.4176 tokens/s=50359.6 lr=4.91873e-05
+[train] epoch=1 step=3700 loss/token=0.0456 decoder_loss=0.0456 bits/base=0.0110 decoder_bpb=0.0110 latent_bpb=2048.0104 total_bpb=2048.0214 grad_norm=3.8160 tokens/s=50372.9 lr=4.91746e-05
+[train] epoch=1 step=3725 loss/token=0.0906 decoder_loss=0.0906 bits/base=0.0218 decoder_bpb=0.0218 latent_bpb=2048.0104 total_bpb=2048.0322 grad_norm=15.4580 tokens/s=50367.9 lr=4.91617e-05
+[train] epoch=1 step=3750 loss/token=0.0389 decoder_loss=0.0389 bits/base=0.0094 decoder_bpb=0.0094 latent_bpb=2048.0104 total_bpb=2048.0198 grad_norm=6.1419 tokens/s=50378.7 lr=4.91487e-05

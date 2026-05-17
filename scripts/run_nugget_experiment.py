@@ -7,13 +7,30 @@ Examples:
   # Train/evaluate a BART Nugget autoencoder.
   python scripts/run_nugget_experiment.py \
     --config configs/dna_nugget_modified.json \
+    --seed 43 \
+    --init-from pretrained \
+    --pretrained-weight-path outputs/dna_nugget_modified_r1_continuous_flatten_d64_2/best.pt \
+    --pretrained-weight-scope all \
+    --nugget-bottleneck-layer-norm \
+    --nugget-latent-mode flatten_bottleneck \
+    --nugget-flatten-bottleneck-dim 512 \
+    --nugget-vq-codebook-bits 12 \
+    --nugget-vq-num-codes 1 \
+    --nugget-vq-code-dim 64 \
+    --nugget-vq-restart-dead-codes \
+    --nugget-vq-restart-usage-threshold 1e-4 \
+    --nugget-vq-restart-usage-decay 0.99 \
+    --nugget-vq-restart-max-fraction 0.01 \
+    --nugget-vq-commitment-weight 0.05 \
+    --nugget-vq-usage-weight 0 \
+    --nugget-vq-usage-temperature 1.0 \
     --mode all \
     --implementation nugget \
     --nugget-backbone bart \
     --nugget-tokenizer fixed_kmer \
     --token-merge-size 6 \
     --token-merge-alphabet ACGTN \
-    --nugget-ratio 0.7 \
+    --nugget-ratio 1 \
     --nugget-scorer-layer 3 \
     --nugget-residual-start 0 \
     --nugget-residual-end -1 \
@@ -23,22 +40,21 @@ Examples:
     --train-ratio 0.6 \
     --val-ratio 0.2 \
     --test-ratio 0.2 \
-    --train-samples-per-epoch 2500000 \
+    --train-samples-per-epoch 3600000 \
     --compression-sample-bytes 100000 \
     --arithmetic-coding-mode model_symbol \
     --arithmetic-merge-size 1 \
     --device cuda \
     --dtype bfloat16 \
-    --init-from scratch \
     --epochs 1 \
     --batch-size 32 \
     --eval-batch-size 32 \
     --learning-rate 5e-5 \
     --weight-decay 0 \
     --lr-scheduler cosine \
-    --lr-warmup-steps 0 \
+    --lr-warmup-steps 500 \
     --lr-min-ratio 0.1 \
-    --grad-clip-norm 1.0 \
+    --grad-clip-norm 10.0 \
     --num-workers 4 \
     --prefetch-factor 2 \
     --persistent-workers \
@@ -46,9 +62,8 @@ Examples:
     --log-interval 25 \
     --eval-interval 2000 \
     --print-config \
-    --run-name dna_nugget_bart_r0.7 \
     --wandb-project dna-compress \
-    --wandb-name dna_nugget_bart
+    --wandb-name dna_nugget_bart_r1_flatten_d64_3
 
   # Train a T5 Nugget autoencoder.
   python scripts/run_nugget_experiment.py \
@@ -102,8 +117,37 @@ if str(REPO_ROOT) not in sys.path:
 from dna_compress.config import load_experiment_config
 from dna_compress.nugget_compression import NUGGET_ARITHMETIC_CODING_MODES
 from dna_compress.nugget_experiment import run_nugget_experiment, validate_nugget_config
-from dna_compress.nugget_loader import NUGGET_BACKBONES
+from dna_compress.nugget_loader import NUGGET_BACKBONES, NUGGET_LATENT_MODES
 from dna_compress.nugget_tokenization import NUGGET_TOKENIZERS, apply_nugget_tokenizer_to_model_config, build_nugget_tokenizer_spec
+
+
+def _resolve_resume_checkpoint_path(explicit_path: str | None, output_dir: str) -> Path:
+    if explicit_path:
+        return Path(explicit_path)
+    default_resume_path = Path(output_dir) / "last.pt"
+    if default_resume_path.exists():
+        return default_resume_path
+    raise FileNotFoundError(
+        "train.init_from='resume' but no checkpoint path was provided and output_dir/last.pt does not exist."
+    )
+
+
+def _load_resume_default_config(base_config: Any, args: argparse.Namespace) -> tuple[Any, Path | None, Path | None]:
+    requested_init_from = args.init_from if args.init_from is not None else base_config.train.init_from
+    if requested_init_from != "resume":
+        return base_config, None, None
+
+    checkpoint_path = _resolve_resume_checkpoint_path(
+        explicit_path=args.pretrained_weight_path or base_config.model.pretrained_weight_path,
+        output_dir=args.output_dir or base_config.output.output_dir,
+    )
+    resolved_config_path = checkpoint_path.parent / "resolved_config.json"
+    if not resolved_config_path.exists():
+        raise FileNotFoundError(
+            f"train.init_from='resume' requires resume defaults at {resolved_config_path}, "
+            "but the file does not exist."
+        )
+    return load_experiment_config(resolved_config_path), checkpoint_path, resolved_config_path
 
 
 def _parse_scalar(value: str) -> Any:
@@ -153,12 +197,28 @@ def _apply_overrides(config: Any, args: argparse.Namespace) -> None:
     _apply_if_not_none(config, "model.implementation", args.implementation)
     _apply_if_not_none(config, "model.variant", args.variant)
     _apply_if_not_none(config, "model.pretrained_weight_path", args.pretrained_weight_path)
+    _apply_if_not_none(config, "model.pretrained_weight_scope", args.pretrained_weight_scope)
     _apply_if_not_none(config, "model.seq_length", args.seq_length)
     _apply_if_not_none(config, "model.nugget_backbone", args.nugget_backbone)
     _apply_if_not_none(config, "model.nugget_ratio", args.nugget_ratio)
+    _apply_if_not_none(config, "model.nugget_value_ffn", args.nugget_value_ffn)
+    _apply_if_not_none(config, "model.nugget_value_ffn_layer_norm", args.nugget_value_ffn_layer_norm)
     _apply_if_not_none(config, "model.nugget_scorer_layer", args.nugget_scorer_layer)
     _apply_if_not_none(config, "model.nugget_residual_start", args.nugget_residual_start)
     _apply_if_not_none(config, "model.nugget_residual_end", args.nugget_residual_end)
+    _apply_if_not_none(config, "model.nugget_latent_mode", args.nugget_latent_mode)
+    _apply_if_not_none(config, "model.nugget_bottleneck_layer_norm", args.nugget_bottleneck_layer_norm)
+    _apply_if_not_none(config, "model.nugget_flatten_bottleneck_dim", args.nugget_flatten_bottleneck_dim)
+    _apply_if_not_none(config, "model.nugget_vq_codebook_bits", args.nugget_vq_codebook_bits)
+    _apply_if_not_none(config, "model.nugget_vq_num_codes", args.nugget_vq_num_codes)
+    _apply_if_not_none(config, "model.nugget_vq_code_dim", args.nugget_vq_code_dim)
+    _apply_if_not_none(config, "model.nugget_vq_commitment_weight", args.nugget_vq_commitment_weight)
+    _apply_if_not_none(config, "model.nugget_vq_usage_weight", args.nugget_vq_usage_weight)
+    _apply_if_not_none(config, "model.nugget_vq_usage_temperature", args.nugget_vq_usage_temperature)
+    _apply_if_not_none(config, "model.nugget_vq_restart_dead_codes", args.nugget_vq_restart_dead_codes)
+    _apply_if_not_none(config, "model.nugget_vq_restart_usage_threshold", args.nugget_vq_restart_usage_threshold)
+    _apply_if_not_none(config, "model.nugget_vq_restart_usage_decay", args.nugget_vq_restart_usage_decay)
+    _apply_if_not_none(config, "model.nugget_vq_restart_max_fraction", args.nugget_vq_restart_max_fraction)
 
     _apply_if_not_none(config, "data.dataset_dir", args.dataset_dir)
     _apply_if_not_none(config, "data.nugget_tokenizer", args.nugget_tokenizer)
@@ -243,12 +303,35 @@ def _build_parser() -> argparse.ArgumentParser:
     model_group.add_argument("--implementation", choices=["nugget"])
     model_group.add_argument("--variant", choices=["dna_gpt0.1b_h", "dna_gpt0.1b_m", "dna_gpt3b_m"])
     model_group.add_argument("--pretrained-weight-path")
+    model_group.add_argument(
+        "--pretrained-weight-scope",
+        help=(
+            "Scope for pretrained tensors. "
+            "Use 'all'/'*'/'auto' to load all matching keys, "
+            "or comma-separated prefixes like 'decoder,encoder,nugget'."
+        ),
+    )
     model_group.add_argument("--seq-length", type=int)
     model_group.add_argument("--nugget-backbone", choices=list(NUGGET_BACKBONES))
     model_group.add_argument("--nugget-ratio", type=float)
+    model_group.add_argument("--nugget-value-ffn", action=argparse.BooleanOptionalAction)
+    model_group.add_argument("--nugget-value-ffn-layer-norm", action=argparse.BooleanOptionalAction)
     model_group.add_argument("--nugget-scorer-layer", type=int)
     model_group.add_argument("--nugget-residual-start", type=int)
     model_group.add_argument("--nugget-residual-end", type=int)
+    model_group.add_argument("--nugget-latent-mode", choices=list(NUGGET_LATENT_MODES))
+    model_group.add_argument("--nugget-bottleneck-layer-norm", action=argparse.BooleanOptionalAction)
+    model_group.add_argument("--nugget-flatten-bottleneck-dim", type=int)
+    model_group.add_argument("--nugget-vq-codebook-bits", type=int)
+    model_group.add_argument("--nugget-vq-num-codes", type=int)
+    model_group.add_argument("--nugget-vq-code-dim", type=int)
+    model_group.add_argument("--nugget-vq-commitment-weight", type=float)
+    model_group.add_argument("--nugget-vq-usage-weight", type=float)
+    model_group.add_argument("--nugget-vq-usage-temperature", type=float)
+    model_group.add_argument("--nugget-vq-restart-dead-codes", action=argparse.BooleanOptionalAction)
+    model_group.add_argument("--nugget-vq-restart-usage-threshold", type=float)
+    model_group.add_argument("--nugget-vq-restart-usage-decay", type=float)
+    model_group.add_argument("--nugget-vq-restart-max-fraction", type=float)
 
     data_group = parser.add_argument_group("data overrides")
     data_group.add_argument("--dataset-dir")
@@ -308,7 +391,14 @@ def _build_parser() -> argparse.ArgumentParser:
 
 def main() -> None:
     args = _build_parser().parse_args()
-    config = load_experiment_config(args.config)
+    seed_config = load_experiment_config(args.config)
+    config, resume_checkpoint_path, resume_config_path = _load_resume_default_config(seed_config, args)
+    if resume_checkpoint_path is not None:
+        print(
+            f"[startup] resume checkpoint path: {resume_checkpoint_path} | "
+            f"resume config path: {resume_config_path} | resume defaults loaded=True",
+            flush=True,
+        )
     _apply_overrides(config, args)
     _apply_timestamp_to_output_dir(config, args)
     tokenizer_spec = build_nugget_tokenizer_spec(config.data, config.model)

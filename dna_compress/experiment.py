@@ -220,15 +220,25 @@ def log_wandb_metrics(wandb_run: Any | None, payload: dict[str, object], step: i
     wandb_run.log(payload, step=step)
 
 
-def save_checkpoint(path: Path, model: torch.nn.Module, optimizer: AdamW, step: int, best_val_bpb: float) -> None:
+def save_checkpoint(
+    path: Path,
+    model: torch.nn.Module,
+    optimizer: AdamW,
+    step: int,
+    best_val_bpb: float,
+    scheduler: LambdaLR | None = None,
+) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
+    payload: dict[str, object] = {
+        "model_state": model.state_dict(),
+        "optimizer_state": optimizer.state_dict(),
+        "step": step,
+        "best_val_bpb": best_val_bpb,
+    }
+    if scheduler is not None:
+        payload["scheduler_state"] = scheduler.state_dict()
     torch.save(
-        {
-            "model_state": model.state_dict(),
-            "optimizer_state": optimizer.state_dict(),
-            "step": step,
-            "best_val_bpb": best_val_bpb,
-        },
+        payload,
         path,
     )
 
@@ -538,6 +548,7 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
         resume_metadata: dict[str, object] = {}
         raw_checkpoint: dict[str, object] | None = None
         optimizer_state_restored = False
+        scheduler_state_restored = False
         missing_keys: list[str] = []
         unexpected_keys: list[str] = []
 
@@ -714,6 +725,10 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
             if isinstance(optimizer_state, dict):
                 optimizer.load_state_dict(optimizer_state)
                 optimizer_state_restored = True
+            scheduler_state = raw_checkpoint.get("scheduler_state")
+            if scheduler is not None and isinstance(scheduler_state, dict):
+                scheduler.load_state_dict(scheduler_state)
+                scheduler_state_restored = True
 
         run_summary: dict[str, object] = {
             "device": str(device),
@@ -731,6 +746,7 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
                 "requested_init_from": config.train.init_from,
                 "loaded_checkpoint_path": str(checkpoint_path) if checkpoint_path is not None else None,
                 "optimizer_state_restored": optimizer_state_restored,
+                "scheduler_state_restored": scheduler_state_restored,
                 "pretrained_load_missing_keys": missing_keys,
                 "pretrained_load_unexpected_keys": unexpected_keys,
             },
@@ -750,7 +766,8 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
         if ddp.is_main_process and checkpoint_path is not None:
             print(
                 f"[startup] loaded checkpoint={checkpoint_path} init_from={config.train.init_from} "
-                f"optimizer_restored={optimizer_state_restored}",
+                f"optimizer_restored={optimizer_state_restored} "
+                f"scheduler_restored={scheduler_state_restored}",
                 flush=True,
             )
             if config.train.init_from == "pretrained" and (missing_keys or unexpected_keys):
@@ -879,6 +896,7 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
                                     optimizer,
                                     global_step,
                                     best_val_bpb,
+                                    scheduler,
                                 )
                         model.train()
 
@@ -900,6 +918,7 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
                         optimizer,
                         global_step,
                         best_val_bpb,
+                        scheduler,
                     )
 
             if ddp.is_main_process:
@@ -909,6 +928,7 @@ def run_experiment(config: ExperimentConfig, mode: str = "all") -> dict[str, obj
                     optimizer,
                     global_step,
                     best_val_bpb,
+                    scheduler,
                 )
                 run_summary["best_val_bits_per_base"] = best_val_bpb
 

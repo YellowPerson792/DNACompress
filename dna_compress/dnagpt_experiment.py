@@ -246,6 +246,8 @@ def run_dnagpt_experiment(config: ExperimentConfig, mode: str = "all") -> dict[s
         checkpoint_path = _resolve_initial_checkpoint_path(config, mode, output_dir)
         resume_metadata: dict[str, object] = {}
         raw_checkpoint: dict[str, object] | None = None
+        optimizer_state_restored = False
+        scheduler_state_restored = False
         if checkpoint_path is not None:
             model_state, resume_metadata, raw_checkpoint = load_dnagpt_checkpoint(
                 checkpoint_path,
@@ -268,6 +270,7 @@ def run_dnagpt_experiment(config: ExperimentConfig, mode: str = "all") -> dict[s
             optimizer_state = raw_checkpoint.get("optimizer_state")
             if isinstance(optimizer_state, dict):
                 optimizer.load_state_dict(optimizer_state)
+                optimizer_state_restored = True
 
         splits = load_splits(config.data, seq_length=config.model.seq_length)
         tokenized_splits = _build_tokenized_split_sources(config, splits, tokenizer, spec)
@@ -347,6 +350,11 @@ def run_dnagpt_experiment(config: ExperimentConfig, mode: str = "all") -> dict[s
             total_steps=total_train_steps,
             min_ratio=config.train.lr_min_ratio,
         )
+        if config.train.init_from == "resume" and isinstance(raw_checkpoint, dict):
+            scheduler_state = raw_checkpoint.get("scheduler_state")
+            if scheduler is not None and isinstance(scheduler_state, dict):
+                scheduler.load_state_dict(scheduler_state)
+                scheduler_state_restored = True
         scaler = torch.cuda.amp.GradScaler(enabled=device.type == "cuda" and config.train.dtype == "float16")
 
         # Only resume mode should inherit optimizer progress/step counters.
@@ -382,6 +390,8 @@ def run_dnagpt_experiment(config: ExperimentConfig, mode: str = "all") -> dict[s
                 "arithmetic_merge_size": config.arithmetic.merge_size,
                 "requested_init_from": config.train.init_from,
                 "loaded_checkpoint_path": str(checkpoint_path) if checkpoint_path is not None else None,
+                "optimizer_state_restored": optimizer_state_restored,
+                "scheduler_state_restored": scheduler_state_restored,
                 "tokenized_train": _dataset_token_summary(tokenized_splits["train"]),
                 "tokenized_val": _dataset_token_summary(tokenized_splits["val"]),
                 "tokenized_test": _dataset_token_summary(tokenized_splits["test"]),
@@ -389,6 +399,13 @@ def run_dnagpt_experiment(config: ExperimentConfig, mode: str = "all") -> dict[s
         }
         if ddp.is_main_process and train_log_handle is not None:
             run_summary["training_log_jsonl"] = str(training_log_path)
+        if ddp.is_main_process and checkpoint_path is not None:
+            print(
+                f"[startup] loaded checkpoint={checkpoint_path} init_from={config.train.init_from} "
+                f"optimizer_restored={optimizer_state_restored} "
+                f"scheduler_restored={scheduler_state_restored}",
+                flush=True,
+            )
 
         if mode in {"train", "all"}:
             model.train()
@@ -512,6 +529,7 @@ def run_dnagpt_experiment(config: ExperimentConfig, mode: str = "all") -> dict[s
                                     optimizer,
                                     global_step,
                                     best_val_bpb,
+                                    scheduler,
                                 )
                         model.train()
 
@@ -531,6 +549,7 @@ def run_dnagpt_experiment(config: ExperimentConfig, mode: str = "all") -> dict[s
                         optimizer,
                         global_step,
                         best_val_bpb,
+                        scheduler,
                     )
 
                 save_checkpoint(
@@ -539,6 +558,7 @@ def run_dnagpt_experiment(config: ExperimentConfig, mode: str = "all") -> dict[s
                     optimizer,
                     global_step,
                     best_val_bpb,
+                    scheduler,
                 )
                 run_summary["best_val_bits_per_base"] = best_val_bpb
 

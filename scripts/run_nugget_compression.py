@@ -21,24 +21,19 @@ Examples:
 
   # Stored-hidden compression: cast nuggets to fp16, then decode from fp16 payload.
   python scripts/run_nugget_compression.py \
-    --run-dir outputs/dna_nugget_bart_byte \
+    --run-dir outputs/dna_nugget_modified_r0.25 \
     --checkpoint-tag best \
     --split train val test \
     --compression-modes windows_nonoverlap \
     --dataset-dir datasets/DNACorpus \
-    --species HoSa \
-    --train-ratio 0.9 \
-    --val-ratio 0.05 \
-    --test-ratio 0.05 \
+    --species OrSa HoSa DaRe ScPo EsCo YeMi BuEb AgPh GaGa DrMe EnIn PlFa HePy AeCa HaHi AnCa WaMe \
     --device cuda:0 \
-    --dtype float16 \
-    --eval-batch-size 8 \
+    --eval-batch-size 32 \
     --compression-sample-bytes 60000 \
     --nugget-hidden-mode stored_hidden \
-    --nugget-hidden-storage-dtype float16 \
-    --arithmetic-coding-mode model_symbol \
-    --arithmetic-merge-size 1 \
-    --output-json outputs/dna_nugget_bart_byte/nugget_compression_stored_fp16.json
+    --nugget-hidden-storage-dtype bfloat16 \
+    --arithmetic-coding-mode fixed_token_units \
+    --arithmetic-merge-size 2
 
   # Fixed-kmer tokenizer with token-internal arithmetic coding.
   python scripts/run_nugget_compression.py \
@@ -80,7 +75,9 @@ Examples:
 
 import argparse
 import json
+import math
 from pathlib import Path
+import subprocess
 import sys
 from typing import Any
 
@@ -107,6 +104,7 @@ from dna_compress.nugget_experiment import validate_nugget_config
 from dna_compress.nugget_loader import (
     NUGGET_HIDDEN_MODES,
     NUGGET_HIDDEN_STORAGE_DTYPES,
+    NUGGET_LATENT_MODES,
     build_nugget_model,
     load_nugget_checkpoint,
 )
@@ -164,6 +162,21 @@ def _apply_overrides(config: ExperimentConfig, args: argparse.Namespace) -> None
     _apply_if_not_none(config, "model.implementation", args.implementation)
     _apply_if_not_none(config, "model.variant", args.variant)
     _apply_if_not_none(config, "model.seq_length", args.seq_length)
+    _apply_if_not_none(config, "model.nugget_value_ffn", args.nugget_value_ffn)
+    _apply_if_not_none(config, "model.nugget_value_ffn_layer_norm", args.nugget_value_ffn_layer_norm)
+    _apply_if_not_none(config, "model.nugget_latent_mode", args.nugget_latent_mode)
+    _apply_if_not_none(config, "model.nugget_bottleneck_layer_norm", args.nugget_bottleneck_layer_norm)
+    _apply_if_not_none(config, "model.nugget_flatten_bottleneck_dim", args.nugget_flatten_bottleneck_dim)
+    _apply_if_not_none(config, "model.nugget_vq_codebook_bits", args.nugget_vq_codebook_bits)
+    _apply_if_not_none(config, "model.nugget_vq_num_codes", args.nugget_vq_num_codes)
+    _apply_if_not_none(config, "model.nugget_vq_code_dim", args.nugget_vq_code_dim)
+    _apply_if_not_none(config, "model.nugget_vq_commitment_weight", args.nugget_vq_commitment_weight)
+    _apply_if_not_none(config, "model.nugget_vq_usage_weight", args.nugget_vq_usage_weight)
+    _apply_if_not_none(config, "model.nugget_vq_usage_temperature", args.nugget_vq_usage_temperature)
+    _apply_if_not_none(config, "model.nugget_vq_restart_dead_codes", args.nugget_vq_restart_dead_codes)
+    _apply_if_not_none(config, "model.nugget_vq_restart_usage_threshold", args.nugget_vq_restart_usage_threshold)
+    _apply_if_not_none(config, "model.nugget_vq_restart_usage_decay", args.nugget_vq_restart_usage_decay)
+    _apply_if_not_none(config, "model.nugget_vq_restart_max_fraction", args.nugget_vq_restart_max_fraction)
     _apply_if_not_none(config, "model.nugget_hidden_mode", args.nugget_hidden_mode)
     _apply_if_not_none(config, "model.nugget_hidden_storage_dtype", args.nugget_hidden_storage_dtype)
     _apply_if_not_none(config, "data.dataset_dir", args.dataset_dir)
@@ -323,10 +336,34 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--compression-modes", nargs="+", default=[NON_OVERLAP_MODE], choices=list(SUPPORTED_NUGGET_COMPRESSION_MODES))
     parser.add_argument("--print-config", action="store_true")
     parser.add_argument("--output-json")
+    parser.add_argument(
+        "--export-statistics",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help=(
+            "Automatically run scripts/export_statistics.py after writing compression JSON "
+            "(default: enabled). Use --no-export-statistics to disable."
+        ),
+    )
     parser.add_argument("--override", action="append", default=[])
     parser.add_argument("--implementation", choices=["nugget"])
     parser.add_argument("--variant", choices=["dna_gpt0.1b_h", "dna_gpt0.1b_m", "dna_gpt3b_m"])
     parser.add_argument("--seq-length", type=int)
+    parser.add_argument("--nugget-value-ffn", action=argparse.BooleanOptionalAction)
+    parser.add_argument("--nugget-value-ffn-layer-norm", action=argparse.BooleanOptionalAction)
+    parser.add_argument("--nugget-latent-mode", choices=list(NUGGET_LATENT_MODES))
+    parser.add_argument("--nugget-bottleneck-layer-norm", action=argparse.BooleanOptionalAction)
+    parser.add_argument("--nugget-flatten-bottleneck-dim", type=int)
+    parser.add_argument("--nugget-vq-codebook-bits", type=int)
+    parser.add_argument("--nugget-vq-num-codes", type=int)
+    parser.add_argument("--nugget-vq-code-dim", type=int)
+    parser.add_argument("--nugget-vq-commitment-weight", type=float)
+    parser.add_argument("--nugget-vq-usage-weight", type=float)
+    parser.add_argument("--nugget-vq-usage-temperature", type=float)
+    parser.add_argument("--nugget-vq-restart-dead-codes", action=argparse.BooleanOptionalAction)
+    parser.add_argument("--nugget-vq-restart-usage-threshold", type=float)
+    parser.add_argument("--nugget-vq-restart-usage-decay", type=float)
+    parser.add_argument("--nugget-vq-restart-max-fraction", type=float)
     parser.add_argument("--nugget-hidden-mode", choices=list(NUGGET_HIDDEN_MODES))
     parser.add_argument("--nugget-hidden-storage-dtype", choices=list(NUGGET_HIDDEN_STORAGE_DTYPES))
     parser.add_argument("--dataset-dir")
@@ -398,8 +435,26 @@ def main() -> None:
             "decoder_ffn_dim": backbone_spec.decoder_ffn_dim,
             "seq_length": config.model.seq_length,
             "nugget_ratio": config.model.nugget_ratio,
+            "value_ffn": config.model.nugget_value_ffn,
+            "value_ffn_layer_norm": config.model.nugget_value_ffn_layer_norm,
             "hidden_mode": config.model.nugget_hidden_mode,
             "hidden_storage_dtype": config.model.nugget_hidden_storage_dtype,
+            "latent_mode": config.model.nugget_latent_mode,
+            "bottleneck_layer_norm": config.model.nugget_bottleneck_layer_norm,
+            "flatten_bottleneck_dim": config.model.nugget_flatten_bottleneck_dim,
+            "flatten_input_dim": max(1, math.ceil(config.model.seq_length * config.model.nugget_ratio)) * config.model.nugget_vq_code_dim,
+            "flatten_max_nuggets": max(1, math.ceil(config.model.seq_length * config.model.nugget_ratio)),
+            "vq_codebook_bits": config.model.nugget_vq_codebook_bits,
+            "vq_num_codes": config.model.nugget_vq_num_codes,
+            "vq_codebook_size": 1 << config.model.nugget_vq_codebook_bits,
+            "vq_code_dim": config.model.nugget_vq_code_dim,
+            "vq_commitment_weight": config.model.nugget_vq_commitment_weight,
+            "vq_usage_weight": config.model.nugget_vq_usage_weight,
+            "vq_usage_temperature": config.model.nugget_vq_usage_temperature,
+            "vq_restart_dead_codes": config.model.nugget_vq_restart_dead_codes,
+            "vq_restart_usage_threshold": config.model.nugget_vq_restart_usage_threshold,
+            "vq_restart_usage_decay": config.model.nugget_vq_restart_usage_decay,
+            "vq_restart_max_fraction": config.model.nugget_vq_restart_max_fraction,
             "arithmetic_coding_mode": config.arithmetic.coding_mode,
             "arithmetic_merge_size": config.arithmetic.merge_size,
         },
@@ -422,12 +477,23 @@ def main() -> None:
     if args.output_json:
         output_json = Path(args.output_json)
     elif args.run_dir is not None:
-        output_json = Path(args.run_dir) / "nugget_compression_compare.json"
+        output_json = Path(args.run_dir) / "compression_compare.json"
     else:
-        output_json = Path(config.output.output_dir) / "nugget_compression_compare.json"
+        output_json = Path(config.output.output_dir) / "compression_compare.json"
     output_json.parent.mkdir(parents=True, exist_ok=True)
     output_json.write_text(json.dumps(metrics, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"Saved Nugget compression metrics to {output_json}")
+    if args.export_statistics:
+        export_cmd = [
+            sys.executable,
+            str(REPO_ROOT / "scripts" / "export_statistics.py"),
+            "--run-dir",
+            str(output_json.parent),
+            "--compression-json",
+            output_json.name,
+        ]
+        subprocess.run(export_cmd, check=True, cwd=str(REPO_ROOT))
+        print(f"Exported CSV statistics under {output_json.parent / 'statistics'}")
 
 
 if __name__ == "__main__":

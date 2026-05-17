@@ -4,7 +4,7 @@ from __future__ import annotations
 
 Example:
     python scripts/upload_training_log_to_wandb.py \
-      --run-dir outputs/dna_megabyte_large_b128_ensembl_all \
+      --run-dir outputs/dna_nugget_modified_20260426_212625 \
       --project dna-compress 
       
       --name dna_dnagpt_0p1bm_all_scratch

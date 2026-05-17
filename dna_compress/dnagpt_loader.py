@@ -104,7 +104,7 @@ def _extract_model_state(state: Any) -> tuple[dict[str, torch.Tensor], dict[str,
         metadata = {
             key: value
             for key, value in state.items()
-            if key not in {"model_state", "optimizer_state"}
+            if key not in {"model_state", "optimizer_state", "scheduler_state"}
         }
         return state["model_state"], metadata
     if "model" in state:

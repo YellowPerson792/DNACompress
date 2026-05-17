@@ -1,0 +1,130 @@
+{"time":"2026-04-25T14:57:15.900321763+08:00","level":"INFO","msg":"stream: starting","core version":"0.19.10","symlink path":"outputs/dna_nugget_modified_20260425_145711/wandb/run-20260425_145715-1wigqmc3/logs/debug-core.log"}
+{"time":"2026-04-25T14:57:18.638960764+08:00","level":"INFO","msg":"created new stream","id":"1wigqmc3"}
+{"time":"2026-04-25T14:57:18.639079634+08:00","level":"INFO","msg":"stream: started","id":"1wigqmc3"}
+{"time":"2026-04-25T14:57:18.63910187+08:00","level":"INFO","msg":"sender: started","stream_id":"1wigqmc3"}
+{"time":"2026-04-25T14:57:18.6391168+08:00","level":"INFO","msg":"handler: started","stream_id":"1wigqmc3"}
+{"time":"2026-04-25T14:57:18.639239575+08:00","level":"INFO","msg":"writer: Do: started","stream_id":"1wigqmc3"}
+{"time":"2026-04-25T14:57:19.26447432+08:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2026-04-25T15:16:50.954853732+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": read tcp 127.0.0.1:59650->127.0.0.1:7897: read: connection reset by peer"}
+{"time":"2026-04-25T15:16:53.040367516+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": read tcp 127.0.0.1:33644->127.0.0.1:7897: read: connection reset by peer"}
+{"time":"2026-04-25T17:16:05.954313004+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": read tcp 127.0.0.1:33570->127.0.0.1:7897: read: connection reset by peer"}
+{"time":"2026-04-25T17:16:20.952275996+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": read tcp 127.0.0.1:36480->127.0.0.1:7897: read: connection reset by peer"}
+{"time":"2026-04-25T17:16:26.035883271+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:16:30.913974209+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": read tcp 127.0.0.1:35404->127.0.0.1:7897: read: connection reset by peer"}
+{"time":"2026-04-25T17:16:39.941536875+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": read tcp 127.0.0.1:55796->127.0.0.1:7897: read: connection reset by peer"}
+{"time":"2026-04-25T17:17:03.807308361+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:17:19.299249006+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": read tcp 127.0.0.1:44838->127.0.0.1:7897: read: connection reset by peer"}
+{"time":"2026-04-25T17:17:21.449691476+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": read tcp 127.0.0.1:44844->127.0.0.1:7897: read: connection reset by peer"}
+{"time":"2026-04-25T17:17:25.897076426+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": read tcp 127.0.0.1:44848->127.0.0.1:7897: read: connection reset by peer"}
+{"time":"2026-04-25T17:17:34.836261158+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": read tcp 127.0.0.1:60194->127.0.0.1:7897: read: connection reset by peer"}
+{"time":"2026-04-25T17:17:35.881653106+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": read tcp 127.0.0.1:60198->127.0.0.1:7897: read: connection reset by peer"}
+{"time":"2026-04-25T17:17:36.900245547+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": read tcp 127.0.0.1:60202->127.0.0.1:7897: read: connection reset by peer"}
+{"time":"2026-04-25T17:17:41.63320128+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": read tcp 127.0.0.1:34868->127.0.0.1:7897: read: connection reset by peer"}
+{"time":"2026-04-25T17:17:51.117108881+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": read tcp 127.0.0.1:43536->127.0.0.1:7897: read: connection reset by peer"}
+{"time":"2026-04-25T17:17:54.103249623+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": read tcp 127.0.0.1:43574->127.0.0.1:7897: read: connection reset by peer"}
+{"time":"2026-04-25T17:17:56.390042501+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": read tcp 127.0.0.1:43604->127.0.0.1:7897: read: connection reset by peer"}
+{"time":"2026-04-25T17:18:00.89163644+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": read tcp 127.0.0.1:53510->127.0.0.1:7897: read: connection reset by peer"}
+{"time":"2026-04-25T17:18:10.727522825+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": read tcp 127.0.0.1:36504->127.0.0.1:7897: read: connection reset by peer"}
+{"time":"2026-04-25T17:18:33.466899086+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:19:12.080170902+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": read tcp 127.0.0.1:49096->127.0.0.1:7897: read: connection reset by peer"}
+{"time":"2026-04-25T17:19:14.245553074+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": read tcp 127.0.0.1:49288->127.0.0.1:7897: read: connection reset by peer"}
+{"time":"2026-04-25T17:19:19.027256434+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": read tcp 127.0.0.1:51248->127.0.0.1:7897: read: connection reset by peer"}
+{"time":"2026-04-25T17:19:28.628933155+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": read tcp 127.0.0.1:51272->127.0.0.1:7897: read: connection reset by peer"}
+{"time":"2026-04-25T17:19:48.320408663+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": read tcp 127.0.0.1:39494->127.0.0.1:7897: read: connection reset by peer"}
+{"time":"2026-04-25T17:20:23.32784482+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": read tcp 127.0.0.1:54136->127.0.0.1:7897: read: connection reset by peer"}
+{"time":"2026-04-25T17:22:30.138035733+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:22:32.46904893+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:23:06.310844987+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:23:15.131257496+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:25:00.124601184+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:26:01.011461781+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:26:30.131253734+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:26:45.184444542+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:26:47.550475175+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:27:30.133484189+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:27:45.143839781+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:28:00.302950292+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:29:00.126691415+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:29:30.62851847+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:30:00.581380715+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:30:20.117948142+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:30:30.143355726+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:31:30.593754691+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:32:00.204391073+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:32:02.901853129+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:35:15.158080092+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:35:17.541367858+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:35:30.187834545+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:36:44.915536794+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": proxyconnect tcp: dial tcp 127.0.0.1:7897: connect: connection refused"}
+{"time":"2026-04-25T17:37:15.148549791+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:38:15.157939158+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:39:20.127412457+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:40:00.872692981+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:40:30.163677574+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:41:15.442655543+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": unexpected EOF"}
+{"time":"2026-04-25T17:41:17.829440965+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": proxyconnect tcp: dial tcp 127.0.0.1:7897: connect: connection refused"}
+{"time":"2026-04-25T17:41:19.931071848+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": proxyconnect tcp: dial tcp 127.0.0.1:7897: connect: connection refused"}
+{"time":"2026-04-25T17:41:45.16136934+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:42:45.187764666+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:43:00.200195164+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:45:59.91570244+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": proxyconnect tcp: dial tcp 127.0.0.1:7897: connect: connection refused"}
+{"time":"2026-04-25T17:46:02.060926074+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": proxyconnect tcp: dial tcp 127.0.0.1:7897: connect: connection refused"}
+{"time":"2026-04-25T17:46:45.148524192+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:47:00.227329594+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:47:45.331169485+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:47:48.297666464+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:51:04.971502881+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:51:15.157014118+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:52:12.96739671+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": unexpected EOF"}
+{"time":"2026-04-25T17:52:15.561342399+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:52:21.403759458+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": unexpected EOF"}
+{"time":"2026-04-25T17:52:23.520539401+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": proxyconnect tcp: dial tcp 127.0.0.1:7897: connect: connection refused"}
+{"time":"2026-04-25T17:52:27.570526512+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": proxyconnect tcp: dial tcp 127.0.0.1:7897: connect: connection refused"}
+{"time":"2026-04-25T17:52:34.939412122+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": proxyconnect tcp: dial tcp 127.0.0.1:7897: connect: connection refused"}
+{"time":"2026-04-25T17:52:36.29303972+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": proxyconnect tcp: dial tcp 127.0.0.1:7897: connect: connection refused"}
+{"time":"2026-04-25T17:52:36.962239499+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": proxyconnect tcp: dial tcp 127.0.0.1:7897: connect: connection refused"}
+{"time":"2026-04-25T17:52:41.214596726+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": proxyconnect tcp: dial tcp 127.0.0.1:7897: connect: connection refused"}
+{"time":"2026-04-25T17:52:50.313576379+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": proxyconnect tcp: dial tcp 127.0.0.1:7897: connect: connection refused"}
+{"time":"2026-04-25T17:52:56.177756965+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": proxyconnect tcp: dial tcp 127.0.0.1:7897: connect: connection refused"}
+{"time":"2026-04-25T17:53:07.089897784+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": proxyconnect tcp: dial tcp 127.0.0.1:7897: connect: connection refused"}
+{"time":"2026-04-25T17:53:32.053783334+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": proxyconnect tcp: dial tcp 127.0.0.1:7897: connect: connection refused"}
+{"time":"2026-04-25T17:53:46.760024411+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": proxyconnect tcp: dial tcp 127.0.0.1:7897: connect: connection refused"}
+{"time":"2026-04-25T17:54:32.31274667+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:54:51.810087903+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": EOF"}
+{"time":"2026-04-25T17:55:57.546106237+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:56:00.246286974+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:56:05.052047276+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:56:37.757838115+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:56:52.498675521+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": proxyconnect tcp: dial tcp 127.0.0.1:7897: connect: connection refused"}
+{"time":"2026-04-25T17:56:54.786609054+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": proxyconnect tcp: dial tcp 127.0.0.1:7897: connect: connection refused"}
+{"time":"2026-04-25T17:57:05.21607897+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": EOF"}
+{"time":"2026-04-25T17:57:07.714941604+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": EOF"}
+{"time":"2026-04-25T17:57:07.746873571+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:58:22.870270642+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T17:59:38.175157002+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T18:00:22.745421557+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T18:01:07.73055052+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T18:01:38.445227884+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T18:02:23.09277009+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T18:02:26.055809245+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": EOF"}
+{"time":"2026-04-25T18:02:51.991515885+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": unexpected EOF"}
+{"time":"2026-04-25T18:02:54.600670794+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": unexpected EOF"}
+{"time":"2026-04-25T18:02:56.123603952+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": unexpected EOF"}
+{"time":"2026-04-25T18:02:59.140090865+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": unexpected EOF"}
+{"time":"2026-04-25T18:03:02.289825304+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": unexpected EOF"}
+{"time":"2026-04-25T18:03:06.070892442+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": unexpected EOF"}
+{"time":"2026-04-25T18:03:12.947080747+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": unexpected EOF"}
+{"time":"2026-04-25T18:03:18.147746486+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": unexpected EOF"}
+{"time":"2026-04-25T18:03:32.829934305+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": unexpected EOF"}
+{"time":"2026-04-25T18:03:37.227095802+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": unexpected EOF"}
+{"time":"2026-04-25T18:04:11.864166099+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/graphql\": proxyconnect tcp: dial tcp 127.0.0.1:7897: connect: connection refused"}
+{"time":"2026-04-25T18:04:13.971747992+08:00","level":"INFO","msg":"api: retrying error","error":"Post \"https://api.wandb.ai/files/ypfree-/dna-compress/1wigqmc3/file_stream\": proxyconnect tcp: dial tcp 127.0.0.1:7897: connect: connection refused"}
+{"time":"2026-04-25T18:39:27.007651842+08:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2026-04-25T18:39:27.007761281+08:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2026-04-25T18:39:27.971483823+08:00","level":"INFO","msg":"handler: operation stats","stats":{"operations":[{"desc":"uploading output.log","runtime_seconds":0.173848098},{"desc":"uploading wandb-summary.json","runtime_seconds":0.173821968}],"total_operations":2}}
+{"time":"2026-04-25T18:39:34.438328354+08:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-04-25T18:39:40.466200419+08:00","level":"INFO","msg":"stream: closing","id":"1wigqmc3"}
+{"time":"2026-04-25T18:39:40.466238469+08:00","level":"INFO","msg":"handler: closed","stream_id":"1wigqmc3"}
+{"time":"2026-04-25T18:39:40.466256513+08:00","level":"INFO","msg":"writer: Close: closed","stream_id":"1wigqmc3"}
+{"time":"2026-04-25T18:39:40.466279047+08:00","level":"INFO","msg":"sender: closed","stream_id":"1wigqmc3"}
+{"time":"2026-04-25T18:39:40.46741769+08:00","level":"INFO","msg":"stream: closed","id":"1wigqmc3"}

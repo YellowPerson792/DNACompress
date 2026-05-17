@@ -64,6 +64,35 @@ from dna_compress.dnagpt_compression import DNAGPT_ARITHMETIC_CODING_MODES
 from dna_compress.dnagpt_experiment import run_dnagpt_experiment, validate_dnagpt_config
 
 
+def _resolve_resume_checkpoint_path(explicit_path: str | None, output_dir: str) -> Path:
+    if explicit_path:
+        return Path(explicit_path)
+    default_resume_path = Path(output_dir) / "last.pt"
+    if default_resume_path.exists():
+        return default_resume_path
+    raise FileNotFoundError(
+        "train.init_from='resume' but no checkpoint path was provided and output_dir/last.pt does not exist."
+    )
+
+
+def _load_resume_default_config(base_config: Any, args: argparse.Namespace) -> tuple[Any, Path | None, Path | None]:
+    requested_init_from = args.init_from if args.init_from is not None else base_config.train.init_from
+    if requested_init_from != "resume":
+        return base_config, None, None
+
+    checkpoint_path = _resolve_resume_checkpoint_path(
+        explicit_path=args.pretrained_weight_path or base_config.model.pretrained_weight_path,
+        output_dir=args.output_dir or base_config.output.output_dir,
+    )
+    resolved_config_path = checkpoint_path.parent / "resolved_config.json"
+    if not resolved_config_path.exists():
+        raise FileNotFoundError(
+            f"train.init_from='resume' requires resume defaults at {resolved_config_path}, "
+            "but the file does not exist."
+        )
+    return load_experiment_config(resolved_config_path), checkpoint_path, resolved_config_path
+
+
 def _parse_scalar(value: str) -> Any:
     lowered = value.lower()
     if lowered in {"none", "null"}:
@@ -267,7 +296,14 @@ def main() -> None:
     parser = _build_parser()
     args = parser.parse_args()
 
-    config = load_experiment_config(args.config)
+    seed_config = load_experiment_config(args.config)
+    config, resume_checkpoint_path, resume_config_path = _load_resume_default_config(seed_config, args)
+    if resume_checkpoint_path is not None:
+        print(
+            f"[startup] resume checkpoint path: {resume_checkpoint_path} | "
+            f"resume config path: {resume_config_path} | resume defaults loaded=True",
+            flush=True,
+        )
     _apply_overrides(config, args)
     _apply_timestamp_to_output_dir(config, args)
     validate_dnagpt_config(config)

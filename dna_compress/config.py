@@ -11,6 +11,7 @@ class ModelConfig:
     implementation: str = "megabyte"
     variant: str = "dna_gpt0.1b_m"
     pretrained_weight_path: str | None = None
+    pretrained_weight_scope: str = "all"
     vocab_size: int = 259
     patch_size: int = 8
     global_dim: int = 64
@@ -51,9 +52,35 @@ class ModelConfig:
     nugget_residual_start: int = 0
     nugget_residual_end: int = -1
     nugget_value_ffn: bool = True
+    nugget_value_ffn_layer_norm: bool = False
     nugget_straight_through: bool = True
     nugget_hidden_mode: str = "runtime_hidden"
     nugget_hidden_storage_dtype: str = "runtime"
+    nugget_latent_mode: str = "dense"
+    nugget_bottleneck_layer_norm: bool = False
+    nugget_flatten_bottleneck_dim: int = 512
+    nugget_vq_codebook_bits: int = 12
+    nugget_vq_num_codes: int = 1
+    nugget_vq_code_dim: int = 64
+    nugget_vq_commitment_weight: float = 0.25
+    nugget_vq_usage_weight: float = 0.0
+    nugget_vq_usage_temperature: float = 1.0
+    nugget_vq_restart_dead_codes: bool = False
+    nugget_vq_restart_usage_threshold: float = 1e-4
+    nugget_vq_restart_usage_decay: float = 0.99
+    nugget_vq_restart_max_fraction: float = 0.01
+    bytecaption_decoder_dim: int = 512
+    bytecaption_decoder_layers: int = 3
+    bytecaption_decoder_heads: int = 8
+    bytecaption_decoder_dropout: float = 0.1
+    bytecaption_decoder_ff_dropout: float = 0.1
+    bytecaption_byteformer_config_path: str | None = None
+    bytecaption_byteformer_weight_path: str | None = None
+    bytecaption_latent_mode: str = "dense"
+    bytecaption_code_dim: int = 64
+    bytecaption_flatten_bottleneck_dim: int = 512
+    bytecaption_bottleneck_layer_norm: bool = False
+    bytecaption_hidden_storage_dtype: str = "runtime"
 
 
 @dataclass

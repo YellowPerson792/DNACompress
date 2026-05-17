@@ -1,0 +1,16 @@
+{"time":"2026-04-25T22:01:32.743481618+08:00","level":"INFO","msg":"stream: starting","core version":"0.19.10","symlink path":"outputs/dna_nugget_modified_20260425_220128/wandb/run-20260425_220132-dxhgdgos/logs/debug-core.log"}
+{"time":"2026-04-25T22:01:36.757071384+08:00","level":"INFO","msg":"created new stream","id":"dxhgdgos"}
+{"time":"2026-04-25T22:01:36.757161956+08:00","level":"INFO","msg":"stream: started","id":"dxhgdgos"}
+{"time":"2026-04-25T22:01:36.757207243+08:00","level":"INFO","msg":"handler: started","stream_id":"dxhgdgos"}
+{"time":"2026-04-25T22:01:36.757200031+08:00","level":"INFO","msg":"writer: Do: started","stream_id":"dxhgdgos"}
+{"time":"2026-04-25T22:01:36.757272786+08:00","level":"INFO","msg":"sender: started","stream_id":"dxhgdgos"}
+{"time":"2026-04-25T22:01:37.796801252+08:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2026-04-25T22:24:52.811482166+08:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2026-04-25T22:24:52.824362127+08:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2026-04-25T22:24:53.804118097+08:00","level":"INFO","msg":"handler: operation stats","stats":{"operations":[{"desc":"updating run config","runtime_seconds":0.264738585}],"total_operations":1}}
+{"time":"2026-04-25T22:25:00.070599888+08:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-04-25T22:25:02.651391672+08:00","level":"INFO","msg":"stream: closing","id":"dxhgdgos"}
+{"time":"2026-04-25T22:25:02.651430179+08:00","level":"INFO","msg":"handler: closed","stream_id":"dxhgdgos"}
+{"time":"2026-04-25T22:25:02.651446394+08:00","level":"INFO","msg":"writer: Close: closed","stream_id":"dxhgdgos"}
+{"time":"2026-04-25T22:25:02.651470363+08:00","level":"INFO","msg":"sender: closed","stream_id":"dxhgdgos"}
+{"time":"2026-04-25T22:25:02.651636936+08:00","level":"INFO","msg":"stream: closed","id":"dxhgdgos"}
