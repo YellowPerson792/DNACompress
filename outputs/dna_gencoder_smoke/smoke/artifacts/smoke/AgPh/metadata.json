@@ -1,0 +1,15 @@
+{
+  "source": "datasets\\DNACorpus\\AgPh",
+  "latent_shape": [
+    32,
+    16
+  ],
+  "residual_shape": [
+    32,
+    128
+  ],
+  "original_length": 4096,
+  "padding_bases": 0,
+  "seq_length": 128,
+  "bottleneck_dim": 16
+}

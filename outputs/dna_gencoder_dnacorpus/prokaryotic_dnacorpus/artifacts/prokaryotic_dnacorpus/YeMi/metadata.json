@@ -1,0 +1,15 @@
+{
+  "source": "datasets\\DNACorpus\\YeMi",
+  "latent_shape": [
+    58,
+    51
+  ],
+  "residual_shape": [
+    58,
+    1282
+  ],
+  "original_length": 73689,
+  "padding_bases": 667,
+  "seq_length": 1282,
+  "bottleneck_dim": 51
+}

@@ -1,0 +1,15 @@
+{
+  "source": "datasets\\DNACorpus\\EsCo",
+  "latent_shape": [
+    3621,
+    51
+  ],
+  "residual_shape": [
+    3621,
+    1282
+  ],
+  "original_length": 4641652,
+  "padding_bases": 470,
+  "seq_length": 1282,
+  "bottleneck_dim": 51
+}

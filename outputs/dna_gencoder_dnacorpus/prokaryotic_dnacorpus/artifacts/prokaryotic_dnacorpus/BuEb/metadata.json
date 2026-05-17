@@ -1,0 +1,15 @@
+{
+  "source": "datasets\\DNACorpus\\BuEb",
+  "latent_shape": [
+    15,
+    51
+  ],
+  "residual_shape": [
+    15,
+    1282
+  ],
+  "original_length": 18940,
+  "padding_bases": 290,
+  "seq_length": 1282,
+  "bottleneck_dim": 51
+}

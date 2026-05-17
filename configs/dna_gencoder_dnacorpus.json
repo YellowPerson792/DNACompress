@@ -1,0 +1,47 @@
+{
+  "dataset_dir": "datasets/DNACorpus",
+  "output_dir": "outputs/dna_gencoder_dnacorpus",
+  "device": "auto",
+  "seed": 42,
+  "runs": [
+    {
+      "name": "eukaryotic_dnacorpus",
+      "species": ["OrSa", "DaRe", "ScPo", "HoSa"],
+      "seq_length": 12802,
+      "bottleneck_dim": "L/25",
+      "epochs": 50,
+      "batch_size": 32,
+      "eval_batch_size": 32,
+      "learning_rate": 0.001,
+      "validation_ratio": 0.2,
+      "max_bytes_per_source": null,
+      "save_artifacts": true
+    },
+    {
+      "name": "prokaryotic_dnacorpus",
+      "species": ["EsCo", "YeMi", "BuEb", "AgPh"],
+      "seq_length": 1282,
+      "bottleneck_dim": "L/25",
+      "epochs": 50,
+      "batch_size": 32,
+      "eval_batch_size": 32,
+      "learning_rate": 0.001,
+      "validation_ratio": 0.2,
+      "max_bytes_per_source": null,
+      "save_artifacts": true
+    },
+    {
+      "name": "hosa_learning_curve",
+      "species": ["HoSa"],
+      "seq_length": 18096,
+      "bottleneck_dim": "L/30",
+      "epochs": 50,
+      "batch_size": 32,
+      "eval_batch_size": 32,
+      "learning_rate": 0.001,
+      "validation_ratio": 0.2,
+      "max_bytes_per_source": null,
+      "save_artifacts": true
+    }
+  ]
+}
