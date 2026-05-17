@@ -9,6 +9,8 @@ datasets/
 __pycache__/
 
 **/*.pt
+**/*.npz
+**/*.fpzip
 **/__pycache__/
 **/__pycache__/**
 
