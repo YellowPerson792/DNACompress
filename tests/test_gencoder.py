@@ -14,7 +14,6 @@ from dna_compress.gencoder import (
     fpzip_compress_array,
     fpzip_decompress_array,
     pad_and_chunk,
-    quantize_reconstruction,
     serialize_csr,
 )
 
@@ -33,10 +32,15 @@ class GenCoderTests(unittest.TestCase):
         self.assertEqual(chunks.shape, (2, 4))
         self.assertEqual(decode_sequence(chunks, original_length=5), b"ACGTA")
 
-    def test_residual_makes_quantized_autoencoder_lossless(self) -> None:
+    def test_residual_makes_argmax_autoencoder_lossless(self) -> None:
         original = np.asarray([[1, 2, 3, 4]], dtype=np.uint8)
-        reconstructed_float = np.asarray([[0.24, 0.51, 0.76, 0.99]], dtype=np.float32)
-        reconstructed_int = quantize_reconstruction(reconstructed_float)
+        # Logits shape (B, C, L) = (1, 4, 4). argmax over C picks class index per position.
+        # Pre-pick wrong classes at positions 2 (G->C) and 3 (T->A) to exercise residual fix-up.
+        logits = np.zeros((1, 4, 4), dtype=np.float32)
+        winners = [0, 1, 1, 0]  # class indices; base = class + 1
+        for pos, cls in enumerate(winners):
+            logits[0, cls, pos] = 1.0
+        reconstructed_int = np.argmax(logits, axis=1).astype(np.int16) + 1
         residual = original.astype(np.int16) - reconstructed_int
         recovered = reconstructed_int + residual
         self.assertTrue(np.array_equal(recovered, original))
@@ -60,9 +64,9 @@ class GenCoderTests(unittest.TestCase):
         model = GenCoderAutoEncoder(seq_length=16, bottleneck_dim=4)
         batch = torch.full((2, 16), 0.5)
         latent = model.encode(batch)
-        reconstructed = model.decode(latent)
+        logits = model.decode(latent)
         self.assertEqual(tuple(latent.shape), (2, 4))
-        self.assertEqual(tuple(reconstructed.shape), (2, 16))
+        self.assertEqual(tuple(logits.shape), (2, 4, 16))
 
 
 if __name__ == "__main__":

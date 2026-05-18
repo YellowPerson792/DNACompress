@@ -74,9 +74,22 @@ class GenCoderAutoEncoder(nn.Module):
         self.decoder_conv = nn.Sequential(
             nn.ConvTranspose1d(64, 32, kernel_size=self.CONV_KERNEL, stride=self.CONV_STRIDE),
             nn.ReLU(),
-            nn.ConvTranspose1d(32, 1, kernel_size=self.CONV_KERNEL, stride=self.CONV_STRIDE),
-            nn.Sigmoid(),
+            nn.ConvTranspose1d(32, 4, kernel_size=self.CONV_KERNEL, stride=self.CONV_STRIDE),
         )
+        self._init_weights()
+
+    def _init_weights(self) -> None:
+        for module in self.modules():
+            if isinstance(module, (nn.Conv1d, nn.ConvTranspose1d)):
+                nn.init.kaiming_normal_(module.weight, nonlinearity="relu")
+                if module.bias is not None:
+                    nn.init.zeros_(module.bias)
+            elif isinstance(module, nn.Linear):
+                nn.init.kaiming_normal_(module.weight, nonlinearity="relu")
+                nn.init.zeros_(module.bias)
+        final_deconv = self.decoder_conv[-1]
+        nn.init.xavier_uniform_(final_deconv.weight)
+        nn.init.zeros_(final_deconv.bias)
 
     def encode(self, normalized: torch.Tensor) -> torch.Tensor:
         if normalized.ndim != 2:
@@ -91,9 +104,9 @@ class GenCoderAutoEncoder(nn.Module):
     def decode(self, latent: torch.Tensor) -> torch.Tensor:
         hidden = self.decoder_dense(latent)
         hidden = hidden.view(latent.shape[0], 64, self._encoded_length)
-        out = self.decoder_conv(hidden).squeeze(1)
+        out = self.decoder_conv(hidden)
         if out.shape[-1] != self.seq_length:
-            out = out[:, : self.seq_length]
+            out = out[..., : self.seq_length]
         return out
 
     def forward(self, normalized: torch.Tensor) -> torch.Tensor:
@@ -109,8 +122,11 @@ class GenCoderChunkDataset(Dataset):
     def __len__(self) -> int:
         return int(self.chunks.shape[0])
 
-    def __getitem__(self, index: int) -> torch.Tensor:
-        return torch.as_tensor(self.chunks[index].astype(np.float32) / 4.0)
+    def __getitem__(self, index: int) -> tuple[torch.Tensor, torch.Tensor]:
+        chunk = self.chunks[index]
+        normalized = torch.as_tensor(chunk.astype(np.float32) / 4.0)
+        target = torch.as_tensor(chunk.astype(np.int64) - 1)
+        return normalized, target
 
 
 def seed_everything(seed: int) -> None:
@@ -207,15 +223,6 @@ def pad_and_chunk(encoded: np.ndarray, seq_length: int, pad_value: int = 1) -> t
     if padding:
         encoded = np.concatenate([encoded, np.full(padding, pad_value, dtype=np.uint8)])
     return encoded.reshape(-1, seq_length), int(padding)
-
-
-def chunks_to_normalized_tensor(chunks: np.ndarray, device: torch.device) -> torch.Tensor:
-    return torch.as_tensor(chunks.astype(np.float32) / 4.0, device=device)
-
-
-def quantize_reconstruction(normalized: np.ndarray) -> np.ndarray:
-    values = np.rint(np.asarray(normalized, dtype=np.float32) * 4.0)
-    return np.clip(values, 1, 4).astype(np.int16)
 
 
 def serialize_csr(matrix: sparse.csr_matrix) -> bytes:
@@ -320,30 +327,36 @@ def train_model(
     ) if val_count > 0 else None
 
     optimizer = torch.optim.NAdam(model.parameters(), lr=run_config.learning_rate)
-    criterion = nn.MSELoss()
+    criterion = nn.CrossEntropyLoss()
     history: list[dict[str, float | int]] = []
     started = time.perf_counter()
     for epoch in range(1, run_config.epochs + 1):
         model.train()
         train_loss_sum = 0.0
-        train_items = 0
-        for batch in train_loader:
-            batch = batch.to(device)
+        train_correct = 0
+        train_positions = 0
+        for batch_input, batch_target in train_loader:
+            batch_input = batch_input.to(device)
+            batch_target = batch_target.to(device)
             optimizer.zero_grad(set_to_none=True)
-            reconstructed = model(batch)
-            loss = criterion(reconstructed, batch)
+            logits = model(batch_input)
+            loss = criterion(logits, batch_target)
             loss.backward()
             optimizer.step()
-            item_count = int(batch.shape[0])
+            item_count = int(batch_input.shape[0])
             train_loss_sum += float(loss.item()) * item_count
-            train_items += item_count
+            train_correct += int((logits.argmax(dim=1) == batch_target).sum().item())
+            train_positions += int(batch_target.numel())
 
         event: dict[str, float | int] = {
             "epoch": epoch,
-            "train_mse": train_loss_sum / max(train_items, 1),
+            "train_ce": train_loss_sum / max(int(train_chunks.shape[0]), 1),
+            "train_acc": train_correct / max(train_positions, 1),
         }
         if val_loader is not None:
-            event["val_mse"] = evaluate_mse(model, val_loader, device)
+            val_ce, val_acc = evaluate_ce(model, val_loader, device)
+            event["val_ce"] = val_ce
+            event["val_acc"] = val_acc
         history.append(event)
         print(json.dumps({"event": "gencoder_epoch", **event}, ensure_ascii=False), flush=True)
 
@@ -356,38 +369,39 @@ def train_model(
     }
 
 
-def evaluate_mse(model: GenCoderAutoEncoder, loader: DataLoader, device: torch.device) -> float:
-    criterion = nn.MSELoss(reduction="sum")
+def evaluate_ce(model: GenCoderAutoEncoder, loader: DataLoader, device: torch.device) -> tuple[float, float]:
+    criterion = nn.CrossEntropyLoss(reduction="sum")
     model.eval()
     total_loss = 0.0
-    total_values = 0
+    total_correct = 0
+    total_positions = 0
     with torch.no_grad():
-        for batch in loader:
-            batch = batch.to(device)
-            reconstructed = model(batch)
-            total_loss += float(criterion(reconstructed, batch).item())
-            total_values += int(batch.numel())
-    return total_loss / max(total_values, 1)
+        for batch_input, batch_target in loader:
+            batch_input = batch_input.to(device)
+            batch_target = batch_target.to(device)
+            logits = model(batch_input)
+            total_loss += float(criterion(logits, batch_target).item())
+            total_correct += int((logits.argmax(dim=1) == batch_target).sum().item())
+            total_positions += int(batch_target.numel())
+    denom = max(total_positions, 1)
+    return total_loss / denom, total_correct / denom
 
 
-def _forward_latent_and_reconstruction(
+def _forward_latents(
     model: GenCoderAutoEncoder,
     chunks: np.ndarray,
     batch_size: int,
     device: torch.device,
-) -> tuple[np.ndarray, np.ndarray]:
+) -> np.ndarray:
     model.eval()
     latents: list[np.ndarray] = []
-    reconstructions: list[np.ndarray] = []
     loader = DataLoader(GenCoderChunkDataset(chunks), batch_size=batch_size, shuffle=False, num_workers=0)
     with torch.no_grad():
-        for batch in loader:
-            batch = batch.to(device)
-            latent = model.encode(batch)
-            reconstructed = model.decode(latent)
+        for batch_input, _ in loader:
+            batch_input = batch_input.to(device)
+            latent = model.encode(batch_input)
             latents.append(latent.detach().cpu().numpy().astype(np.float32))
-            reconstructions.append(reconstructed.detach().cpu().numpy().astype(np.float32))
-    return np.concatenate(latents, axis=0), np.concatenate(reconstructions, axis=0)
+    return np.concatenate(latents, axis=0)
 
 
 def _decode_latents_to_int_chunks(
@@ -401,8 +415,9 @@ def _decode_latents_to_int_chunks(
     with torch.no_grad():
         for start in range(0, latents.shape[0], batch_size):
             latent = torch.as_tensor(latents[start : start + batch_size], device=device)
-            reconstructed = model.decode(latent).detach().cpu().numpy()
-            decoded_chunks.append(quantize_reconstruction(reconstructed))
+            logits = model.decode(latent)
+            pred = logits.argmax(dim=1).detach().cpu().numpy().astype(np.int16) + 1
+            decoded_chunks.append(pred)
     return np.concatenate(decoded_chunks, axis=0)
 
 
@@ -417,16 +432,13 @@ def compress_source(
     payload, stats = load_sequence_payload(source_path, max_bytes=run_config.max_bytes_per_source)
     encoded = encode_sequence(payload)
     chunks, padding = pad_and_chunk(encoded, run_config.seq_length)
-    latents, reconstructed = _forward_latent_and_reconstruction(
+    latents = _forward_latents(
         model=model,
         chunks=chunks,
         batch_size=run_config.eval_batch_size,
         device=device,
     )
     latent_blob = fpzip_compress_array(latents)
-    # Compute the residual against the exact latent stream that will be stored.
-    # This avoids one-off quantization drift between "compress" and "decompress"
-    # decoder passes, especially on CUDA with different batch shapes.
     stored_latents = fpzip_decompress_array(latent_blob, latents.shape)
     reconstructed_int = _decode_latents_to_int_chunks(
         model=model,

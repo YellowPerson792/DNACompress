@@ -6,207 +6,207 @@
     "epochs": 50,
     "train_chunks": 3729,
     "val_chunks": 0,
-    "elapsed_seconds": 20.103587100005825,
+    "elapsed_seconds": 17.142839500011178,
     "history": [
       {
         "epoch": 1,
-        "train_mse": 0.07778083599182772
+        "train_mse": 0.09631014053856408
       },
       {
         "epoch": 2,
-        "train_mse": 0.0759315478914415
+        "train_mse": 0.07815245796693301
       },
       {
         "epoch": 3,
-        "train_mse": 0.0739333614702997
+        "train_mse": 0.07707620371751474
       },
       {
         "epoch": 4,
-        "train_mse": 0.07324634663826596
+        "train_mse": 0.07627794368716531
       },
       {
         "epoch": 5,
-        "train_mse": 0.07269012544391046
+        "train_mse": 0.07558092155855187
       },
       {
         "epoch": 6,
-        "train_mse": 0.07210966883355602
+        "train_mse": 0.07502104919408786
       },
       {
         "epoch": 7,
-        "train_mse": 0.0715199705921603
+        "train_mse": 0.0745451399478557
       },
       {
         "epoch": 8,
-        "train_mse": 0.07086155661295616
+        "train_mse": 0.07412798986434298
       },
       {
         "epoch": 9,
-        "train_mse": 0.07017155350069797
+        "train_mse": 0.07376217758385417
       },
       {
         "epoch": 10,
-        "train_mse": 0.06943342252490858
+        "train_mse": 0.07340175204916083
       },
       {
         "epoch": 11,
-        "train_mse": 0.0686998856002922
+        "train_mse": 0.0730985512092338
       },
       {
         "epoch": 12,
-        "train_mse": 0.06797579052134026
+        "train_mse": 0.07273801247326801
       },
       {
         "epoch": 13,
-        "train_mse": 0.06730633354692109
+        "train_mse": 0.0724393869831371
       },
       {
         "epoch": 14,
-        "train_mse": 0.06663691353169739
+        "train_mse": 0.07212550604861298
       },
       {
         "epoch": 15,
-        "train_mse": 0.06602325220710951
+        "train_mse": 0.0717961066935714
       },
       {
         "epoch": 16,
-        "train_mse": 0.06540886444392043
+        "train_mse": 0.07150973480311691
       },
       {
         "epoch": 17,
-        "train_mse": 0.06488050364375467
+        "train_mse": 0.07121288538834275
       },
       {
         "epoch": 18,
-        "train_mse": 0.06435644844999963
+        "train_mse": 0.07085846839025596
       },
       {
         "epoch": 19,
-        "train_mse": 0.06391170950589982
+        "train_mse": 0.07057470760562203
       },
       {
         "epoch": 20,
-        "train_mse": 0.06343245697296411
+        "train_mse": 0.07025084632168381
       },
       {
         "epoch": 21,
-        "train_mse": 0.06304623034739501
+        "train_mse": 0.06989235625562094
       },
       {
         "epoch": 22,
-        "train_mse": 0.06263531399823348
+        "train_mse": 0.06957791384422418
       },
       {
         "epoch": 23,
-        "train_mse": 0.06230152617729391
+        "train_mse": 0.06927350562462445
       },
       {
         "epoch": 24,
-        "train_mse": 0.0619443513115343
+        "train_mse": 0.06897071253465373
       },
       {
         "epoch": 25,
-        "train_mse": 0.061680358183962565
+        "train_mse": 0.06863740169672712
       },
       {
         "epoch": 26,
-        "train_mse": 0.0613894342485047
+        "train_mse": 0.06832107925549305
       },
       {
         "epoch": 27,
-        "train_mse": 0.06109084444283864
+        "train_mse": 0.06801787841157
       },
       {
         "epoch": 28,
-        "train_mse": 0.06081781291784247
+        "train_mse": 0.06766563084712773
       },
       {
         "epoch": 29,
-        "train_mse": 0.06059003112846164
+        "train_mse": 0.06741637669625568
       },
       {
         "epoch": 30,
-        "train_mse": 0.060349245813192454
+        "train_mse": 0.0671060674469923
       },
       {
         "epoch": 31,
-        "train_mse": 0.06013235340000286
+        "train_mse": 0.06677803293681714
       },
       {
         "epoch": 32,
-        "train_mse": 0.059933019790485736
+        "train_mse": 0.06652265510799803
       },
       {
         "epoch": 33,
-        "train_mse": 0.05975046343891638
+        "train_mse": 0.06622779663661173
       },
       {
         "epoch": 34,
-        "train_mse": 0.05956201394383023
+        "train_mse": 0.0659847340900446
       },
       {
         "epoch": 35,
-        "train_mse": 0.0593845172158097
+        "train_mse": 0.06571018512014347
       },
       {
         "epoch": 36,
-        "train_mse": 0.059205547545567755
+        "train_mse": 0.06542995176683901
       },
       {
         "epoch": 37,
-        "train_mse": 0.05904967659926025
+        "train_mse": 0.06521836987335197
       },
       {
         "epoch": 38,
-        "train_mse": 0.058888782324260924
+        "train_mse": 0.06499357880976028
       },
       {
         "epoch": 39,
-        "train_mse": 0.058775259318221314
+        "train_mse": 0.06473464379524155
       },
       {
         "epoch": 40,
-        "train_mse": 0.058609867841604726
+        "train_mse": 0.06449632138037815
       },
       {
         "epoch": 41,
-        "train_mse": 0.05849858666711469
+        "train_mse": 0.06427585622298235
       },
       {
         "epoch": 42,
-        "train_mse": 0.05834717289528408
+        "train_mse": 0.06406314791519606
       },
       {
         "epoch": 43,
-        "train_mse": 0.05824750193816051
+        "train_mse": 0.06387630246277948
       },
       {
         "epoch": 44,
-        "train_mse": 0.058104376140037856
+        "train_mse": 0.06369648006469707
       },
       {
         "epoch": 45,
-        "train_mse": 0.05798860181589554
+        "train_mse": 0.06349261477489707
       },
       {
         "epoch": 46,
-        "train_mse": 0.05789961694740009
+        "train_mse": 0.0632863121082745
       },
       {
         "epoch": 47,
-        "train_mse": 0.05778385512880455
+        "train_mse": 0.06313697721826132
       },
       {
         "epoch": 48,
-        "train_mse": 0.05766197974319335
+        "train_mse": 0.06296047951539613
       },
       {
         "epoch": 49,
-        "train_mse": 0.05759497315338899
+        "train_mse": 0.06274855290917936
       },
       {
         "epoch": 50,
-        "train_mse": 0.05749969080602013
+        "train_mse": 0.06257137300166409
       }
     ]
   },
@@ -214,12 +214,12 @@
     "aggregate": {
       "source_count": 4,
       "total_sample_bases": 4778251,
-      "total_paper_compressed_bytes": 19654928,
-      "total_compression_ratio": 4.113414720155974,
-      "total_bits_per_base": 32.90731776124779,
+      "total_paper_compressed_bytes": 20418155,
+      "total_compression_ratio": 4.273144085566036,
+      "total_bits_per_base": 34.18515268452829,
       "checkpoint_bytes": 3825922,
-      "size_including_model_bytes": 23480850,
-      "size_including_model_ratio": 4.914109786195827,
+      "size_including_model_bytes": 24244077,
+      "size_including_model_ratio": 5.073839151605891,
       "all_exact_reconstruction": true
     },
     "per_source": [
@@ -236,17 +236,17 @@
           3621,
           51
         ],
-        "residual_nonzeros": 3062792,
-        "residual_density": 0.6597827459080137,
-        "csr_residual_bytes": 18392250,
-        "fpzip_latent_bytes": 687499,
-        "paper_compressed_bytes": 19079749,
-        "compression_ratio": 4.110551372657838,
-        "bits_per_base": 32.884410981262704,
+        "residual_nonzeros": 3183988,
+        "residual_density": 0.6858906336369445,
+        "csr_residual_bytes": 19119426,
+        "fpzip_latent_bytes": 683377,
+        "paper_compressed_bytes": 19802803,
+        "compression_ratio": 4.266326514783961,
+        "bits_per_base": 34.130612118271685,
         "side_info_bytes": 0,
         "header_huffman_bytes": 0,
-        "compression_seconds": 0.6294650999916485,
-        "decompression_seconds": 0.13770259999728296,
+        "compression_seconds": 0.5612932000076398,
+        "decompression_seconds": 0.11036679999961052,
         "exact_reconstruction": true,
         "artifact_dir": "outputs\\dna_gencoder_dnacorpus\\prokaryotic_dnacorpus\\artifacts\\prokaryotic_dnacorpus\\EsCo"
       },
@@ -263,17 +263,17 @@
           58,
           51
         ],
-        "residual_nonzeros": 49124,
-        "residual_density": 0.6606595298294691,
-        "csr_residual_bytes": 295990,
-        "fpzip_latent_bytes": 11167,
-        "paper_compressed_bytes": 307157,
-        "compression_ratio": 4.168288346971733,
-        "bits_per_base": 33.34630677577386,
+        "residual_nonzeros": 53079,
+        "residual_density": 0.7138495884662973,
+        "csr_residual_bytes": 319720,
+        "fpzip_latent_bytes": 11136,
+        "paper_compressed_bytes": 330856,
+        "compression_ratio": 4.489896728141242,
+        "bits_per_base": 35.91917382512994,
         "side_info_bytes": 0,
         "header_huffman_bytes": 0,
-        "compression_seconds": 0.01722229999722913,
-        "decompression_seconds": 0.002714299989747815,
+        "compression_seconds": 0.019057500001508743,
+        "decompression_seconds": 0.0023185999889392406,
         "exact_reconstruction": true,
         "artifact_dir": "outputs\\dna_gencoder_dnacorpus\\prokaryotic_dnacorpus\\artifacts\\prokaryotic_dnacorpus\\YeMi"
       },
@@ -290,17 +290,17 @@
           15,
           51
         ],
-        "residual_nonzeros": 12928,
-        "residual_density": 0.6722828913156527,
-        "csr_residual_bytes": 78642,
-        "fpzip_latent_bytes": 2900,
-        "paper_compressed_bytes": 81542,
-        "compression_ratio": 4.305279831045406,
-        "bits_per_base": 34.44223864836325,
+        "residual_nonzeros": 13590,
+        "residual_density": 0.7067082683307332,
+        "csr_residual_bytes": 82614,
+        "fpzip_latent_bytes": 2904,
+        "paper_compressed_bytes": 85518,
+        "compression_ratio": 4.515205913410771,
+        "bits_per_base": 36.12164730728617,
         "side_info_bytes": 0,
         "header_huffman_bytes": 0,
-        "compression_seconds": 0.013181800008169375,
-        "decompression_seconds": 0.0017374999879393727,
+        "compression_seconds": 0.01447369999368675,
+        "decompression_seconds": 0.0015850000054342672,
         "exact_reconstruction": true,
         "artifact_dir": "outputs\\dna_gencoder_dnacorpus\\prokaryotic_dnacorpus\\artifacts\\prokaryotic_dnacorpus\\BuEb"
       },
@@ -317,17 +317,17 @@
           35,
           51
         ],
-        "residual_nonzeros": 29771,
-        "residual_density": 0.6634945397815912,
-        "csr_residual_bytes": 179780,
-        "fpzip_latent_bytes": 6700,
-        "paper_compressed_bytes": 186480,
-        "compression_ratio": 4.241073459176711,
-        "bits_per_base": 33.92858767341369,
+        "residual_nonzeros": 31856,
+        "residual_density": 0.7099621127702251,
+        "csr_residual_bytes": 192290,
+        "fpzip_latent_bytes": 6688,
+        "paper_compressed_bytes": 198978,
+        "compression_ratio": 4.525312713213554,
+        "bits_per_base": 36.202501705708436,
         "side_info_bytes": 0,
         "header_huffman_bytes": 0,
-        "compression_seconds": 0.024465300011797808,
-        "decompression_seconds": 0.002037500002188608,
+        "compression_seconds": 0.02336559999093879,
+        "decompression_seconds": 0.001847699997597374,
         "exact_reconstruction": true,
         "artifact_dir": "outputs\\dna_gencoder_dnacorpus\\prokaryotic_dnacorpus\\artifacts\\prokaryotic_dnacorpus\\AgPh"
       }
