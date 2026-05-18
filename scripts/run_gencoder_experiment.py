@@ -33,7 +33,7 @@ Train first, then compress later from the saved checkpoint:
     python scripts\\run_gencoder_experiment.py \
         --config configs\\dna_gencoder_dnacorpus.json \
         --mode compress \
-        --run eukaryotic_dnacorpus
+        --run hosa_learning_curve
 
 """
 

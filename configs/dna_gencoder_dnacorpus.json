@@ -13,20 +13,25 @@
       "batch_size": 32,
       "eval_batch_size": 32,
       "learning_rate": 0.001,
-      "validation_ratio": 0.2,
+      "validation_ratio": 0,
       "max_bytes_per_source": null,
       "save_artifacts": true
     },
     {
       "name": "prokaryotic_dnacorpus",
-      "species": ["EsCo", "YeMi", "BuEb", "AgPh"],
+      "species": [
+        "EsCo",
+        "YeMi",
+        "BuEb",
+        "AgPh"
+      ],
       "seq_length": 1282,
       "bottleneck_dim": "L/25",
       "epochs": 50,
       "batch_size": 32,
       "eval_batch_size": 32,
       "learning_rate": 0.001,
-      "validation_ratio": 0.2,
+      "validation_ratio": 0,
       "max_bytes_per_source": null,
       "save_artifacts": true
     },
@@ -39,7 +44,7 @@
       "batch_size": 32,
       "eval_batch_size": 32,
       "learning_rate": 0.001,
-      "validation_ratio": 0.2,
+      "validation_ratio": 0,
       "max_bytes_per_source": null,
       "save_artifacts": true
     }

@@ -13,6 +13,7 @@ import numpy as np
 from scipy import sparse
 import torch
 from torch import nn
+from torch.nn import functional as F
 from torch.utils.data import DataLoader, Dataset
 
 
@@ -50,36 +51,50 @@ class GenCoderConfig:
 
 
 class GenCoderAutoEncoder(nn.Module):
+    CONV_KERNEL = 3
+    CONV_STRIDE = 3
+    CONV_LAYERS = 2
+
     def __init__(self, seq_length: int, bottleneck_dim: int) -> None:
         super().__init__()
         self.seq_length = int(seq_length)
         self.bottleneck_dim = int(bottleneck_dim)
+        downsample = self.CONV_STRIDE ** self.CONV_LAYERS
+        self._padded_length = math.ceil(self.seq_length / downsample) * downsample
+        self._encoded_length = self._padded_length // downsample
         self.encoder_conv = nn.Sequential(
-            nn.Conv1d(1, 32, kernel_size=3, padding="same"),
+            nn.Conv1d(1, 32, kernel_size=self.CONV_KERNEL, stride=self.CONV_STRIDE),
             nn.ReLU(),
-            nn.Conv1d(32, 64, kernel_size=3, padding="same"),
+            nn.Conv1d(32, 64, kernel_size=self.CONV_KERNEL, stride=self.CONV_STRIDE),
             nn.ReLU(),
         )
-        flattened_dim = 64 * self.seq_length
+        flattened_dim = 64 * self._encoded_length
         self.encoder_dense = nn.Linear(flattened_dim, self.bottleneck_dim)
         self.decoder_dense = nn.Linear(self.bottleneck_dim, flattened_dim)
         self.decoder_conv = nn.Sequential(
-            nn.Conv1d(64, 32, kernel_size=3, padding="same"),
+            nn.ConvTranspose1d(64, 32, kernel_size=self.CONV_KERNEL, stride=self.CONV_STRIDE),
             nn.ReLU(),
-            nn.Conv1d(32, 1, kernel_size=3, padding="same"),
+            nn.ConvTranspose1d(32, 1, kernel_size=self.CONV_KERNEL, stride=self.CONV_STRIDE),
             nn.Sigmoid(),
         )
 
     def encode(self, normalized: torch.Tensor) -> torch.Tensor:
         if normalized.ndim != 2:
             raise ValueError(f"expected input with shape (batch, L), got {tuple(normalized.shape)}")
-        hidden = self.encoder_conv(normalized.unsqueeze(1))
+        hidden = normalized.unsqueeze(1)
+        pad = self._padded_length - self.seq_length
+        if pad > 0:
+            hidden = F.pad(hidden, (0, pad), mode="constant", value=0.25)
+        hidden = self.encoder_conv(hidden)
         return self.encoder_dense(hidden.flatten(start_dim=1))
 
     def decode(self, latent: torch.Tensor) -> torch.Tensor:
         hidden = self.decoder_dense(latent)
-        hidden = hidden.view(latent.shape[0], 64, self.seq_length)
-        return self.decoder_conv(hidden).squeeze(1)
+        hidden = hidden.view(latent.shape[0], 64, self._encoded_length)
+        out = self.decoder_conv(hidden).squeeze(1)
+        if out.shape[-1] != self.seq_length:
+            out = out[:, : self.seq_length]
+        return out
 
     def forward(self, normalized: torch.Tensor) -> torch.Tensor:
         return self.decode(self.encode(normalized))
@@ -245,9 +260,12 @@ def load_run_sources(
     dataset_dir: Path,
     species: list[str],
     max_bytes_per_source: int | None,
-) -> tuple[list[dict[str, Any]], np.ndarray]:
+    seq_length: int,
+    rng: np.random.Generator,
+) -> tuple[list[dict[str, Any]], np.ndarray, int]:
     entries: list[dict[str, Any]] = []
-    encoded_parts: list[np.ndarray] = []
+    chunk_parts: list[np.ndarray] = []
+    total_padding = 0
     for species_name in species:
         path = dataset_dir / species_name
         if not path.exists():
@@ -256,17 +274,23 @@ def load_run_sources(
         if not payload:
             raise ValueError(f"{species_name} has no ACGT bases after preprocessing")
         encoded = encode_sequence(payload)
+        chunks_i, padding_i = pad_and_chunk(encoded, seq_length)
+        total_padding += int(padding_i)
         entries.append(
             {
                 "species": species_name,
                 "path": str(path),
                 **stats,
+                "chunk_count": int(chunks_i.shape[0]),
+                "padding_bases": int(padding_i),
                 "side_info_bytes": 0,
                 "header_huffman_bytes": 0,
             }
         )
-        encoded_parts.append(encoded)
-    return entries, np.concatenate(encoded_parts)
+        chunk_parts.append(chunks_i)
+    all_chunks = np.concatenate(chunk_parts, axis=0)
+    perm = rng.permutation(all_chunks.shape[0])
+    return entries, all_chunks[perm], total_padding
 
 
 def train_model(
@@ -572,8 +596,14 @@ def run_gencoder_config(config: GenCoderConfig, mode: str, run_name: str | None 
 
         if mode in {"train", "all"}:
             print(f"[gencoder] loading training sources for {run_config.name}", flush=True)
-            source_entries, encoded = load_run_sources(dataset_dir, run_config.species, run_config.max_bytes_per_source)
-            chunks, padding = pad_and_chunk(encoded, run_config.seq_length)
+            train_rng = np.random.default_rng(config.seed)
+            source_entries, chunks, padding = load_run_sources(
+                dataset_dir,
+                run_config.species,
+                run_config.max_bytes_per_source,
+                run_config.seq_length,
+                train_rng,
+            )
             model = GenCoderAutoEncoder(run_config.seq_length, bottleneck_dim)
             train_metrics = train_model(model, chunks, run_config, device)
             save_checkpoint(

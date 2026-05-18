@@ -1,0 +1,47 @@
+{
+  "seq_length": 18096,
+  "bottleneck_dim": 603,
+  "checkpoint_path": "outputs\\dna_gencoder_dnacorpus\\hosa_learning_curve\\best.pt",
+  "compression": {
+    "aggregate": {
+      "source_count": 1,
+      "total_sample_bases": 189752667,
+      "total_paper_compressed_bytes": 233870124,
+      "total_compression_ratio": 1.2324997993308837,
+      "total_bits_per_base": 9.85999839464707,
+      "checkpoint_bytes": 5591577253,
+      "size_including_model_bytes": 5825447377,
+      "size_including_model_ratio": 30.700213436262267,
+      "all_exact_reconstruction": true
+    },
+    "per_source": [
+      {
+        "species": "HoSa",
+        "raw_bytes": 189752667,
+        "sequence_bytes": 189752667,
+        "removed_non_acgt": 0,
+        "skipped_header_lines": 0,
+        "sample_bases": 189752667,
+        "chunk_count": 10486,
+        "padding_bases": 1989,
+        "latent_shape": [
+          10486,
+          603
+        ],
+        "residual_nonzeros": 35045722,
+        "residual_density": 0.1846896552567332,
+        "csr_residual_bytes": 210317290,
+        "fpzip_latent_bytes": 23552834,
+        "paper_compressed_bytes": 233870124,
+        "compression_ratio": 1.2324997993308837,
+        "bits_per_base": 9.85999839464707,
+        "side_info_bytes": 0,
+        "header_huffman_bytes": 0,
+        "compression_seconds": 1001.8622713000004,
+        "decompression_seconds": 423.0537970999976,
+        "exact_reconstruction": true,
+        "artifact_dir": "outputs\\dna_gencoder_dnacorpus\\hosa_learning_curve\\artifacts\\hosa_learning_curve\\HoSa"
+      }
+    ]
+  }
+}
