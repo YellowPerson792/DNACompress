@@ -9,209 +9,359 @@
       "checkpoint_path": "outputs\\dna_gencoder_dnacorpus\\prokaryotic_dnacorpus\\best.pt",
       "training": {
         "epochs": 50,
-        "train_chunks": 3729,
-        "val_chunks": 0,
-        "elapsed_seconds": 17.142839500011178,
+        "train_chunks": 2984,
+        "val_chunks": 745,
+        "elapsed_seconds": 21.645716600003652,
         "history": [
           {
             "epoch": 1,
-            "train_mse": 0.09631014053856408
+            "train_ce": 1.4228784798297422,
+            "train_acc": 0.25056855491377833,
+            "val_ce": 1.3988130863321782,
+            "val_acc": 0.2508182474950005
           },
           {
             "epoch": 2,
-            "train_mse": 0.07815245796693301
+            "train_ce": 1.3886566216440686,
+            "train_acc": 0.2568953294324802,
+            "val_ce": 1.3910726324711546,
+            "val_acc": 0.2522955951795119
           },
           {
             "epoch": 3,
-            "train_mse": 0.07707620371751474
+            "train_ce": 1.3844912023390905,
+            "train_acc": 0.2681200411555336,
+            "val_ce": 1.3891479437229084,
+            "val_acc": 0.2557005098995906
           },
           {
             "epoch": 4,
-            "train_mse": 0.07627794368716531
+            "train_ce": 1.3802521286317555,
+            "train_acc": 0.28248422162087555,
+            "val_ce": 1.3890561831051262,
+            "val_acc": 0.2599357128647562
           },
           {
             "epoch": 5,
-            "train_mse": 0.07558092155855187
+            "train_ce": 1.374944929462975,
+            "train_acc": 0.294785920123132,
+            "val_ce": 1.3882697777500026,
+            "val_acc": 0.26519699714163064
           },
           {
             "epoch": 6,
-            "train_mse": 0.07502104919408786
+            "train_ce": 1.3687814490085632,
+            "train_acc": 0.3062132203786811,
+            "val_ce": 1.3874830421331366,
+            "val_acc": 0.2703556732873342
           },
           {
             "epoch": 7,
-            "train_mse": 0.0745451399478557
+            "train_ce": 1.3625349742797361,
+            "train_acc": 0.31599027365920374,
+            "val_ce": 1.3858988522187698,
+            "val_acc": 0.27476154079720233
           },
           {
             "epoch": 8,
-            "train_mse": 0.07412798986434298
+            "train_ce": 1.3562088233216518,
+            "train_acc": 0.32477111416896354,
+            "val_ce": 1.3855688338271785,
+            "val_acc": 0.277626192296014
           },
           {
             "epoch": 9,
-            "train_mse": 0.07376217758385417
+            "train_ce": 1.3501435441561742,
+            "train_acc": 0.332890339742276,
+            "val_ce": 1.3858910956689945,
+            "val_acc": 0.2791914898072433
           },
           {
             "epoch": 10,
-            "train_mse": 0.07340175204916083
+            "train_ce": 1.3442665034900083,
+            "train_acc": 0.33990199420309253,
+            "val_ce": 1.3878774636094504,
+            "val_acc": 0.27897685034918174
           },
           {
             "epoch": 11,
-            "train_mse": 0.0730985512092338
+            "train_ce": 1.3386600349927396,
+            "train_acc": 0.34670635484936824,
+            "val_ce": 1.3890451126906234,
+            "val_acc": 0.28157765236783966
           },
           {
             "epoch": 12,
-            "train_mse": 0.07273801247326801
+            "train_ce": 1.3335573299321029,
+            "train_acc": 0.3522708736767701,
+            "val_ce": 1.3934664391084872,
+            "val_acc": 0.28113476216901023
           },
           {
             "epoch": 13,
-            "train_mse": 0.0724393869831371
+            "train_ce": 1.3284852878657487,
+            "train_acc": 0.35754627906295877,
+            "val_ce": 1.393287694909642,
+            "val_acc": 0.2812237590174748
           },
           {
             "epoch": 14,
-            "train_mse": 0.07212550604861298
+            "train_ce": 1.3232433032094633,
+            "train_acc": 0.3630496292237749,
+            "val_ce": 1.3956045607858292,
+            "val_acc": 0.2814373514537897
           },
           {
             "epoch": 15,
-            "train_mse": 0.0717961066935714
+            "train_ce": 1.3183584424190162,
+            "train_acc": 0.36777817627450404,
+            "val_ce": 1.39715389019294,
+            "val_acc": 0.28118187814760914
           },
           {
             "epoch": 16,
-            "train_mse": 0.07150973480311691
+            "train_ce": 1.3134414283583695,
+            "train_acc": 0.37267454505150716,
+            "val_ce": 1.402060017331482,
+            "val_acc": 0.2814624799757091
           },
           {
             "epoch": 17,
-            "train_mse": 0.07121288538834275
+            "train_ce": 1.308789617254651,
+            "train_acc": 0.37711894534762624,
+            "val_ce": 1.4055647150644834,
+            "val_acc": 0.2804363986640003
           },
           {
             "epoch": 18,
-            "train_mse": 0.07085846839025596
+            "train_ce": 1.3044198425461715,
+            "train_acc": 0.38134062896027904,
+            "val_ce": 1.4063230113621492,
+            "val_acc": 0.2811012574731177
           },
           {
             "epoch": 19,
-            "train_mse": 0.07057470760562203
+            "train_ce": 1.300124001886506,
+            "train_acc": 0.38502434199244645,
+            "val_ce": 1.4099960577177282,
+            "val_acc": 0.27940612926530484
           },
           {
             "epoch": 20,
-            "train_mse": 0.07025084632168381
+            "train_ce": 1.295769110122251,
+            "train_acc": 0.38902043347149434,
+            "val_ce": 1.4121450606503707,
+            "val_acc": 0.2798437843554011
           },
           {
             "epoch": 21,
-            "train_mse": 0.06989235625562094
+            "train_ce": 1.2919113150231,
+            "train_acc": 0.3923083800027604,
+            "val_ce": 1.4138709430770269,
+            "val_acc": 0.27874859960841386
           },
           {
             "epoch": 22,
-            "train_mse": 0.06957791384422418
+            "train_ce": 1.2883365419530997,
+            "train_acc": 0.39548810504699006,
+            "val_ce": 1.417322837785575,
+            "val_acc": 0.27967521385419175
           },
           {
             "epoch": 23,
-            "train_mse": 0.06927350562462445
+            "train_ce": 1.2844970839912067,
+            "train_acc": 0.39877422174634974,
+            "val_ce": 1.4202985594780335,
+            "val_acc": 0.278184254886974
           },
           {
             "epoch": 24,
-            "train_mse": 0.06897071253465373
+            "train_ce": 1.2808553558891644,
+            "train_acc": 0.4016384314890022,
+            "val_ce": 1.4224864105984123,
+            "val_acc": 0.2775780292956685
           },
           {
             "epoch": 25,
-            "train_mse": 0.06863740169672712
+            "train_ce": 1.2777237991225623,
+            "train_acc": 0.40429979129460086,
+            "val_ce": 1.4248486849079667,
+            "val_acc": 0.2769006062255913
           },
           {
             "epoch": 26,
-            "train_mse": 0.06832107925549305
+            "train_ce": 1.274509588451232,
+            "train_acc": 0.4070586550003555,
+            "val_ce": 1.4283227235129674,
+            "val_acc": 0.27633416746065814
           },
           {
             "epoch": 27,
-            "train_mse": 0.06801787841157
+            "train_ce": 1.2717854302306597,
+            "train_acc": 0.40925968137921226,
+            "val_ce": 1.4311437150229298,
+            "val_acc": 0.2767121423111958
           },
           {
             "epoch": 28,
-            "train_mse": 0.06766563084712773
+            "train_ce": 1.2688711801738586,
+            "train_acc": 0.4113569301485196,
+            "val_ce": 1.4331464835774639,
+            "val_acc": 0.2765393837229999
           },
           {
             "epoch": 29,
-            "train_mse": 0.06741637669625568
+            "train_ce": 1.265951265918026,
+            "train_acc": 0.4140117548401668,
+            "val_ce": 1.4360891136568281,
+            "val_acc": 0.2765456658534798
           },
           {
             "epoch": 30,
-            "train_mse": 0.0671060674469923
+            "train_ce": 1.263324789962564,
+            "train_acc": 0.4160185576323857,
+            "val_ce": 1.4391770384531823,
+            "val_acc": 0.27597503900156006
           },
           {
             "epoch": 31,
-            "train_mse": 0.06677803293681714
+            "train_ce": 1.2608131959674824,
+            "train_acc": 0.4179388355158871,
+            "val_ce": 1.4414053134063283,
+            "val_acc": 0.2753855657582008
           },
           {
             "epoch": 32,
-            "train_mse": 0.06652265510799803
+            "train_ce": 1.2581069453472107,
+            "train_acc": 0.4199796209006537,
+            "val_ce": 1.4422494051607702,
+            "val_acc": 0.275335308714362
           },
           {
             "epoch": 33,
-            "train_mse": 0.06622779663661173
+            "train_ce": 1.2557142864283544,
+            "train_acc": 0.42177782285554155,
+            "val_ce": 1.4445684519914355,
+            "val_acc": 0.2754557162152258
           },
           {
             "epoch": 34,
-            "train_mse": 0.0659847340900446
+            "train_ce": 1.2536581355189511,
+            "train_acc": 0.4233802327964432,
+            "val_ce": 1.4480658461342648,
+            "val_acc": 0.2750358604948225
           },
           {
             "epoch": 35,
-            "train_mse": 0.06571018512014347
+            "train_ce": 1.2517061642603324,
+            "train_acc": 0.4248210947204644,
+            "val_ce": 1.4476070133933714,
+            "val_acc": 0.2747981865583348
           },
           {
             "epoch": 36,
-            "train_mse": 0.06542995176683901
+            "train_ce": 1.2494240097961222,
+            "train_acc": 0.42651473485212865,
+            "val_ce": 1.4518890194575904,
+            "val_acc": 0.2747248950360699
           },
           {
             "epoch": 37,
-            "train_mse": 0.06521836987335197
+            "train_ce": 1.2474521174827147,
+            "train_acc": 0.4278371805113491,
+            "val_ce": 1.4546197687357998,
+            "val_acc": 0.2745720298610602
           },
           {
             "epoch": 38,
-            "train_mse": 0.06499357880976028
+            "train_ce": 1.2454948140852573,
+            "train_acc": 0.4294986678823721,
+            "val_ce": 1.4567669956169051,
+            "val_acc": 0.27413123370572406
           },
           {
             "epoch": 39,
-            "train_mse": 0.06473464379524155
+            "train_ce": 1.243436872479743,
+            "train_acc": 0.4310720619173292,
+            "val_ce": 1.4567292230804165,
+            "val_acc": 0.2735825943104838
           },
           {
             "epoch": 40,
-            "train_mse": 0.06449632138037815
+            "train_ce": 1.241679757593784,
+            "train_acc": 0.43214878729197426,
+            "val_ce": 1.4593267183917222,
+            "val_acc": 0.274049566009486
           },
           {
             "epoch": 41,
-            "train_mse": 0.06427585622298235
+            "train_ce": 1.2399615889899533,
+            "train_acc": 0.43343672754953094,
+            "val_ce": 1.4604697471246166,
+            "val_acc": 0.27375430587693306
           },
           {
             "epoch": 42,
-            "train_mse": 0.06406314791519606
+            "train_ce": 1.2384512402097279,
+            "train_acc": 0.4344530684712643,
+            "val_ce": 1.4621764457407156,
+            "val_acc": 0.27362342815860285
           },
           {
             "epoch": 43,
-            "train_mse": 0.06387630246277948
+            "train_ce": 1.2370776232062333,
+            "train_acc": 0.43558965548970485,
+            "val_ce": 1.4644708057617606,
+            "val_acc": 0.27290517124040664
           },
           {
             "epoch": 44,
-            "train_mse": 0.06369648006469707
+            "train_ce": 1.2353005156759922,
+            "train_acc": 0.43653123470783334,
+            "val_ce": 1.4629249783560974,
+            "val_acc": 0.2734119297657812
           },
           {
             "epoch": 45,
-            "train_mse": 0.06349261477489707
+            "train_ce": 1.23374783545333,
+            "train_acc": 0.4379472631988389,
+            "val_ce": 1.4664987764569308,
+            "val_acc": 0.2732444062863186
           },
           {
             "epoch": 46,
-            "train_mse": 0.0632863121082745
+            "train_ce": 1.2321271627901706,
+            "train_acc": 0.4389413847331373,
+            "val_ce": 1.4685406610895309,
+            "val_acc": 0.27290307719691337
           },
           {
             "epoch": 47,
-            "train_mse": 0.06313697721826132
+            "train_ce": 1.2306810847555985,
+            "train_acc": 0.4400136662302953,
+            "val_ce": 1.4701180893292778,
+            "val_acc": 0.2728653844140343
           },
           {
             "epoch": 48,
-            "train_mse": 0.06296047951539613
+            "train_ce": 1.2291983893345892,
+            "train_acc": 0.4409586437076786,
+            "val_ce": 1.4716137026353537,
+            "val_acc": 0.27276382330461
           },
           {
             "epoch": 49,
-            "train_mse": 0.06274855290917936
+            "train_ce": 1.2279029633979694,
+            "train_acc": 0.44186179645577245,
+            "val_ce": 1.4747772563482238,
+            "val_acc": 0.2725177731941492
           },
           {
             "epoch": 50,
-            "train_mse": 0.06257137300166409
+            "train_ce": 1.2269504552871868,
+            "train_acc": 0.4427069173919772,
+            "val_ce": 1.473931354800333,
+            "val_acc": 0.2725837355641877
           }
         ]
       },
@@ -219,12 +369,12 @@
         "aggregate": {
           "source_count": 4,
           "total_sample_bases": 4778251,
-          "total_paper_compressed_bytes": 20418155,
-          "total_compression_ratio": 4.273144085566036,
-          "total_bits_per_base": 34.18515268452829,
-          "checkpoint_bytes": 3825922,
-          "size_including_model_bytes": 24244077,
-          "size_including_model_ratio": 5.073839151605891,
+          "total_paper_compressed_bytes": 17597750,
+          "total_compression_ratio": 3.6828852230659295,
+          "total_bits_per_base": 29.463081784527436,
+          "checkpoint_bytes": 3827074,
+          "size_including_model_bytes": 21424824,
+          "size_including_model_ratio": 4.483821381505492,
           "all_exact_reconstruction": true
         },
         "per_source": [
@@ -241,17 +391,17 @@
               3621,
               51
             ],
-            "residual_nonzeros": 3183988,
-            "residual_density": 0.6858906336369445,
-            "csr_residual_bytes": 19119426,
-            "fpzip_latent_bytes": 683377,
-            "paper_compressed_bytes": 19802803,
-            "compression_ratio": 4.266326514783961,
-            "bits_per_base": 34.130612118271685,
+            "residual_nonzeros": 2739287,
+            "residual_density": 0.590093711453512,
+            "csr_residual_bytes": 16451220,
+            "fpzip_latent_bytes": 687382,
+            "paper_compressed_bytes": 17138602,
+            "compression_ratio": 3.6923496203506856,
+            "bits_per_base": 29.538796962805485,
             "side_info_bytes": 0,
             "header_huffman_bytes": 0,
-            "compression_seconds": 0.5612932000076398,
-            "decompression_seconds": 0.11036679999961052,
+            "compression_seconds": 0.5608694999973522,
+            "decompression_seconds": 0.12432170000101905,
             "exact_reconstruction": true,
             "artifact_dir": "outputs\\dna_gencoder_dnacorpus\\prokaryotic_dnacorpus\\artifacts\\prokaryotic_dnacorpus\\EsCo"
           },
@@ -268,17 +418,17 @@
               58,
               51
             ],
-            "residual_nonzeros": 53079,
-            "residual_density": 0.7138495884662973,
-            "csr_residual_bytes": 319720,
-            "fpzip_latent_bytes": 11136,
-            "paper_compressed_bytes": 330856,
-            "compression_ratio": 4.489896728141242,
-            "bits_per_base": 35.91917382512994,
+            "residual_nonzeros": 35878,
+            "residual_density": 0.482516542040992,
+            "csr_residual_bytes": 216514,
+            "fpzip_latent_bytes": 11096,
+            "paper_compressed_bytes": 227610,
+            "compression_ratio": 3.0887920856572895,
+            "bits_per_base": 24.710336685258316,
             "side_info_bytes": 0,
             "header_huffman_bytes": 0,
-            "compression_seconds": 0.019057500001508743,
-            "decompression_seconds": 0.0023185999889392406,
+            "compression_seconds": 0.02021299999614712,
+            "decompression_seconds": 0.00251130000106059,
             "exact_reconstruction": true,
             "artifact_dir": "outputs\\dna_gencoder_dnacorpus\\prokaryotic_dnacorpus\\artifacts\\prokaryotic_dnacorpus\\YeMi"
           },
@@ -295,17 +445,17 @@
               15,
               51
             ],
-            "residual_nonzeros": 13590,
-            "residual_density": 0.7067082683307332,
-            "csr_residual_bytes": 82614,
-            "fpzip_latent_bytes": 2904,
-            "paper_compressed_bytes": 85518,
-            "compression_ratio": 4.515205913410771,
-            "bits_per_base": 36.12164730728617,
+            "residual_nonzeros": 11671,
+            "residual_density": 0.6069162766510661,
+            "csr_residual_bytes": 71100,
+            "fpzip_latent_bytes": 2898,
+            "paper_compressed_bytes": 73998,
+            "compression_ratio": 3.9069693769799367,
+            "bits_per_base": 31.255755015839494,
             "side_info_bytes": 0,
             "header_huffman_bytes": 0,
-            "compression_seconds": 0.01447369999368675,
-            "decompression_seconds": 0.0015850000054342672,
+            "compression_seconds": 0.013555800003814511,
+            "decompression_seconds": 0.002385100000537932,
             "exact_reconstruction": true,
             "artifact_dir": "outputs\\dna_gencoder_dnacorpus\\prokaryotic_dnacorpus\\artifacts\\prokaryotic_dnacorpus\\BuEb"
           },
@@ -322,17 +472,17 @@
               35,
               51
             ],
-            "residual_nonzeros": 31856,
-            "residual_density": 0.7099621127702251,
-            "csr_residual_bytes": 192290,
-            "fpzip_latent_bytes": 6688,
-            "paper_compressed_bytes": 198978,
-            "compression_ratio": 4.525312713213554,
-            "bits_per_base": 36.202501705708436,
+            "residual_nonzeros": 24947,
+            "residual_density": 0.55598395364386,
+            "csr_residual_bytes": 150836,
+            "fpzip_latent_bytes": 6704,
+            "paper_compressed_bytes": 157540,
+            "compression_ratio": 3.582897430065954,
+            "bits_per_base": 28.66317944052763,
             "side_info_bytes": 0,
             "header_huffman_bytes": 0,
-            "compression_seconds": 0.02336559999093879,
-            "decompression_seconds": 0.001847699997597374,
+            "compression_seconds": 0.024595299997599795,
+            "decompression_seconds": 0.002621699997689575,
             "exact_reconstruction": true,
             "artifact_dir": "outputs\\dna_gencoder_dnacorpus\\prokaryotic_dnacorpus\\artifacts\\prokaryotic_dnacorpus\\AgPh"
           }
