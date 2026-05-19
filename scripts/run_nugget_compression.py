@@ -167,16 +167,7 @@ def _apply_overrides(config: ExperimentConfig, args: argparse.Namespace) -> None
     _apply_if_not_none(config, "model.nugget_latent_mode", args.nugget_latent_mode)
     _apply_if_not_none(config, "model.nugget_bottleneck_layer_norm", args.nugget_bottleneck_layer_norm)
     _apply_if_not_none(config, "model.nugget_flatten_bottleneck_dim", args.nugget_flatten_bottleneck_dim)
-    _apply_if_not_none(config, "model.nugget_vq_codebook_bits", args.nugget_vq_codebook_bits)
-    _apply_if_not_none(config, "model.nugget_vq_num_codes", args.nugget_vq_num_codes)
-    _apply_if_not_none(config, "model.nugget_vq_code_dim", args.nugget_vq_code_dim)
-    _apply_if_not_none(config, "model.nugget_vq_commitment_weight", args.nugget_vq_commitment_weight)
-    _apply_if_not_none(config, "model.nugget_vq_usage_weight", args.nugget_vq_usage_weight)
-    _apply_if_not_none(config, "model.nugget_vq_usage_temperature", args.nugget_vq_usage_temperature)
-    _apply_if_not_none(config, "model.nugget_vq_restart_dead_codes", args.nugget_vq_restart_dead_codes)
-    _apply_if_not_none(config, "model.nugget_vq_restart_usage_threshold", args.nugget_vq_restart_usage_threshold)
-    _apply_if_not_none(config, "model.nugget_vq_restart_usage_decay", args.nugget_vq_restart_usage_decay)
-    _apply_if_not_none(config, "model.nugget_vq_restart_max_fraction", args.nugget_vq_restart_max_fraction)
+    _apply_if_not_none(config, "model.nugget_code_dim", args.nugget_code_dim)
     _apply_if_not_none(config, "model.nugget_hidden_mode", args.nugget_hidden_mode)
     _apply_if_not_none(config, "model.nugget_hidden_storage_dtype", args.nugget_hidden_storage_dtype)
     _apply_if_not_none(config, "data.dataset_dir", args.dataset_dir)
@@ -354,16 +345,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--nugget-latent-mode", choices=list(NUGGET_LATENT_MODES))
     parser.add_argument("--nugget-bottleneck-layer-norm", action=argparse.BooleanOptionalAction)
     parser.add_argument("--nugget-flatten-bottleneck-dim", type=int)
-    parser.add_argument("--nugget-vq-codebook-bits", type=int)
-    parser.add_argument("--nugget-vq-num-codes", type=int)
-    parser.add_argument("--nugget-vq-code-dim", type=int)
-    parser.add_argument("--nugget-vq-commitment-weight", type=float)
-    parser.add_argument("--nugget-vq-usage-weight", type=float)
-    parser.add_argument("--nugget-vq-usage-temperature", type=float)
-    parser.add_argument("--nugget-vq-restart-dead-codes", action=argparse.BooleanOptionalAction)
-    parser.add_argument("--nugget-vq-restart-usage-threshold", type=float)
-    parser.add_argument("--nugget-vq-restart-usage-decay", type=float)
-    parser.add_argument("--nugget-vq-restart-max-fraction", type=float)
+    parser.add_argument("--nugget-code-dim", type=int)
     parser.add_argument("--nugget-hidden-mode", choices=list(NUGGET_HIDDEN_MODES))
     parser.add_argument("--nugget-hidden-storage-dtype", choices=list(NUGGET_HIDDEN_STORAGE_DTYPES))
     parser.add_argument("--dataset-dir")
@@ -442,19 +424,9 @@ def main() -> None:
             "latent_mode": config.model.nugget_latent_mode,
             "bottleneck_layer_norm": config.model.nugget_bottleneck_layer_norm,
             "flatten_bottleneck_dim": config.model.nugget_flatten_bottleneck_dim,
-            "flatten_input_dim": max(1, math.ceil(config.model.seq_length * config.model.nugget_ratio)) * config.model.nugget_vq_code_dim,
+            "flatten_input_dim": max(1, math.ceil(config.model.seq_length * config.model.nugget_ratio)) * config.model.nugget_code_dim,
             "flatten_max_nuggets": max(1, math.ceil(config.model.seq_length * config.model.nugget_ratio)),
-            "vq_codebook_bits": config.model.nugget_vq_codebook_bits,
-            "vq_num_codes": config.model.nugget_vq_num_codes,
-            "vq_codebook_size": 1 << config.model.nugget_vq_codebook_bits,
-            "vq_code_dim": config.model.nugget_vq_code_dim,
-            "vq_commitment_weight": config.model.nugget_vq_commitment_weight,
-            "vq_usage_weight": config.model.nugget_vq_usage_weight,
-            "vq_usage_temperature": config.model.nugget_vq_usage_temperature,
-            "vq_restart_dead_codes": config.model.nugget_vq_restart_dead_codes,
-            "vq_restart_usage_threshold": config.model.nugget_vq_restart_usage_threshold,
-            "vq_restart_usage_decay": config.model.nugget_vq_restart_usage_decay,
-            "vq_restart_max_fraction": config.model.nugget_vq_restart_max_fraction,
+            "code_dim": config.model.nugget_code_dim,
             "arithmetic_coding_mode": config.arithmetic.coding_mode,
             "arithmetic_merge_size": config.arithmetic.merge_size,
         },

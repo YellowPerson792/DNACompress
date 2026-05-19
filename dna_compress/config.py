@@ -59,16 +59,7 @@ class ModelConfig:
     nugget_latent_mode: str = "dense"
     nugget_bottleneck_layer_norm: bool = False
     nugget_flatten_bottleneck_dim: int = 512
-    nugget_vq_codebook_bits: int = 12
-    nugget_vq_num_codes: int = 1
-    nugget_vq_code_dim: int = 64
-    nugget_vq_commitment_weight: float = 0.25
-    nugget_vq_usage_weight: float = 0.0
-    nugget_vq_usage_temperature: float = 1.0
-    nugget_vq_restart_dead_codes: bool = False
-    nugget_vq_restart_usage_threshold: float = 1e-4
-    nugget_vq_restart_usage_decay: float = 0.99
-    nugget_vq_restart_max_fraction: float = 0.01
+    nugget_code_dim: int = 64
     bytecaption_decoder_dim: int = 512
     bytecaption_decoder_layers: int = 3
     bytecaption_decoder_heads: int = 8

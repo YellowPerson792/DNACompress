@@ -5,32 +5,22 @@ from __future__ import annotations
 Examples:
 
   # Train/evaluate a BART Nugget autoencoder.
-  python scripts/run_nugget_experiment.py \
+  torchrun --nproc_per_node=1 scripts/run_nugget_experiment.py \
     --config configs/dna_nugget_modified.json \
-    --seed 43 \
-    --init-from pretrained \
-    --pretrained-weight-path outputs/dna_nugget_modified_r1_continuous_flatten_d64_2/best.pt \
-    --pretrained-weight-scope all \
+    --seed 42 \
+    --gpu-ids 0 \
+    --init-from scratch \
     --nugget-bottleneck-layer-norm \
     --nugget-latent-mode flatten_bottleneck \
-    --nugget-flatten-bottleneck-dim 512 \
-    --nugget-vq-codebook-bits 12 \
-    --nugget-vq-num-codes 1 \
-    --nugget-vq-code-dim 64 \
-    --nugget-vq-restart-dead-codes \
-    --nugget-vq-restart-usage-threshold 1e-4 \
-    --nugget-vq-restart-usage-decay 0.99 \
-    --nugget-vq-restart-max-fraction 0.01 \
-    --nugget-vq-commitment-weight 0.05 \
-    --nugget-vq-usage-weight 0 \
-    --nugget-vq-usage-temperature 1.0 \
+    --nugget-flatten-bottleneck-dim 256 \
+    --nugget-code-dim 64 \
     --mode all \
     --implementation nugget \
     --nugget-backbone bart \
     --nugget-tokenizer fixed_kmer \
     --token-merge-size 6 \
     --token-merge-alphabet ACGTN \
-    --nugget-ratio 1 \
+    --nugget-ratio 0.75 \
     --nugget-scorer-layer 3 \
     --nugget-residual-start 0 \
     --nugget-residual-end -1 \
@@ -54,7 +44,7 @@ Examples:
     --lr-scheduler cosine \
     --lr-warmup-steps 500 \
     --lr-min-ratio 0.1 \
-    --grad-clip-norm 10.0 \
+    --grad-clip-norm 1.0 \
     --num-workers 4 \
     --prefetch-factor 2 \
     --persistent-workers \
@@ -63,7 +53,7 @@ Examples:
     --eval-interval 2000 \
     --print-config \
     --wandb-project dna-compress \
-    --wandb-name dna_nugget_bart_r1_flatten_d64_3
+    --wandb-name dna_nugget_bart_r0.75_flatten_d256
 
   # Train a T5 Nugget autoencoder.
   python scripts/run_nugget_experiment.py \
@@ -209,16 +199,7 @@ def _apply_overrides(config: Any, args: argparse.Namespace) -> None:
     _apply_if_not_none(config, "model.nugget_latent_mode", args.nugget_latent_mode)
     _apply_if_not_none(config, "model.nugget_bottleneck_layer_norm", args.nugget_bottleneck_layer_norm)
     _apply_if_not_none(config, "model.nugget_flatten_bottleneck_dim", args.nugget_flatten_bottleneck_dim)
-    _apply_if_not_none(config, "model.nugget_vq_codebook_bits", args.nugget_vq_codebook_bits)
-    _apply_if_not_none(config, "model.nugget_vq_num_codes", args.nugget_vq_num_codes)
-    _apply_if_not_none(config, "model.nugget_vq_code_dim", args.nugget_vq_code_dim)
-    _apply_if_not_none(config, "model.nugget_vq_commitment_weight", args.nugget_vq_commitment_weight)
-    _apply_if_not_none(config, "model.nugget_vq_usage_weight", args.nugget_vq_usage_weight)
-    _apply_if_not_none(config, "model.nugget_vq_usage_temperature", args.nugget_vq_usage_temperature)
-    _apply_if_not_none(config, "model.nugget_vq_restart_dead_codes", args.nugget_vq_restart_dead_codes)
-    _apply_if_not_none(config, "model.nugget_vq_restart_usage_threshold", args.nugget_vq_restart_usage_threshold)
-    _apply_if_not_none(config, "model.nugget_vq_restart_usage_decay", args.nugget_vq_restart_usage_decay)
-    _apply_if_not_none(config, "model.nugget_vq_restart_max_fraction", args.nugget_vq_restart_max_fraction)
+    _apply_if_not_none(config, "model.nugget_code_dim", args.nugget_code_dim)
 
     _apply_if_not_none(config, "data.dataset_dir", args.dataset_dir)
     _apply_if_not_none(config, "data.nugget_tokenizer", args.nugget_tokenizer)
@@ -322,16 +303,7 @@ def _build_parser() -> argparse.ArgumentParser:
     model_group.add_argument("--nugget-latent-mode", choices=list(NUGGET_LATENT_MODES))
     model_group.add_argument("--nugget-bottleneck-layer-norm", action=argparse.BooleanOptionalAction)
     model_group.add_argument("--nugget-flatten-bottleneck-dim", type=int)
-    model_group.add_argument("--nugget-vq-codebook-bits", type=int)
-    model_group.add_argument("--nugget-vq-num-codes", type=int)
-    model_group.add_argument("--nugget-vq-code-dim", type=int)
-    model_group.add_argument("--nugget-vq-commitment-weight", type=float)
-    model_group.add_argument("--nugget-vq-usage-weight", type=float)
-    model_group.add_argument("--nugget-vq-usage-temperature", type=float)
-    model_group.add_argument("--nugget-vq-restart-dead-codes", action=argparse.BooleanOptionalAction)
-    model_group.add_argument("--nugget-vq-restart-usage-threshold", type=float)
-    model_group.add_argument("--nugget-vq-restart-usage-decay", type=float)
-    model_group.add_argument("--nugget-vq-restart-max-fraction", type=float)
+    model_group.add_argument("--nugget-code-dim", type=int)
 
     data_group = parser.add_argument_group("data overrides")
     data_group.add_argument("--dataset-dir")

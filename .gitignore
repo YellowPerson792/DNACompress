@@ -4,6 +4,12 @@
 # Local datasets
 datasets/
 
+# Virtual environments
+.venv/
+.venv-*/
+venv/
+env/
+
 # Python cache / bytecode
 *.py[cod]
 __pycache__/

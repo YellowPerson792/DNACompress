@@ -59,26 +59,10 @@ def validate_nugget_config(config: ExperimentConfig) -> None:
         raise ValueError("model.nugget_ratio must be in (0.0, 1.0].")
     if config.model.nugget_latent_mode not in NUGGET_LATENT_MODES:
         raise ValueError(f"model.nugget_latent_mode must be one of: {', '.join(NUGGET_LATENT_MODES)}")
-    if config.model.nugget_vq_codebook_bits <= 0:
-        raise ValueError("model.nugget_vq_codebook_bits must be > 0.")
-    if config.model.nugget_vq_num_codes <= 0:
-        raise ValueError("model.nugget_vq_num_codes must be > 0.")
-    if config.model.nugget_vq_code_dim <= 0:
-        raise ValueError("model.nugget_vq_code_dim must be > 0.")
+    if config.model.nugget_code_dim <= 0:
+        raise ValueError("model.nugget_code_dim must be > 0.")
     if config.model.nugget_flatten_bottleneck_dim <= 0:
         raise ValueError("model.nugget_flatten_bottleneck_dim must be > 0.")
-    if config.model.nugget_vq_commitment_weight < 0.0:
-        raise ValueError("model.nugget_vq_commitment_weight must be >= 0.")
-    if config.model.nugget_vq_usage_weight < 0.0:
-        raise ValueError("model.nugget_vq_usage_weight must be >= 0.")
-    if config.model.nugget_vq_usage_temperature <= 0.0:
-        raise ValueError("model.nugget_vq_usage_temperature must be > 0.")
-    if config.model.nugget_vq_restart_usage_threshold < 0.0:
-        raise ValueError("model.nugget_vq_restart_usage_threshold must be >= 0.")
-    if not (0.0 <= config.model.nugget_vq_restart_usage_decay < 1.0):
-        raise ValueError("model.nugget_vq_restart_usage_decay must be in [0, 1).")
-    if not (0.0 < config.model.nugget_vq_restart_max_fraction <= 1.0):
-        raise ValueError("model.nugget_vq_restart_max_fraction must be in (0, 1].")
     if config.model.nugget_scorer_layer <= 0:
         raise ValueError("model.nugget_scorer_layer must be >= 1.")
     if config.model.nugget_backbone in {"bart", "mbart"}:
@@ -217,9 +201,7 @@ def _estimate_nugget_side_info_bits(
     runtime_dtype_name: str,
     requires_scores_side_info: bool,
     latent_mode: str,
-    vq_codebook_bits: int,
-    vq_num_codes: int,
-    vq_code_dim: int,
+    code_dim: int,
     flatten_bottleneck_dim: int,
     flatten_max_nuggets: int,
 ) -> dict[str, float]:
@@ -231,11 +213,8 @@ def _estimate_nugget_side_info_bits(
     nugget_counts = torch.minimum(nugget_counts, valid_tokens_long)
     nugget_count = int(nugget_counts.sum().item())
     batch_size = int(attention_mask.shape[0])
-    if latent_mode == "vq_codebook":
-        code_bytes = math.ceil(nugget_count * int(vq_codebook_bits) * int(vq_num_codes) / 8)
-        hidden_bits = code_bytes * 8
-    elif latent_mode == "continuous_bottleneck":
-        code_bytes = nugget_count * int(vq_code_dim) * storage_dtype_bytes
+    if latent_mode == "continuous_bottleneck":
+        code_bytes = nugget_count * int(code_dim) * storage_dtype_bytes
         hidden_bits = code_bytes * 8
     elif latent_mode == "flatten_bottleneck":
         code_bytes = batch_size * int(flatten_bottleneck_dim) * storage_dtype_bytes
@@ -255,15 +234,11 @@ def _estimate_nugget_side_info_bits(
         "nugget_count": float(nugget_count),
         "nugget_storage_dtype_bytes": float(storage_dtype_bytes),
         "nugget_latent_mode": latent_mode,
-        "nugget_codebook_bits": float(vq_codebook_bits if latent_mode == "vq_codebook" else 0),
-        "nugget_vq_num_codes": float(vq_num_codes if latent_mode == "vq_codebook" else 0),
-        "nugget_codebook_size": float((1 << int(vq_codebook_bits)) if latent_mode == "vq_codebook" else 0),
-        "nugget_code_dim": float(vq_code_dim if latent_mode in {"continuous_bottleneck", "flatten_bottleneck", "vq_codebook"} else 0),
+        "nugget_code_dim": float(code_dim if latent_mode in {"continuous_bottleneck", "flatten_bottleneck"} else 0),
         "nugget_flatten_bottleneck_dim": float(flatten_bottleneck_dim if latent_mode == "flatten_bottleneck" else 0),
-        "nugget_flatten_input_dim": float((flatten_max_nuggets * vq_code_dim) if latent_mode == "flatten_bottleneck" else 0),
+        "nugget_flatten_input_dim": float((flatten_max_nuggets * code_dim) if latent_mode == "flatten_bottleneck" else 0),
         "nugget_flatten_max_nuggets": float(flatten_max_nuggets if latent_mode == "flatten_bottleneck" else 0),
         "nugget_code_bytes": float(code_bytes),
-        "nugget_codes_per_base": float(nugget_count * int(vq_num_codes if latent_mode == "vq_codebook" else 0)) / max(target_bases, 1),
     }
 
 
@@ -283,15 +258,6 @@ def evaluate_nugget_loss(
     total_bases = 0
     total_latent_side_info_bits = 0.0
     total_nugget_count = 0
-    total_vq_codebook_loss = 0.0
-    total_vq_commitment_loss = 0.0
-    total_vq_usage_loss = 0.0
-    total_vq_usage_entropy = 0.0
-    total_vq_restart_count = 0.0
-    total_vq_loss = 0.0
-    total_vq_perplexity = 0.0
-    total_vq_active_codes = 0.0
-    vq_batches = 0
     started = time.time()
     with torch.no_grad():
         for batch in dataloader:
@@ -326,9 +292,7 @@ def evaluate_nugget_loss(
                 runtime_dtype_name=dtype_name,
                 requires_scores_side_info=not config.model.nugget_straight_through,
                 latent_mode=config.model.nugget_latent_mode,
-                vq_codebook_bits=config.model.nugget_vq_codebook_bits,
-                vq_num_codes=config.model.nugget_vq_num_codes,
-                vq_code_dim=config.model.nugget_vq_code_dim,
+                code_dim=config.model.nugget_code_dim,
                 flatten_bottleneck_dim=config.model.nugget_flatten_bottleneck_dim,
                 flatten_max_nuggets=flatten_max_nuggets,
             )
@@ -336,16 +300,6 @@ def evaluate_nugget_loss(
             total_bases += target_bases
             total_latent_side_info_bits += float(side_info["latent_side_info_bits"])
             total_nugget_count += int(side_info["nugget_count"])
-            if config.model.nugget_latent_mode == "vq_codebook":
-                total_vq_codebook_loss += float(output.vq_codebook_loss.detach().float().item())
-                total_vq_commitment_loss += float(output.vq_commitment_loss.detach().float().item())
-                total_vq_usage_loss += float(output.vq_usage_loss.detach().float().item())
-                total_vq_usage_entropy += float(output.vq_usage_entropy.detach().float().item())
-                total_vq_restart_count += float(output.vq_restart_count.detach().float().item())
-                total_vq_loss += float(output.vq_loss.detach().float().item())
-                total_vq_perplexity += float(output.vq_perplexity.detach().float().item())
-                total_vq_active_codes += float(output.vq_active_codes.detach().float().item())
-                vq_batches += 1
 
     if is_distributed:
         reduced = torch.tensor(
@@ -355,15 +309,6 @@ def evaluate_nugget_loss(
                 float(total_bases),
                 total_latent_side_info_bits,
                 float(total_nugget_count),
-                total_vq_codebook_loss,
-                total_vq_commitment_loss,
-                total_vq_usage_loss,
-                total_vq_usage_entropy,
-                total_vq_restart_count,
-                total_vq_loss,
-                total_vq_perplexity,
-                total_vq_active_codes,
-                float(vq_batches),
             ],
             dtype=torch.float64,
             device=device,
@@ -374,15 +319,6 @@ def evaluate_nugget_loss(
         total_bases = int(reduced[2].item())
         total_latent_side_info_bits = float(reduced[3].item())
         total_nugget_count = int(reduced[4].item())
-        total_vq_codebook_loss = float(reduced[5].item())
-        total_vq_commitment_loss = float(reduced[6].item())
-        total_vq_usage_loss = float(reduced[7].item())
-        total_vq_usage_entropy = float(reduced[8].item())
-        total_vq_restart_count = float(reduced[9].item())
-        total_vq_loss = float(reduced[10].item())
-        total_vq_perplexity = float(reduced[11].item())
-        total_vq_active_codes = float(reduced[12].item())
-        vq_batches = int(reduced[13].item())
 
     average_nats_per_token = total_nats / max(total_targets, 1)
     average_nats_per_base = total_nats / max(total_bases, 1)
@@ -400,21 +336,10 @@ def evaluate_nugget_loss(
         "nugget_count": total_nugget_count,
         "nugget_storage_dtype_bytes": _nugget_storage_dtype_bytes(config.model.nugget_hidden_storage_dtype, dtype_name),
         "nugget_latent_mode": config.model.nugget_latent_mode,
-        "nugget_codebook_bits": config.model.nugget_vq_codebook_bits if config.model.nugget_latent_mode == "vq_codebook" else 0,
-        "nugget_vq_num_codes": config.model.nugget_vq_num_codes if config.model.nugget_latent_mode == "vq_codebook" else 0,
-        "nugget_codebook_size": (1 << config.model.nugget_vq_codebook_bits) if config.model.nugget_latent_mode == "vq_codebook" else 0,
-        "nugget_code_dim": config.model.nugget_vq_code_dim if config.model.nugget_latent_mode in {"continuous_bottleneck", "flatten_bottleneck", "vq_codebook"} else 0,
+        "nugget_code_dim": config.model.nugget_code_dim if config.model.nugget_latent_mode in {"continuous_bottleneck", "flatten_bottleneck"} else 0,
         "nugget_flatten_bottleneck_dim": config.model.nugget_flatten_bottleneck_dim if config.model.nugget_latent_mode == "flatten_bottleneck" else 0,
-        "nugget_flatten_input_dim": flatten_max_nuggets * config.model.nugget_vq_code_dim if config.model.nugget_latent_mode == "flatten_bottleneck" else 0,
+        "nugget_flatten_input_dim": flatten_max_nuggets * config.model.nugget_code_dim if config.model.nugget_latent_mode == "flatten_bottleneck" else 0,
         "nugget_flatten_max_nuggets": flatten_max_nuggets if config.model.nugget_latent_mode == "flatten_bottleneck" else 0,
-        "vq_codebook_loss": total_vq_codebook_loss / max(vq_batches, 1),
-        "vq_commitment_loss": total_vq_commitment_loss / max(vq_batches, 1),
-        "vq_usage_loss": total_vq_usage_loss / max(vq_batches, 1),
-        "vq_usage_entropy": total_vq_usage_entropy / max(vq_batches, 1),
-        "vq_restart_count": total_vq_restart_count,
-        "vq_loss": total_vq_loss / max(vq_batches, 1),
-        "vq_perplexity": total_vq_perplexity / max(vq_batches, 1),
-        "vq_active_codes": total_vq_active_codes / max(vq_batches, 1),
         "tokens": total_targets,
         "bases": total_bases,
         "elapsed_seconds": time.time() - started,
@@ -423,14 +348,6 @@ def evaluate_nugget_loss(
 
 def _print_eval_metrics(prefix: str, metrics: dict[str, float], *, step: int | None = None) -> None:
     step_fragment = f"step={step} " if step is not None else ""
-    vq_fragment = ""
-    if metrics.get("nugget_latent_mode") == "vq_codebook":
-        vq_fragment = (
-            f"vq_loss={metrics['vq_loss']:.4f} "
-            f"vq_usage={metrics['vq_usage_loss']:.4f} "
-            f"vq_ppl={metrics['vq_perplexity']:.1f} "
-            f"vq_active={metrics['vq_active_codes']:.0f} "
-        )
     print(
         f"[eval] {prefix} {step_fragment}"
         f"loss/token={metrics['loss_nats_per_token']:.4f} "
@@ -438,7 +355,6 @@ def _print_eval_metrics(prefix: str, metrics: dict[str, float], *, step: int | N
         f"decoder_bpb={metrics['decoder_bits_per_base']:.4f} "
         f"latent_bpb={metrics['latent_side_info_bits_per_base']:.4f} "
         f"total_bpb={metrics['total_bits_per_base']:.4f} "
-        f"{vq_fragment}"
         f"bits/token={metrics['bits_per_token']:.4f} "
         f"tokens={int(metrics['tokens'])} "
         f"bases={int(metrics['bases'])} "
@@ -693,19 +609,9 @@ def run_nugget_experiment(config: ExperimentConfig, mode: str = "all") -> dict[s
                 "latent_mode": config.model.nugget_latent_mode,
                 "bottleneck_layer_norm": config.model.nugget_bottleneck_layer_norm,
                 "flatten_bottleneck_dim": config.model.nugget_flatten_bottleneck_dim,
-                "flatten_input_dim": max(1, math.ceil(config.model.seq_length * config.model.nugget_ratio)) * config.model.nugget_vq_code_dim,
+                "flatten_input_dim": max(1, math.ceil(config.model.seq_length * config.model.nugget_ratio)) * config.model.nugget_code_dim,
                 "flatten_max_nuggets": max(1, math.ceil(config.model.seq_length * config.model.nugget_ratio)),
-                "vq_codebook_bits": config.model.nugget_vq_codebook_bits,
-                "vq_num_codes": config.model.nugget_vq_num_codes,
-                "vq_codebook_size": 1 << config.model.nugget_vq_codebook_bits,
-                "vq_code_dim": config.model.nugget_vq_code_dim,
-                "vq_commitment_weight": config.model.nugget_vq_commitment_weight,
-                "vq_usage_weight": config.model.nugget_vq_usage_weight,
-                "vq_usage_temperature": config.model.nugget_vq_usage_temperature,
-                "vq_restart_dead_codes": config.model.nugget_vq_restart_dead_codes,
-                "vq_restart_usage_threshold": config.model.nugget_vq_restart_usage_threshold,
-                "vq_restart_usage_decay": config.model.nugget_vq_restart_usage_decay,
-                "vq_restart_max_fraction": config.model.nugget_vq_restart_max_fraction,
+                "code_dim": config.model.nugget_code_dim,
                 "loaded_checkpoint_path": str(checkpoint_path) if checkpoint_path is not None else None,
                 "pretrained_weight_scope": config.model.pretrained_weight_scope,
                 "optimizer_state_restored": optimizer_state_restored,
@@ -774,9 +680,7 @@ def run_nugget_experiment(config: ExperimentConfig, mode: str = "all") -> dict[s
                             runtime_dtype_name=config.train.dtype,
                             requires_scores_side_info=not config.model.nugget_straight_through,
                             latent_mode=config.model.nugget_latent_mode,
-                            vq_codebook_bits=config.model.nugget_vq_codebook_bits,
-                            vq_num_codes=config.model.nugget_vq_num_codes,
-                            vq_code_dim=config.model.nugget_vq_code_dim,
+                            code_dim=config.model.nugget_code_dim,
                             flatten_bottleneck_dim=config.model.nugget_flatten_bottleneck_dim,
                             flatten_max_nuggets=max(1, math.ceil(config.model.seq_length * config.model.nugget_ratio)),
                         )
@@ -800,50 +704,17 @@ def run_nugget_experiment(config: ExperimentConfig, mode: str = "all") -> dict[s
                             "nugget_count": int(side_info["nugget_count"]),
                             "nugget_storage_dtype_bytes": int(side_info["nugget_storage_dtype_bytes"]),
                             "nugget_latent_mode": config.model.nugget_latent_mode,
-                            "nugget_codebook_bits": int(side_info["nugget_codebook_bits"]),
-                            "nugget_vq_num_codes": int(side_info["nugget_vq_num_codes"]),
-                            "nugget_codebook_size": int(side_info["nugget_codebook_size"]),
                             "nugget_code_dim": int(side_info["nugget_code_dim"]),
                             "nugget_flatten_bottleneck_dim": int(side_info["nugget_flatten_bottleneck_dim"]),
                             "nugget_flatten_input_dim": int(side_info["nugget_flatten_input_dim"]),
                             "nugget_flatten_max_nuggets": int(side_info["nugget_flatten_max_nuggets"]),
                             "nugget_code_bytes": int(side_info["nugget_code_bytes"]),
-                            "nugget_codes_per_base": float(side_info["nugget_codes_per_base"]),
                             "grad_norm": grad_norm_value,
                             "learning_rate": float(optimizer.param_groups[0]["lr"]),
                             "tokens_per_second": float(tokens_per_second),
                             "tokens": target_tokens,
                             "bases": target_bases,
                         }
-                        vq_fragment = ""
-                        if config.model.nugget_latent_mode == "vq_codebook":
-                            vq_codebook_loss = float(output.vq_codebook_loss.detach().float().item())
-                            vq_commitment_loss = float(output.vq_commitment_loss.detach().float().item())
-                            vq_usage_loss = float(output.vq_usage_loss.detach().float().item())
-                            vq_usage_entropy = float(output.vq_usage_entropy.detach().float().item())
-                            vq_restart_count = float(output.vq_restart_count.detach().float().item())
-                            vq_loss = float(output.vq_loss.detach().float().item())
-                            vq_perplexity = float(output.vq_perplexity.detach().float().item())
-                            vq_active_codes = float(output.vq_active_codes.detach().float().item())
-                            event.update(
-                                {
-                                    "vq_codebook_loss": vq_codebook_loss,
-                                    "vq_commitment_loss": vq_commitment_loss,
-                                    "vq_usage_loss": vq_usage_loss,
-                                    "vq_usage_entropy": vq_usage_entropy,
-                                    "vq_restart_count": vq_restart_count,
-                                    "vq_loss": vq_loss,
-                                    "vq_perplexity": vq_perplexity,
-                                    "vq_active_codes": vq_active_codes,
-                                }
-                            )
-                            vq_fragment = (
-                                f"vq_loss={vq_loss:.4f} "
-                                f"vq_usage={vq_usage_loss:.4f} "
-                                f"vq_restart={vq_restart_count:.0f} "
-                                f"vq_ppl={vq_perplexity:.1f} "
-                                f"vq_active={vq_active_codes:.0f} "
-                            )
                         if train_log_handle is not None:
                             write_training_log_event(train_log_handle, event)
                         log_wandb_metrics(
@@ -865,21 +736,6 @@ def run_nugget_experiment(config: ExperimentConfig, mode: str = "all") -> dict[s
                             },
                             step=global_step,
                         )
-                        if config.model.nugget_latent_mode == "vq_codebook":
-                            log_wandb_metrics(
-                                wandb_run,
-                                {
-                                    "vq/codebook_loss": vq_codebook_loss,
-                                    "vq/commitment_loss": vq_commitment_loss,
-                                    "vq/usage_loss": vq_usage_loss,
-                                    "vq/usage_entropy": vq_usage_entropy,
-                                    "vq/restart_count": vq_restart_count,
-                                    "vq/loss": vq_loss,
-                                    "vq/perplexity": vq_perplexity,
-                                    "vq/active_codes": vq_active_codes,
-                                },
-                                step=global_step,
-                            )
                         print(
                             f"[train] epoch={epoch + 1} step={global_step} "
                             f"loss/token={loss.item():.4f} decoder_loss={decoder_loss_value:.4f} "
@@ -887,7 +743,6 @@ def run_nugget_experiment(config: ExperimentConfig, mode: str = "all") -> dict[s
                             f"decoder_bpb={bits_per_base:.4f} "
                             f"latent_bpb={latent_side_info_bits_per_base:.4f} "
                             f"total_bpb={total_bits_per_base:.4f} "
-                            f"{vq_fragment}"
                             f"grad_norm={grad_norm_value:.4f} "
                             f"tokens/s={tokens_per_second:.1f} lr={optimizer.param_groups[0]['lr']:.6g}",
                             flush=True,
@@ -924,21 +779,10 @@ def run_nugget_experiment(config: ExperimentConfig, mode: str = "all") -> dict[s
                                         "nugget_count": int(val_metrics["nugget_count"]),
                                         "nugget_storage_dtype_bytes": int(val_metrics["nugget_storage_dtype_bytes"]),
                                         "nugget_latent_mode": val_metrics["nugget_latent_mode"],
-                                        "nugget_codebook_bits": int(val_metrics["nugget_codebook_bits"]),
-                                        "nugget_vq_num_codes": int(val_metrics["nugget_vq_num_codes"]),
-                                        "nugget_codebook_size": int(val_metrics["nugget_codebook_size"]),
                                         "nugget_code_dim": int(val_metrics["nugget_code_dim"]),
                                         "nugget_flatten_bottleneck_dim": int(val_metrics["nugget_flatten_bottleneck_dim"]),
                                         "nugget_flatten_input_dim": int(val_metrics["nugget_flatten_input_dim"]),
                                         "nugget_flatten_max_nuggets": int(val_metrics["nugget_flatten_max_nuggets"]),
-                                        "vq_codebook_loss": float(val_metrics["vq_codebook_loss"]),
-                                        "vq_commitment_loss": float(val_metrics["vq_commitment_loss"]),
-                                        "vq_usage_loss": float(val_metrics["vq_usage_loss"]),
-                                        "vq_usage_entropy": float(val_metrics["vq_usage_entropy"]),
-                                        "vq_restart_count": float(val_metrics["vq_restart_count"]),
-                                        "vq_loss": float(val_metrics["vq_loss"]),
-                                        "vq_perplexity": float(val_metrics["vq_perplexity"]),
-                                        "vq_active_codes": float(val_metrics["vq_active_codes"]),
                                         "tokens": int(val_metrics["tokens"]),
                                         "bases": int(val_metrics["bases"]),
                                     },
@@ -955,14 +799,6 @@ def run_nugget_experiment(config: ExperimentConfig, mode: str = "all") -> dict[s
                                     "eval/nugget_flatten_bottleneck_dim": float(val_metrics["nugget_flatten_bottleneck_dim"]),
                                     "eval/nugget_flatten_input_dim": float(val_metrics["nugget_flatten_input_dim"]),
                                     "eval/nugget_flatten_max_nuggets": float(val_metrics["nugget_flatten_max_nuggets"]),
-                                    "eval/vq_codebook_loss": float(val_metrics["vq_codebook_loss"]),
-                                    "eval/vq_commitment_loss": float(val_metrics["vq_commitment_loss"]),
-                                    "eval/vq_usage_loss": float(val_metrics["vq_usage_loss"]),
-                                    "eval/vq_usage_entropy": float(val_metrics["vq_usage_entropy"]),
-                                    "eval/vq_restart_count": float(val_metrics["vq_restart_count"]),
-                                    "eval/vq_loss": float(val_metrics["vq_loss"]),
-                                    "eval/vq_perplexity": float(val_metrics["vq_perplexity"]),
-                                    "eval/vq_active_codes": float(val_metrics["vq_active_codes"]),
                                 },
                                 step=global_step,
                             )
@@ -1058,17 +894,11 @@ def run_nugget_experiment(config: ExperimentConfig, mode: str = "all") -> dict[s
                         "eval/final_decoder_bpb": float(val_metrics["decoder_bits_per_base"]),
                         "eval/final_latent_bpb": float(val_metrics["latent_side_info_bits_per_base"]),
                         "eval/final_total_bpb": float(val_metrics["total_bits_per_base"]),
-                        "eval/final_vq_loss": float(val_metrics["vq_loss"]),
-                        "eval/final_vq_perplexity": float(val_metrics["vq_perplexity"]),
-                        "eval/final_vq_active_codes": float(val_metrics["vq_active_codes"]),
                         "test/loss": float(test_metrics["loss_nats_per_token"]),
                         "test/bpb": float(test_metrics["bits_per_base"]),
                         "test/decoder_bpb": float(test_metrics["decoder_bits_per_base"]),
                         "test/latent_bpb": float(test_metrics["latent_side_info_bits_per_base"]),
                         "test/total_bpb": float(test_metrics["total_bits_per_base"]),
-                        "test/vq_loss": float(test_metrics["vq_loss"]),
-                        "test/vq_perplexity": float(test_metrics["vq_perplexity"]),
-                        "test/vq_active_codes": float(test_metrics["vq_active_codes"]),
                     },
                     step=global_step,
                 )
