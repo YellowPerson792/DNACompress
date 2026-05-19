@@ -7,13 +7,12 @@ Examples:
   # Train/evaluate a BART Nugget autoencoder.
   python scripts/run_nugget_experiment.py \
     --config configs/dna_nugget_modified.json \
-    --seed 43 \
+    --seed 42 \
     --init-from pretrained \
-    --pretrained-weight-path outputs/dna_nugget_modified_r1_continuous_flatten_d64_2/best.pt \
-    --pretrained-weight-scope all \
+    --pretrained-weight-path outputs/dna_nugget_modified_r1_continuous_flatten_d64_3/best.pt \
     --nugget-bottleneck-layer-norm \
     --nugget-latent-mode flatten_bottleneck \
-    --nugget-flatten-bottleneck-dim 512 \
+    --nugget-flatten-bottleneck-dim 256 \
     --nugget-vq-codebook-bits 12 \
     --nugget-vq-num-codes 1 \
     --nugget-vq-code-dim 64 \
@@ -30,7 +29,7 @@ Examples:
     --nugget-tokenizer fixed_kmer \
     --token-merge-size 6 \
     --token-merge-alphabet ACGTN \
-    --nugget-ratio 1 \
+    --nugget-ratio 0.75 \
     --nugget-scorer-layer 3 \
     --nugget-residual-start 0 \
     --nugget-residual-end -1 \
@@ -54,7 +53,7 @@ Examples:
     --lr-scheduler cosine \
     --lr-warmup-steps 500 \
     --lr-min-ratio 0.1 \
-    --grad-clip-norm 10.0 \
+    --grad-clip-norm 1.0 \
     --num-workers 4 \
     --prefetch-factor 2 \
     --persistent-workers \
@@ -63,7 +62,7 @@ Examples:
     --eval-interval 2000 \
     --print-config \
     --wandb-project dna-compress \
-    --wandb-name dna_nugget_bart_r1_flatten_d64_3
+    --wandb-name dna_nugget_bart_r0.75_flatten_d256
 
   # Train a T5 Nugget autoencoder.
   python scripts/run_nugget_experiment.py \

@@ -174,28 +174,36 @@ def _filter_nugget_pretrained_state(
     *,
     scope: str,
     target_state_keys: set[str],
-) -> dict[str, torch.Tensor]:
+    target_state: dict[str, torch.Tensor] | None = None,
+) -> tuple[dict[str, torch.Tensor], list[tuple[str, tuple[int, ...], tuple[int, ...]]]]:
     scope_text = str(scope).strip()
     scope_tokens = [token.strip() for token in scope_text.split(",") if token.strip()]
     if not scope_tokens:
         raise ValueError("model.pretrained_weight_scope must not be empty.")
 
-    # all/*: load all checkpoint tensors that also exist in the target model.
-    if any(token in {"all", "*"} for token in scope_tokens):
-        return {key: value for key, value in model_state.items() if key in target_state_keys}
+    if any(token in {"all", "*", "auto", "match"} for token in scope_tokens):
+        candidates = {key: value for key, value in model_state.items() if key in target_state_keys}
+    else:
+        candidates = {}
+        for token in scope_tokens:
+            normalized = token[:-2] if token.endswith(".*") else token
+            prefix = normalized if normalized.endswith(".") else f"{normalized}."
+            for key, value in model_state.items():
+                if key.startswith(prefix) and key in target_state_keys:
+                    candidates[key] = value
 
-    # auto/match: future-proof mode; loads the intersection with current model keys.
-    if any(token in {"auto", "match"} for token in scope_tokens):
-        return {key: value for key, value in model_state.items() if key in target_state_keys}
+    skipped: list[tuple[str, tuple[int, ...], tuple[int, ...]]] = []
+    if target_state is None:
+        return candidates, skipped
 
     selected: dict[str, torch.Tensor] = {}
-    for token in scope_tokens:
-        normalized = token[:-2] if token.endswith(".*") else token
-        prefix = normalized if normalized.endswith(".") else f"{normalized}."
-        for key, value in model_state.items():
-            if key.startswith(prefix) and key in target_state_keys:
-                selected[key] = value
-    return selected
+    for key, value in candidates.items():
+        target_tensor = target_state.get(key)
+        if target_tensor is not None and tuple(value.shape) != tuple(target_tensor.shape):
+            skipped.append((key, tuple(value.shape), tuple(target_tensor.shape)))
+            continue
+        selected[key] = value
+    return selected, skipped
 
 
 def _nugget_storage_dtype_bytes(hidden_storage_dtype: str, runtime_dtype_name: str) -> int:
@@ -616,11 +624,21 @@ def run_nugget_experiment(config: ExperimentConfig, mode: str = "all") -> dict[s
                 print(f"[setup] loading checkpoint {checkpoint_path}", flush=True)
             model_state, resume_metadata, raw_checkpoint = load_nugget_checkpoint(checkpoint_path, map_location="cpu")
             if config.train.init_from == "pretrained":
-                model_state = _filter_nugget_pretrained_state(
+                target_state = base_model.state_dict()
+                model_state, skipped_shape_mismatch = _filter_nugget_pretrained_state(
                     model_state,
                     scope=config.model.pretrained_weight_scope,
-                    target_state_keys=set(base_model.state_dict().keys()),
+                    target_state_keys=set(target_state.keys()),
+                    target_state=target_state,
                 )
+                if ddp.is_main_process and skipped_shape_mismatch:
+                    print(
+                        f"[setup] skipped {len(skipped_shape_mismatch)} pretrained tensors "
+                        "due to shape mismatch:",
+                        flush=True,
+                    )
+                    for key, ckpt_shape, target_shape in skipped_shape_mismatch:
+                        print(f"        - {key}: ckpt={ckpt_shape} target={target_shape}", flush=True)
             load_result = base_model.load_state_dict(model_state, strict=config.train.init_from == "resume")
             if ddp.is_main_process and config.train.init_from == "pretrained":
                 print(

@@ -18,8 +18,8 @@ Run the full DNACorpus reproduction one group at a time:
         --mode all \
         --run prokaryotic_dnacorpus
 
-    python scripts\\run_gencoder_experiment.py \
-        --config configs\\dna_gencoder_dnacorpus.json \
+    python scripts/run_gencoder_experiment.py \
+        --config configs/dna_gencoder_dnacorpus.json \
         --mode all \
         --run hosa_learning_curve
 

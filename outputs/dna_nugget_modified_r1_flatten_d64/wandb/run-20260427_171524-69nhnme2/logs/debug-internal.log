@@ -1,0 +1,16 @@
+{"time":"2026-04-27T17:15:24.700318416+08:00","level":"INFO","msg":"stream: starting","core version":"0.19.10","symlink path":"/root/autodl-tmp/DNACompress/outputs/dna_nugget_modified_20260426_212625/wandb/run-20260427_171524-69nhnme2/logs/debug-core.log"}
+{"time":"2026-04-27T17:15:25.612349903+08:00","level":"INFO","msg":"created new stream","id":"69nhnme2"}
+{"time":"2026-04-27T17:15:25.612426785+08:00","level":"INFO","msg":"stream: started","id":"69nhnme2"}
+{"time":"2026-04-27T17:15:25.61246195+08:00","level":"INFO","msg":"writer: Do: started","stream_id":"69nhnme2"}
+{"time":"2026-04-27T17:15:25.612476638+08:00","level":"INFO","msg":"handler: started","stream_id":"69nhnme2"}
+{"time":"2026-04-27T17:15:25.61251804+08:00","level":"INFO","msg":"sender: started","stream_id":"69nhnme2"}
+{"time":"2026-04-27T17:15:26.17188581+08:00","level":"INFO","msg":"Starting system monitor"}
+{"time":"2026-04-27T17:15:27.727097788+08:00","level":"INFO","msg":"Stopping system monitor"}
+{"time":"2026-04-27T17:15:27.727229437+08:00","level":"INFO","msg":"Stopped system monitor"}
+{"time":"2026-04-27T17:15:28.127426356+08:00","level":"INFO","msg":"handler: operation stats","stats":{"operations":[{"desc":"uploading history steps 0-0, summary","runtime_seconds":0.663463809},{"desc":"updating run config","runtime_seconds":0.398611252},{"desc":"uploading resolved_config.json","runtime_seconds":0.012917704,"progress":"4.0KB/4.0KB"},{"desc":"uploading training_metrics.jsonl","runtime_seconds":0.012893884,"progress":"80.0KB/1.3MB"},{"desc":"uploading output.log","runtime_seconds":0.012885446},{"desc":"uploading wandb-summary.json","runtime_seconds":0.012878525,"progress":"2.1KB/2.1KB"}],"total_operations":6}}
+{"time":"2026-04-27T17:15:31.207851395+08:00","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-04-27T17:15:34.037510486+08:00","level":"INFO","msg":"stream: closing","id":"69nhnme2"}
+{"time":"2026-04-27T17:15:34.037539915+08:00","level":"INFO","msg":"handler: closed","stream_id":"69nhnme2"}
+{"time":"2026-04-27T17:15:34.03755451+08:00","level":"INFO","msg":"writer: Close: closed","stream_id":"69nhnme2"}
+{"time":"2026-04-27T17:15:34.03756832+08:00","level":"INFO","msg":"sender: closed","stream_id":"69nhnme2"}
+{"time":"2026-04-27T17:15:34.037751826+08:00","level":"INFO","msg":"stream: closed","id":"69nhnme2"}
